@@ -62,8 +62,9 @@ try {
 
 // File upload + DB insert
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['receipt'])) {
-    $targetDir = "request/";
-    if (!file_exists($targetDir)) {
+    $useSupabase = getenv('SUPABASE_URL') && getenv('SUPABASE_SERVICE_ROLE_KEY') && getenv('SUPABASE_BUCKET_NAME');
+    $targetDir = $useSupabase ? (sys_get_temp_dir() . '/') : "request/";
+    if (!$useSupabase && !file_exists($targetDir)) {
         if (!mkdir($targetDir, 0777, true)) {
             echo json_encode(["status" => false, "message" => "Failed to create upload directory."]);
             exit();
@@ -84,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['receipt'])) {
 
                 // Determine image URL. If Supabase storage is configured, upload there and use public URL.
                 $imageUrl = '';
-                if (getenv('SUPABASE_URL') && getenv('SUPABASE_SERVICE_ROLE_KEY') && getenv('SUPABASE_BUCKET_NAME')) {
+                if ($useSupabase) {
                     require_once __DIR__ . '/supabase_storage.php';
                     try {
                         $remotePath = 'receipts/' . $fileName;

@@ -29,8 +29,9 @@ if ($_FILES['profile']['size'] > 5*1024*1024) {
     echo json_encode(['ok'=>false,'error'=>'File too large (>5MB)']); exit;
 }
 
-$uploadDir = __DIR__ . '/profile';
-if (!is_dir($uploadDir)) { @mkdir($uploadDir, 0755, true); }
+$useSupabase = getenv('SUPABASE_URL') && getenv('SUPABASE_SERVICE_ROLE_KEY') && getenv('SUPABASE_BUCKET_NAME');
+$uploadDir = $useSupabase ? sys_get_temp_dir() : __DIR__ . '/profile';
+if (!$useSupabase && !is_dir($uploadDir)) { @mkdir($uploadDir, 0755, true); }
 
 $filename = 'u' . intval($uid) . '_' . time() . '_' . bin2hex(random_bytes(3)) . '.' . $ext;
 $destPath = $uploadDir . '/' . $filename;
@@ -41,7 +42,7 @@ if (!move_uploaded_file($_FILES['profile']['tmp_name'], $destPath)) {
 
 // Try Supabase upload when env vars present
 try {
-    if (getenv('SUPABASE_URL') && getenv('SUPABASE_SERVICE_ROLE_KEY') && getenv('SUPABASE_BUCKET_NAME')) {
+    if ($useSupabase) {
         require_once __DIR__ . '/supabase_storage.php';
         $remotePath = 'profiles/' . $filename;
         $fileUrl = supabase_upload_file($destPath, $remotePath);

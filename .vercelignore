@@ -1,0 +1,17 @@
+# Local uploads (run-time files, not part of the source)
+profile/
+request/
+
+# Log files
+error_log
+error_log.txt
+*.log
+
+# Archives & Setup files
+*.zip
+supabase_init.sql
+supabase_setup.sh
+
+# IDE / System directories
+.gemini/
+.DS_Store
