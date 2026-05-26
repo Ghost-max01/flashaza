@@ -1,7 +1,7 @@
 {
   "version": 2,
   "functions": {
-    "**/*.php": {
+    "api/**/*.php": {
       "runtime": "vercel-php@0.8.0"
     }
   },
@@ -36,15 +36,19 @@
     },
     {
       "src": "/Admin-Maxwell/?",
-      "dest": "/Admin-Maxwell/index.php"
+      "dest": "/api/Admin-Maxwell/index.php"
+    },
+    {
+      "src": "/Admin-Maxwell/(.*)",
+      "dest": "/api/Admin-Maxwell/$1"
     },
     {
       "src": "/",
-      "dest": "/index.php"
+      "dest": "/api/index.php"
     },
     {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "src": "/(.*\\.php)",
+      "dest": "/api/$1"
     }
   ]
 }
