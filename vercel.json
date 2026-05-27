@@ -1,9 +1,8 @@
 {
   "version": 2,
-
   "outputDirectory": "api",
   "functions": {
-    "**/*.php": {
+    "api/router.php": {
       "runtime": "vercel-php@0.8.0"
     }
   },
@@ -37,20 +36,8 @@
       "dest": "/request/$1"
     },
     {
-      "src": "/Admin-Maxwell/?",
-      "dest": "/api/Admin-Maxwell/index.php"
-    },
-    {
-      "src": "/Admin-Maxwell/(.*)",
-      "dest": "/api/Admin-Maxwell/$1"
-    },
-    {
-      "src": "/",
-      "dest": "/api/index.php"
-    },
-    {
-      "src": "/(.*\\.php)",
-      "dest": "/api/$1"
+      "src": "/(.*)",
+      "dest": "/api/router.php"
     }
   ]
 }
