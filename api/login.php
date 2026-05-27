@@ -2,39 +2,46 @@
 if (session_status()===PHP_SESSION_NONE) session_start();
 include "config.php"; // contains $pdo (PDO connection)
 
+// Initialize error variable
 $error = "";
 
-// Handle login form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? "");
-    $password = trim($_POST['password'] ?? "");
+// POST handler for AJAX actions with Supabase availability guard
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    if (empty($SUPABASE_AVAILABLE) || $SUPABASE_AVAILABLE === false) {
+        json_response(['ok' => false, 'message' => 'Service temporarily unavailable. Please try again later.'], 503);
+    }
+    $action = $_POST['action'];
+    // Existing logic unchanged after this point
+}
 
-    if ($username === "" || $password === "") {
-        $error = "Please fill in all fields.";
+// Handle login form submission with Supabase availability check
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
+    if (empty($SUPABASE_AVAILABLE) || $SUPABASE_AVAILABLE === false) {
+        $error = "Login service is currently unavailable. Please try again later.";
     } else {
-        try {
-            // Detect if username is email or phone number
-            if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
-                // Email login
-                $stmt = $pdo->prepare("SELECT uid, password FROM users WHERE email = :value LIMIT 1");
-            } else {
-                // Phone number login
-                $stmt = $pdo->prepare("SELECT uid, password FROM users WHERE number = :value LIMIT 1");
+        $username = trim($_POST['username'] ?? "");
+        $password = trim($_POST['password'] ?? "");
+        if ($username === "" || $password === "") {
+            $error = "Please fill in all fields.";
+        } else {
+            try {
+                if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
+                    $stmt = $pdo->prepare("SELECT uid, password FROM users WHERE email = :value LIMIT 1");
+                } else {
+                    $stmt = $pdo->prepare("SELECT uid, password FROM users WHERE number = :value LIMIT 1");
+                }
+                $stmt->execute(['value' => $username]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($user && password_verify($password, $user['password'])) {
+                    $_SESSION['user_id'] = $user['uid'];
+                    header("Location: dashboard.php");
+                    exit;
+                } else {
+                    $error = "Invalid username or password.";
+                }
+            } catch (Exception $e) {
+                $error = "Something went wrong. Try again later.";
             }
-
-            $stmt->execute(['value' => $username]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($user && password_verify($password, $user['password'])) {
-                // Success
-                $_SESSION['user_id'] = $user['uid'];
-                header("Location: dashboard.php");
-                exit;
-            } else {
-                $error = "Invalid username or password.";
-            }
-        } catch (Exception $e) {
-            $error = "Something went wrong. Try again later.";
         }
     }
 }

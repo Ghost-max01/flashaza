@@ -9,7 +9,7 @@ $DB_DRIVER = null;
 function db_fail($msg) {
     if (!headers_sent()) header('Content-Type: application/json');
     echo json_encode(["status" => false, "message" => $msg]);
-    exit;
+    // Do not exit, allow fallback handling
 }
 
 $databaseUrl = getenv('DATABASE_URL');
@@ -30,6 +30,7 @@ $db_host = $parts['host'] ?? 'localhost';
 $db_port = $parts['port'] ?? 5432;
 $db_name = isset($parts['path']) ? ltrim($parts['path'], '/') : '';
 
+$SUPABASE_AVAILABLE = true;
 try {
     $dsn = sprintf('pgsql:host=%s;port=%s;dbname=%s', $db_host, $db_port, $db_name);
     $pdo = new PDO($dsn, $db_user, $db_pass, [
@@ -40,6 +41,10 @@ try {
     $conn = $pdo;
     $DB_DRIVER = 'pgsql';
 } catch (Exception $e) {
-    db_fail('Database (Postgres) connection failed: ' . $e->getMessage());
+    $SUPABASE_AVAILABLE = false;
+    // Keep $pdo null; continue without exiting
+    // Optionally log error
+    error_log('Supabase connection failed: ' . $e->getMessage());
+    // No exit
 }
 ?>
