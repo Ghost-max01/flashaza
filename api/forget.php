@@ -36,7 +36,7 @@ function sendResetCode($email, $code) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-<link rel="stylesheet" href="css/forget.css">
+<link rel="stylesheet" href="../css/forget.css">
   </style>
 </head>
 <body>
@@ -170,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Password Reset - OPay Clone</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/forget.css">
+    <link rel="stylesheet" href="../css/forget.css">
 </head>
 <body>
     <div class="container">

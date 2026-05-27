@@ -43,7 +43,7 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Transfer to Bank Account</title>
-<link rel="stylesheet" href="css/to-bnk.css">
+<link rel="stylesheet" href="../css/to-bnk.css">
 </head>
 <body>
 <div class="container">
@@ -54,7 +54,7 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
     </div>
 
     <div class="free-transfers">
-        <img src="images/toban/naira.png" alt="Gift icon">
+        <img src="../images/toban/naira.png" alt="Gift icon">
         <span>Free transfers for the day:</span>
         <span class="free-count">3</span>
     </div>
@@ -77,7 +77,7 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
 
         <div class="detection-bar" id="detectBar">
             <img class="result" id="detectIcon" src="" alt="Result icon">
-            <img class="rolling-image" id="detectSpinner" src="images/toban/rolling.png" alt="Detect icon">
+            <img class="rolling-image" id="detectSpinner" src="../images/toban/rolling.png" alt="Detect icon">
             <p class="accountname" id="detectText">Account Name</p>
         </div>
 
@@ -85,7 +85,7 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
     </div>
 
     <div class="network-monitor">
-        <img src="images/toban/tb.png" alt="Network monitor icon">
+        <img src="../images/toban/tb.png" alt="Network monitor icon">
         <div class="network-text">Real-time Bank Network Monitor</div>
         <div class="chevron">›</div>
     </div>
@@ -95,7 +95,7 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
             <div class="tab active" data-tab="recents">Recents</div>
             <div class="tab" data-tab="favorites">Favourites</div>
             <div style="flex:1;"></div>
-            <img src="images/toban/search.png" alt="More options" style="width:20px;height:20px;">
+            <img src="../images/toban/search.png" alt="More options" style="width:20px;height:20px;">
         </div>
         <div class="indicator"></div>
 
@@ -156,14 +156,14 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
     <div class="events">
         <div class="section-title">More Events</div>
         <div class="event-item">
-            <div class="event-icon"><img src="images/toban/bet9ja.png" alt=""></div>
+            <div class="event-icon"><img src="../images/toban/bet9ja.png" alt=""></div>
             <div class="event-content">
                 <div class="event-title">Get Your Betting Voucher Now</div>
                 <div class="event-desc">Get ₦50 off ₦500 top-up with voucher</div>
             </div>
         </div>
         <div class="event-item">
-            <div class="event-icon"><img src="images/toban/coin.png" alt=""></div>
+            <div class="event-icon"><img src="../images/toban/coin.png" alt=""></div>
             <div class="event-content">
                 <div class="event-title">Win up to ₦1 Billion!</div>
                 <div class="event-desc">Get more explosive odds on Bet9ja</div>
@@ -172,7 +172,7 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
     </div>
 </div>
 
-<script src="js/to-bnk.js" defer></script>
+<script src="../js/to-bnk.js" defer></script>
 <script>
 // ======== Server data ========
 const BANK = <?php echo json_encode([

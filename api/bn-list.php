@@ -19,7 +19,7 @@ if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bank Selection</title>
-    <link rel="stylesheet" href="css/bn-list.css">
+    <link rel="stylesheet" href="../css/bn-list.css">
 </head>
 <body>
     <div class="linear-layout">
@@ -48,7 +48,7 @@ if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
                     <div class="linear10">
                         <div class="linear12">
                             <div class="image-view">
-                                <img src="images/toban/opay.png" alt="OPay" width="50" height="50">
+                                <img src="../images/toban/opay.png" alt="OPay" width="50" height="50">
                             </div>
                             <div class="text-view-small">OPay</div>
                             <div class="image-view">
@@ -57,13 +57,13 @@ if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
                         </div>
                         <div class="linear14">
                             <div class="image-view">
-                                <img src="images/toban/access.png" alt="Access Bank" width="50" height="50">
+                                <img src="../images/toban/access.png" alt="Access Bank" width="50" height="50">
                             </div>
                             <div class="text-view-small">Access Bank</div>
                         </div>
                         <div class="linear13">
                             <div class="image-view">
-                                <img src="images/toban/uba.png" alt="UBA" width="45" height="45">
+                                <img src="../images/toban/uba.png" alt="UBA" width="45" height="45">
                             </div>
                             <div class="text-view-small">United Bank For<br>Africa</div>
                         </div>
@@ -72,19 +72,19 @@ if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
                     <div class="linear11">
                         <div class="linear15">
                             <div class="image-view">
-                                <img src="images/toban/first.png" alt="First Bank" width="45" height="45" style="margin-top: 15px;">
+                                <img src="../images/toban/first.png" alt="First Bank" width="45" height="45" style="margin-top: 15px;">
                             </div>
                             <div class="text-view-small">First Bank Of<br>Nigeria</div>
                         </div>
                         <div class="linear16">
                             <div class="image-view">
-                                <img src="images/toban/gt.png" alt="GTBank" width="45" height="45">
+                                <img src="../images/toban/gt.png" alt="GTBank" width="45" height="45">
                             </div>
                             <div class="text-view-small">Guaranty Trust Bank</div>
                         </div>
                         <div class="linear17">
                             <div class="image-view">
-                                <img src="images/toban/zenith.png" alt="Zenith Bank" width="45" height="45">
+                                <img src="../images/toban/zenith.png" alt="Zenith Bank" width="45" height="45">
                             </div>
                             <div class="text-view-small">Zenith Bank</div>
                         </div>
@@ -175,7 +175,7 @@ if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
         </div>
     </div>
 </body>
-<script src="js/bn-list.js" defer></script>
+<script src="../js/bn-list.js" defer></script>
 <script>
   // Disable right-click
   document.addEventListener("contextmenu", function(e){

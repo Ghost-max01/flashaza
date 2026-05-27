@@ -59,7 +59,7 @@ $isFavorite  = $beneficiary && $beneficiary['favorite'] == 1;
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
- <link rel="stylesheet" href="css/transaction-success.css?v=1.0">
+ <link rel="stylesheet" href="../css/transaction-success.css?v=1.0">
  <style>
 /* Disable tap highlight on mobile */
 .my-div {
@@ -99,15 +99,15 @@ $isFavorite  = $beneficiary && $beneficiary['favorite'] == 1;
       <!-- ✅ Normal Actions -->
       <div class="actions">
         <div class="action-box" onclick="handleShareReceipt()">
-          <img src="images/toban/share.png" alt="Share Receipt">
+          <img src="../images/toban/share.png" alt="Share Receipt">
           <span>Share Receipt</span>
         </div>
         <div class="action-box" onclick="handleAddToFavorites()">
-          <img src="images/toban/<?= $isFavorite ? 'added.png' : 'add.png' ?>" alt="Add to Favourites">
+          <img src="../images/toban/<?= $isFavorite ? 'added.png' : 'add.png' ?>" alt="Add to Favourites">
           <span><?= $isFavorite ? 'Added' : 'Add to Favourites' ?></span>
         </div>
         <div class="action-box" onclick="handleViewDetails()">
-          <img src="images/toban/view.png" alt="View Details">
+          <img src="../images/toban/view.png" alt="View Details">
           <span>View Details</span>
         </div>
       </div>
@@ -115,11 +115,11 @@ $isFavorite  = $beneficiary && $beneficiary['favorite'] == 1;
       <!-- ✅ Favorite Mode -->
       <div class="fav-actions">
         <div class="item" onclick="handleShareReceipt()">
-          <img src="images/toban/share.png" alt="Share">
+          <img src="../images/toban/share.png" alt="Share">
           <span>Share Receipt</span>
         </div>
         <div class="item" onclick="handleViewDetails()">
-          <img src="images/toban/view.png" alt="Details">
+          <img src="../images/toban/view.png" alt="Details">
           <span>View Details</span>
         </div>
       </div>

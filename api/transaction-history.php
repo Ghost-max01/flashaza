@@ -105,7 +105,7 @@ $currentMonth = date("M") . ' ' . date("Y");
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Transactions</title>
-    <link rel="stylesheet" href="css/transaction-history.css">
+    <link rel="stylesheet" href="../css/transaction-history.css">
 </head>
 <body>
   <!-- Subscription Dialog -->
@@ -147,7 +147,7 @@ $currentMonth = date("M") . ' ' . date("Y");
 
     <!-- Loading -->
     <div id="loading" class="loading-section">
-      <img src="images/toban/loading.gif" alt="Loading...">
+      <img src="../images/toban/loading.gif" alt="Loading...">
     </div>
 
     <!-- Month Summary -->
@@ -196,7 +196,7 @@ $currentMonth = date("M") . ' ' . date("Y");
 </script>
 
 <!-- then include external JS -->
-<script src="js/transaction-history.js" defer></script>
+<script src="../js/transaction-history.js" defer></script>
 <script>
   // Disable right-click
   document.addEventListener("contextmenu", function(e){

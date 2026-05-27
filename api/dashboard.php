@@ -112,7 +112,7 @@ try {
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
 </head>
 <body class="<?php echo $has_subscription ? '' : 'no-context'; ?>">
     <div class="container">
@@ -124,7 +124,7 @@ try {
                         <img src="<?php echo !empty($user['profile']) ? htmlspecialchars($user['profile']) : 'https://placehold.co/40x40/00B875/FFFFFF?text=' . substr($user['name'], 0, 1); ?>" alt="Profile">
                     </div>
                     <div class="tier-badge">
-                        <img id="tier-image" src="images/dashboard/tier3.png" alt="Tier">
+                        <img id="tier-image" src="../images/dashboard/tier3.png" alt="Tier">
                     </div>
                 </div>
                 <div class="username"><?php echo $display_name; ?></div>
@@ -134,10 +134,10 @@ try {
                     <!-- Lottie animation will be loaded here -->
                 </div>
                 <div class="header-icon" onclick="window.location.href='scan.php'">
-                    <img src="images/dashboard/scan.png" alt="Scanner">
+                    <img src="../images/dashboard/scan.png" alt="Scanner">
                 </div>
                 <div class="header-icon" onclick="window.location.href='notification.php'">
-                    <img src="images/dashboard/notification.png" alt="Notifications">
+                    <img src="../images/dashboard/notification.png" alt="Notifications">
                 </div>
             </div>
         </div>
@@ -151,7 +151,7 @@ try {
                     <div class="balance-header">
                         <form method="POST" class="balance-toggle-form">
                             <button type="submit" name="toggle_balance" class="balance-title" style="background: none; border: none; cursor: pointer;">
-                                <img src="images/dashboard/badge.png" alt="Verification">
+                                <img src="../images/dashboard/badge.png" alt="Verification">
                                 <span>Available Balance</span>
                                 <img src="<?php echo $balance_icon; ?>" alt="Toggle Balance">
                             </button>
@@ -172,7 +172,7 @@ try {
                 <!-- BizPayment Row -->  
                 <div class="biz-row">  
                     <div class="biz-left">  
-                        <img src="images/dashboard/biz.png" alt="">
+                        <img src="../images/dashboard/biz.png" alt="">
                         <div class="biz-text">  
                             BizPayment: today received <span class="amountt">₦0.00</span>  
                         </div>  
@@ -226,19 +226,19 @@ cursor:pointer;
             <div class="quick-actions">
                 <div class="action-item" onclick="window.location.href='to-opay.php'">
                     <div class="action-icon">
-                        <img src="images/dashboard/toopay.png" alt="To Opay">
+                        <img src="../images/dashboard/toopay.png" alt="To Opay">
                     </div>
                     <div class="action-text">To Opay</div>
                 </div>
                 <div class="action-item" onclick="window.location.href='to-bnk.php'">
                     <div class="action-icon">
-                        <img src="images/dashboard/toban.png" alt="To Bank">
+                        <img src="../images/dashboard/toban.png" alt="To Bank">
                     </div>
                     <div class="action-text">To Bank</div>
                 </div>
                 <div class="action-item">
                     <div class="action-icon">
-                        <img src="images/dashboard/withdraw.png" alt="Withdraw">
+                        <img src="../images/dashboard/withdraw.png" alt="Withdraw">
                     </div>
                     <div class="action-text">Withdraw</div>
                 </div>
@@ -249,28 +249,28 @@ cursor:pointer;
                 <div class="services-row" style="margin-bottom: 18px;">
                     <div class="service-item" onclick="window.location.href='airtime.php'">
                         <div class="service-icon">
-                            <img src="images/dashboard/airtime.png" alt="Airtime" style="width: 60px; height: 60px; transform: translateX(7px);">
+                            <img src="../images/dashboard/airtime.png" alt="Airtime" style="width: 60px; height: 60px; transform: translateX(7px);">
                         </div>
                         <div class="service-text">Airtime</div>
                     </div>
                     
                     <div class="service-item" onclick="window.location.href='data.php'">
                         <div class="service-icon">
-                            <img src="images/dashboard/data.png" alt="Data" style="width: 60px; height: 60px; transform: translateX(7px);">
+                            <img src="../images/dashboard/data.png" alt="Data" style="width: 60px; height: 60px; transform: translateX(7px);">
                         </div>
                         <div class="service-text">Data</div>
                     </div>
                     
                     <div class="service-item">
                         <div class="service-icon">
-                            <img src="images/dashboard/betting.png" alt="Betting" style="width: 65px; height: 65px; transform: translateX(7px);">
+                            <img src="../images/dashboard/betting.png" alt="Betting" style="width: 65px; height: 65px; transform: translateX(7px);">
                         </div>
                         <div class="service-text">Betting</div>
                     </div>
                     
                     <div class="service-item">
                         <div class="service-icon">
-                            <img src="images/dashboard/tv.png" alt="TV">
+                            <img src="../images/dashboard/tv.png" alt="TV">
                         </div>
                         <div class="service-text">TV</div>
                     </div>
@@ -278,28 +278,28 @@ cursor:pointer;
                 <div class="services-row" style="margin-bottom: 6px;">
                     <div class="service-item">
                         <div class="service-icon">
-                            <img src="images/dashboard/safebox.png" alt="Safebox">
+                            <img src="../images/dashboard/safebox.png" alt="Safebox">
                         </div>
                         <div class="service-text">Safebox</div>
                     </div>
                    
                     <div class="service-item">
                         <div class="service-icon">
-                            <img src="images/dashboard/loan.png" alt="Loan">
+                            <img src="../images/dashboard/loan.png" alt="Loan">
                         </div>
                         <div class="service-text">Loan</div>
                     </div>
                     
                     <div class="service-item">
                         <div class="service-icon">
-                            <img src="images/dashboard/check-in.png" alt="Invitation">
+                            <img src="../images/dashboard/check-in.png" alt="Invitation">
                         </div>
                         <div class="service-text">Check-in</div>
                     </div>
                    
                     <div class="service-item">
                         <div class="service-icon">
-                            <img src="images/dashboard/more.png" alt="More">
+                            <img src="../images/dashboard/more.png" alt="More">
                         </div>
                         <div class="service-text">More</div>
                     </div>
@@ -315,13 +315,13 @@ cursor:pointer;
             <div class="promotions">
                 <div class="carousel">
                     <div class="carousel-item">
-                        <img src="images/dashboard/promo1.png" alt="Special Offer: Get 10% Cashback on Bills Payment">
+                        <img src="../images/dashboard/promo1.png" alt="Special Offer: Get 10% Cashback on Bills Payment">
                     </div>
                     <div class="carousel-item">
-                        <img src="images/dashboard/promo2.png" alt="Refer Friends and Earn ₦1,000">
+                        <img src="../images/dashboard/promo2.png" alt="Refer Friends and Earn ₦1,000">
                     </div>
                     <div class="carousel-item">
-                        <img src="images/dashboard/promo3.png" alt="Free Transfers This Weekend">
+                        <img src="../images/dashboard/promo3.png" alt="Free Transfers This Weekend">
                     </div>
                 </div>
                 <div class="carousel-dots">
@@ -336,31 +336,31 @@ cursor:pointer;
         <div class="bottom-nav">
             <div class="nav-item active">
                 <div class="nav-icon">
-                    <img src="images/dashboard/home.png" alt="Home">
+                    <img src="../images/dashboard/home.png" alt="Home">
                 </div>
                 <div class="nav-text">Home</div>
             </div>
             <div class="nav-item">
                 <div class="nav-icon">
-                    <img src="images/dashboard/gold.png" alt="Rewards">
+                    <img src="../images/dashboard/gold.png" alt="Rewards">
                 </div>
                 <div class="nav-text">Rewards</div>
             </div>
             <div class="nav-item">
                 <div class="nav-icon">
-                    <img src="images/dashboard/finance.png" alt="Finance">
+                    <img src="../images/dashboard/finance.png" alt="Finance">
                 </div>
                 <div class="nav-text">Finance</div>
             </div>
             <div class="nav-item">
                 <div class="nav-icon">
-                    <img src="images/dashboard/card.png" alt="Cards">
+                    <img src="../images/dashboard/card.png" alt="Cards">
                 </div>
                 <div class="nav-text">Cards</div>
             </div>
             <div class="nav-item" onclick="window.location.href='home2.php'">
                 <div class="nav-icon">
-                    <img src="images/dashboard/me.png" alt="Me">
+                    <img src="../images/dashboard/me.png" alt="Me">
                 </div>
                 <div class="nav-text">Me</div>
             </div>
@@ -383,13 +383,13 @@ cursor:pointer;
     <!-- Popup menu -->
     <div id="popupMenu" class="hidden"></div>
 
-   <script src="js/dashboard.js" defer></script>
+   <script src="../js/dashboard.js" defer></script>
    <script>
     const hasSubscription = <?php echo $has_subscription ? 'true' : 'false'; ?>;
     const transactionData = <?php echo json_encode($transactions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>;
     const emailAlert = <?php echo $user['email_alert'] ? 'true' : 'false'; ?>;
 </script>
-<script src="js/dashboard.js" defer></script>
+<script src="../js/dashboard.js" defer></script>
 <script>
   // Disable right-click
   document.addEventListener("contextmenu", function(e){

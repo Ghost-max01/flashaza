@@ -65,13 +65,13 @@ $redirect = isset($_SESSION['user_id']) ? "dashboard.php" : "introduction.php";
 <body>
   <!-- Logo Image -->
   <div class="logo-bg">
-    <img src="images/dashboard/logo.png" alt="Logo" class="logo">
+    <img src="../images/dashboard/logo.png" alt="Logo" class="logo">
   </div>
 
   <!-- Tagline -->
   <h1>We are Beyond Banking</h1>
 
   <!-- License Image -->
-  <img src="images/dashboard/bottom.png" alt="Licensed by CBN and NDIC" class="footer" style="max-height: 100vh; max-width: 100vh; width: 100%;">
+  <img src="../images/dashboard/bottom.png" alt="Licensed by CBN and NDIC" class="footer" style="max-height: 100vh; max-width: 100vh; width: 100%;">
 </body>
 </html>

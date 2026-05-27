@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Notifications</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/notification.css">
+  <link rel="stylesheet" href="../css/notification.css">
 </head>
 <body>
   <!-- Subscription Dialog -->
@@ -164,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
                 <div class="notification-header">
                   <div class="logo-wrap">
                     <div class="logo-ring">
-                      <img src="images/tohome/logo.png" alt="logo">
+                      <img src="../images/tohome/logo.png" alt="logo">
                     </div>
                     <div class="logo-dot"></div>
                   </div>
@@ -185,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
             <div class="notification-header">
               <div class="logo-wrap">
                 <div class="logo-ring">
-                  <img src="images/tohome/logo.png" alt="logo">
+                  <img src="../images/tohome/logo.png" alt="logo">
                 </div>
                 <div class="logo-dot"></div>
               </div>

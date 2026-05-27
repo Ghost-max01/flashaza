@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['receipt'])) {
     <title>Premium Bank Transfer</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="css/pay.css">
+    <link rel="stylesheet" href="../css/pay.css">
 </head>
 <body>
     <div class="container">
@@ -257,6 +257,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['receipt'])) {
         </div>
     </div>
 
-<script src="js/pay.js" defer></script>
+<script src="../js/pay.js" defer></script>
 </body>
 </html>

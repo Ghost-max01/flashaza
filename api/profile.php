@@ -60,7 +60,7 @@ $canEmailAlert = (int)($user['email_alert'] ?? 0) === 1;
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>My Profile</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/profile.css">
+  <link rel="stylesheet" href="../css/profile.css">
   <style>
     /* Visual enhancements for profile image upload */
     .avatar {
@@ -142,7 +142,7 @@ $canEmailAlert = (int)($user['email_alert'] ?? 0) === 1;
 
             <div class="detail-row" onclick="handleTierClick()">
                 <div class="detail-label">Account Tier</div>
-                <img id="tierImg" class="tier-badge" src="images/toban/tier3.png" alt="Tier">
+                <img id="tierImg" class="tier-badge" src="../images/toban/tier3.png" alt="Tier">
                 <div class="upgrade-button">
                     <div class="upgrade-text">Upgrade</div>
                     <div class="upgrade-icon"><i class="fas fa-chevron-right"></i></div>
@@ -237,13 +237,13 @@ $canEmailAlert = (int)($user['email_alert'] ?? 0) === 1;
     <div class="modal-body">
       <div class="tier-grid">
         <div class="tier-card" onclick="setTier('tier1')">
-          <img src="images/toban/tier1.png" alt="Tier 1"><div>Tier 1</div>
+          <img src="../images/toban/tier1.png" alt="Tier 1"><div>Tier 1</div>
         </div>
         <div class="tier-card" onclick="setTier('tier2')">
-          <img src="images/toban/tier2.png" alt="Tier 2"><div>Tier 2</div>
+          <img src="../images/toban/tier2.png" alt="Tier 2"><div>Tier 2</div>
         </div>
         <div class="tier-card" onclick="setTier('tier3')">
-          <img src="images/toban/tier3.png" alt="Tier 3"><div>Tier 3</div>
+          <img src="../images/toban/tier3.png" alt="Tier 3"><div>Tier 3</div>
         </div>
       </div>
       <div class="hint" style="margin-top:10px">Your selection saves locally as preference.</div>

@@ -240,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="container">
         <div class="loading-container">
-            <img src="images/toban/loading.png" alt="Processing" class="loading-image" onerror="this.style.display='none';">
+            <img src="../images/toban/loading.png" alt="Processing" class="loading-image" onerror="this.style.display='none';">
         </div>
         <div class="title">Transaction is currently being processed</div>
         <div class="subtitle">Please do not close this page until the process is complete</div>
@@ -256,6 +256,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="hidden" name="narration" id="f_narration">
     </form>
     
-    <script src="js/loader.js" defer></script>
+    <script src="../js/loader.js" defer></script>
 </body>
 </html>

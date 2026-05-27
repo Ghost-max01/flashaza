@@ -84,14 +84,14 @@ $profileImage = !empty($txn['url']) ? $txn['url'] : 'https://cdn-icons-png.flati
       <!-- Add Font Awesome for status icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">   <link rel="stylesheet" href="css/from-bnk-receipt.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">   <link rel="stylesheet" href="../css/from-bnk-receipt.css">
 </head>
 <body>
     <!-- Fixed Header -->
     <div class="header">
         <a href="javascript:history.back()" class="back-btn">‹</a>
         <div class="title">Transaction Details</div>
-        <img src="images/history/support.png" alt="" style="width: 30px; height: 30px; filter: invert(0);">
+        <img src="../images/history/support.png" alt="" style="width: 30px; height: 30px; filter: invert(0);">
     </div>
 
     <!-- Scrollable Content -->
@@ -142,7 +142,7 @@ $profileImage = !empty($txn['url']) ? $txn['url'] : 'https://cdn-icons-png.flati
                 <div class="detail-label">Transaction No.</div>
                 <div class="detail-value" style="max-width: 100%;">
                     <?php echo htmlspecialchars($txn['tid']); ?>
-                    <img src="images/history/copy.png" alt="">
+                    <img src="../images/history/copy.png" alt="">
                 </div>
             </div>
 
@@ -155,7 +155,7 @@ $profileImage = !empty($txn['url']) ? $txn['url'] : 'https://cdn-icons-png.flati
                 <div class="detail-label">Session ID</div>
                 <div class="detail-value" style="max-width: 100%;">
                     <?php echo htmlspecialchars($txn['sid']); ?>
-                    <img src="images/history/copy.png" alt="">
+                    <img src="../images/history/copy.png" alt="">
                 </div>
             </div>
         </div>
@@ -173,7 +173,7 @@ $profileImage = !empty($txn['url']) ? $txn['url'] : 'https://cdn-icons-png.flati
           <center>  <span class="divider-text">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span> </center>
             <div class="more-actions">
                 <div class="action-item" onclick="transferBack()">
-                    <img src="images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
+                    <img src="../images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
                     <span>Transfer Back</span>
                 </div>
 

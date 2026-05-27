@@ -154,7 +154,7 @@
 <body>
   <!-- QR Code -->
   <div class="qr-container">
-    <img src="images/dashboard/qr_opay.png" alt="OPay QR" style="height: 35px; width:100%;">
+    <img src="../images/dashboard/qr_opay.png" alt="OPay QR" style="height: 35px; width:100%;">
   </div>
   
   <!-- Transfer Info -->
@@ -165,7 +165,7 @@
   
   <!-- Logo -->
   <div class="logo-container">
-    <img src="images/dashboard/olog.png" alt="Opay Logo" class="logo">
+    <img src="../images/dashboard/olog.png" alt="Opay Logo" class="logo">
   </div>
   
   <!-- Description -->
@@ -190,7 +190,7 @@
   
   <!-- Footer Image -->
   <div class="footer-image">
-    <img src="images/dashboard/footer.png" alt="Footer">
+    <img src="../images/dashboard/footer.png" alt="Footer">
   </div>
 </body>
 </html>

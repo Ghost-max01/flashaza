@@ -67,7 +67,7 @@ $js_transaction_data = json_encode([
   <title>Transaction Details</title>  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="stylesheet" href="css/bnk_receipt.css?v=1.0">
+  <link rel="stylesheet" href="../css/bnk_receipt.css?v=1.0">
 </head>
 <body>
   <div class="container">
@@ -75,7 +75,7 @@ $js_transaction_data = json_encode([
     <div class="header">
       <div class="back-arrow">‹</div>
       <div class="header-title">Transaction Details</div>
-      <img src="images/history/support.png" alt="menu" class="menu-icon" />
+      <img src="../images/history/support.png" alt="menu" class="menu-icon" />
     </div>
 
     
@@ -90,11 +90,11 @@ $js_transaction_data = json_encode([
         </div>
         <center>
           <div class="timeline">
-            <img src="images/history/tick.png" alt="dot" class="timeline-dot" />
+            <img src="../images/history/tick.png" alt="dot" class="timeline-dot" />
             <div class="timeline-line" id="timelineLine1"></div>
-            <img src="images/history/tick.png" alt="dot" class="timeline-dot" />
+            <img src="../images/history/tick.png" alt="dot" class="timeline-dot" />
             <div class="timeline-line" id="timelineLine2"></div>
-            <img src="images/history/tick.png" alt="dot" class="timeline-dot" />
+            <img src="../images/history/tick.png" alt="dot" class="timeline-dot" />
           </div>
         </center>
         <div class="timeline-labels">
@@ -151,7 +151,7 @@ $js_transaction_data = json_encode([
         <div class="detail-row">
           <div class="detail-label">Transaction No.</div>
           <div class="detail-value" id="transactionId">
-            250225010100418357292729 <img style="width:13px; height:13px;" src="images/history/copy.png" alt="">
+            250225010100418357292729 <img style="width:13px; height:13px;" src="../images/history/copy.png" alt="">
           </div>
         </div>
         <div class="detail-row">
@@ -166,7 +166,7 @@ $js_transaction_data = json_encode([
           <div class="detail-label">Session ID</div>
           <div class="detail-value" id="sessionId">
             100004250223182413127782423243
-            <img style="width:13px; height:13px;" src="images/history/copy.png" alt="">
+            <img style="width:13px; height:13px;" src="../images/history/copy.png" alt="">
           </div>
         </div>
       </div>
@@ -184,7 +184,7 @@ $js_transaction_data = json_encode([
         </center>
         <div class="more-actions">
           <div class="action-item" onclick="transferBack()">
-            <img src="images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
+            <img src="../images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
             <span>Transfer Back</span>
           </div>
           <div class="action-item" onclick="viewRecords()"><span></span></div>
@@ -233,9 +233,9 @@ $js_transaction_data = json_encode([
       recipientElement.innerHTML = `${transactionData.recipientDetails.name}<br><span style="font-size:12px; color:#616161;">${transactionData.recipientDetails.bank} | ${transactionData.recipientDetails.account}</span>`;
       
       // Update other details
-      document.getElementById('transactionId').innerHTML = `${transactionData.id} <img style="width:13px; height:13px;" src="images/history/copy.png" alt="">`;
+      document.getElementById('transactionId').innerHTML = `${transactionData.id} <img style="width:13px; height:13px;" src="../images/history/copy.png" alt="">`;
       document.getElementById('transactionDate').textContent = transactionData.transactionDate;
-      document.getElementById('sessionId').innerHTML = `${transactionData.sessionId} <img style="width:13px; height:13px;" src="images/history/copy.png" alt="">`;
+      document.getElementById('sessionId').innerHTML = `${transactionData.sessionId} <img style="width:13px; height:13px;" src="../images/history/copy.png" alt="">`;
       
       // Update timeline
       document.getElementById('paymentTime').textContent = transactionData.timeline.payment;

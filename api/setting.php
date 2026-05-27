@@ -20,7 +20,7 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
   <title>Settings</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <link rel="stylesheet" href="css/setting.css?v=1.0">
+  <link rel="stylesheet" href="../css/setting.css?v=1.0">
   <style>
     /* Modal styles for PIN reset */
     .modal {
@@ -110,22 +110,22 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
   <div class="container">
     <div class="settings-group">
       <div class="settings-item" data-action="login-settings">
-        <div class="item-icon"><img src="images/setting/i1.png" alt=""></div>
+        <div class="item-icon"><img src="../images/setting/i1.png" alt=""></div>
         <div class="item-text">Login Settings</div>
         <div class="item-arrow"><i class="fas fa-chevron-right"></i></div>
       </div>
       <div class="settings-item" data-action="payment-settings">
-        <div class="item-icon"><img src="images/setting/i2.png" alt=""></div>
+        <div class="item-icon"><img src="../images/setting/i2.png" alt=""></div>
         <div class="item-text">Payment Settings</div>
         <div class="item-arrow"><i class="fas fa-chevron-right"></i></div>
       </div>
       <div class="settings-item" data-action="reset-pin">
-        <div class="item-icon"><img src="images/setting/i8.png" alt=""></div>
+        <div class="item-icon"><img src="../images/setting/i8.png" alt=""></div>
         <div class="item-text">Reset Transaction PIN</div>
         <div class="item-arrow"><i class="fas fa-chevron-right"></i></div>
       </div>
       <div class="settings-item" data-action="change-account">
-        <div class="item-icon"><img src="images/setting/i3.png" alt=""></div>
+        <div class="item-icon"><img src="../images/setting/i3.png" alt=""></div>
         <div class="item-text">Change Account Name And Number</div>
         <div class="item-arrow"><i class="fas fa-chevron-right"></i></div>
       </div>
@@ -133,17 +133,17 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     <div class="settings-group">
       <div class="settings-item" data-action="homepage-settings">
-        <div class="item-icon"><img src="images/setting/i4.png" alt=""></div>
+        <div class="item-icon"><img src="../images/setting/i4.png" alt=""></div>
         <div class="item-text">Homepage Settings</div>
         <div class="item-arrow"><i class="fas fa-chevron-right"></i></div>
       </div>
       <div class="settings-item" data-action="reset-history">
-        <div class="item-icon"><img src="images/setting/i5.png" alt=""></div>
+        <div class="item-icon"><img src="../images/setting/i5.png" alt=""></div>
         <div class="item-text">Reset Transaction History</div>
         <div class="item-arrow"><i class="fas fa-chevron-right"></i></div>
       </div>
       <div class="settings-item" data-action="clipboard">
-        <div class="item-icon"><img src="images/setting/i6.png" alt=""></div>
+        <div class="item-icon"><img src="../images/setting/i6.png" alt=""></div>
         <div class="item-text">Access to Clipboard</div>
         <div class="item-arrow"><i class="fas fa-chevron-right"></i></div>
       </div>
@@ -159,7 +159,7 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     <div class="settings-group">
       <div class="settings-item" data-action="upgrade-account">
-        <div class="item-icon"><img src="images/setting/i7.png" alt=""></div>
+        <div class="item-icon"><img src="../images/setting/i7.png" alt=""></div>
         <div class="item-text">Upgrade Account</div>
         <div class="item-arrow"><i class="fas fa-chevron-right"></i></div>
       </div>
@@ -306,6 +306,6 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
       }, 3000);
     }
   </script>
-  <script src="js/setting.js" defer></script>
+  <script src="../js/setting.js" defer></script>
 </body>
 </html>

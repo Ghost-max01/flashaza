@@ -75,7 +75,7 @@ $formatted_balance = number_format($user_balance, 2);
 <meta name="viewport" content="width=device-width, initial-scale=1.0">  
 <title>Transfer to Bank</title>  
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
-<link rel="stylesheet" href="css/next.css">
+<link rel="stylesheet" href="../css/next.css">
 </head>  
 <body>  
 <div class="container" id="mainContainer">  
@@ -146,7 +146,7 @@ $formatted_balance = number_format($user_balance, 2);
 
 <!-- Fullscreen loader (GIF) -->  
 <div id="loadingPopup" class="loader">  
-    <img src="images/toban/loading.gif" alt="Loading..." class="loader-gif">  
+    <img src="../images/toban/loading.gif" alt="Loading..." class="loader-gif">  
 </div>  
 
 <!-- Toast -->  
@@ -242,7 +242,7 @@ $formatted_balance = number_format($user_balance, 2);
         <!-- Keypad -->  
         <div class="keypad-container">  
             <div class="secure-indicator">  
-                <img class="secure-icon" src="images/toban/badge.png" alt="Secure">  
+                <img class="secure-icon" src="../images/toban/badge.png" alt="Secure">  
                 <div class="secure-text">OPay Secure Numeric Keypad</div>  
             </div>  
 

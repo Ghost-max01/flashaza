@@ -59,7 +59,7 @@ try {
 <meta name="format-detection" content="telephone=no">
 <title>Transfer to OPay Account</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="css/to-opay.css?v=1.0">
+<link rel="stylesheet" href="../css/to-opay.css?v=1.0">
 </head>
 <body>
     <div class="header">
@@ -85,7 +85,7 @@ try {
             </div>
             
             <div class="searching" id="searching">
-                <img class="rolling-img" src="images/toban/rolling.png" alt="Detect icon">
+                <img class="rolling-img" src="../images/toban/rolling.png" alt="Detect icon">
                 <span style="color: #00B876; margin-left: 10px;">Searching...</span>
             </div>
         </div>
@@ -190,6 +190,6 @@ try {
         </div>
     </div>
 
-<script src="js/to-opay.js" defer></script>
+<script src="../js/to-opay.js" defer></script>
 </body>
 </html>

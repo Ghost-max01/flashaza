@@ -48,7 +48,7 @@ try {
     <title>Transaction Details</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link rel="stylesheet" href="css/opy-receipt.css">
+<link rel="stylesheet" href="../css/opy-receipt.css">
 </head>
 <body>
     <div class="container">
@@ -61,7 +61,7 @@ try {
         <div class="header">
             <div class="back-btn" onclick="goBack()">‹</div>
             <div class="header-title">Transaction Details</div>
-            <img src="images/history/support.png" style="width: 30px; height: 30px;" alt="help">
+            <img src="../images/history/support.png" style="width: 30px; height: 30px;" alt="help">
         </div>
         
         <!-- Main Content -->
@@ -106,7 +106,7 @@ try {
                 <div class="detail-row">
                     <div class="detail-label">Transaction No.</div>
                     <div class="detail-value" id="tid">250225010100418357292729</div>
-                    <img src="images/history/copy.png" style="width: 15px; height: 15px;" alt="">
+                    <img src="../images/history/copy.png" style="width: 15px; height: 15px;" alt="">
                 </div>
                 
                 <div class="detail-row" id="pmedRow">
@@ -135,12 +135,12 @@ try {
                 
                 <div class="more-actions">
                     <div class="action-item" onclick="transferBack()">
-                        <img src="images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
+                        <img src="../images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
                         <span>Transfer Back</span>
                     </div>
                     
                     <div class="action-item" onclick="viewRecords()">
-                        <img src="images/history/record.png" style="width: 20px; height: 20px;" alt="record">
+                        <img src="../images/history/record.png" style="width: 20px; height: 20px;" alt="record">
                         <span>View Records</span>
                     </div>
                 </div>

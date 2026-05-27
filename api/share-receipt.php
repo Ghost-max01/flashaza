@@ -143,7 +143,7 @@ $session_id_safe = htmlspecialchars($session_id_val);
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <title>Transaction Receipt</title>
-<link rel="stylesheet" href="css/share-receipt.css?v=1.0">
+<link rel="stylesheet" href="../css/share-receipt.css?v=1.0">
 </head>
 <body>
 <!-- Header -->
@@ -157,7 +157,7 @@ $session_id_safe = htmlspecialchars($session_id_val);
     <div class="receipt-card" id="receiptCard">
         <div class="inner-card">
             <div class="receipt-title">
-                <img src="images/dashboard/qr_opay.png" alt="qr">
+                <img src="../images/dashboard/qr_opay.png" alt="qr">
                 <div>Transaction Receipt</div>
             </div>
             <div class="transaction-box">
@@ -229,9 +229,9 @@ $session_id_safe = htmlspecialchars($session_id_val);
 
 <!-- Footer -->
 <div class="footer">
-    <div id="shareImageBtn"><img src="images/history/image.png" alt="share">Share as image</div>
+    <div id="shareImageBtn"><img src="../images/history/image.png" alt="share">Share as image</div>
     <div class="separator">|</div>
-    <div id="sharePdfBtn"><img src="images/history/pdf.png" alt="pdf">Share as PDF</div>
+    <div id="sharePdfBtn"><img src="../images/history/pdf.png" alt="pdf">Share as PDF</div>
 </div>
 
 <!-- libs -->

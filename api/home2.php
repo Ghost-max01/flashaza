@@ -87,7 +87,7 @@ if ($balance_visible) {
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>OPay Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/home2.css">
+  <link rel="stylesheet" href="../css/home2.css">
 </head>
 <body>
   <div class="container">
@@ -100,11 +100,11 @@ if ($balance_visible) {
         <div class="profile-info">
           <div class="username">HI, <?= htmlspecialchars($firstName) ?></div>
           <div class="tier-badge">
-            <img id="tier-badge-img" src="images/toban/tier3.png" alt="Tier">
+            <img id="tier-badge-img" src="../images/toban/tier3.png" alt="Tier">
           </div>
         </div>
         <div class="settings-wrapper" id="settings-btn">
-          <div class="settings-icon"><img src="images/tohome/setting.png" alt="Settings"></div>
+          <div class="settings-icon"><img src="../images/tohome/setting.png" alt="Settings"></div>
           <div id="lottie-coins"></div>
         </div>
       </div>
@@ -140,28 +140,28 @@ if ($balance_visible) {
 
     <!-- Menu Section 1 -->
     <div class="menu-section">
-      <div class="menu-item"><div class="menu-icon"><img src="images/tohome/history.png"></div><div class="menu-text">Transaction History</div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
-      <div class="menu-item"><div class="menu-icon"><img src="images/tohome/speed.png"></div><div class="menu-text">Account Limits<div class="menu-description">View your transaction limits</div></div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
-      <div class="menu-item"><div class="menu-icon"><img src="images/tohome/card.png"></div><div class="menu-text">Bank Card/Account<div class="menu-description">Add payment options</div></div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
-      <div class="menu-item"><div class="menu-icon"><img src="images/tohome/shop.png"></div><div class="menu-text">Transfer to Me<div class="menu-description">Received payments for your business</div></div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
+      <div class="menu-item"><div class="menu-icon"><img src="../images/tohome/history.png"></div><div class="menu-text">Transaction History</div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
+      <div class="menu-item"><div class="menu-icon"><img src="../images/tohome/speed.png"></div><div class="menu-text">Account Limits<div class="menu-description">View your transaction limits</div></div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
+      <div class="menu-item"><div class="menu-icon"><img src="../images/tohome/card.png"></div><div class="menu-text">Bank Card/Account<div class="menu-description">Add payment options</div></div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
+      <div class="menu-item"><div class="menu-icon"><img src="../images/tohome/shop.png"></div><div class="menu-text">Transfer to Me<div class="menu-description">Received payments for your business</div></div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
     </div>
 
     <!-- Menu Section 2 -->
     <div class="menu-section" style="margin-top: 15px;">
-      <div class="menu-item"><div class="menu-icon"><img src="images/toban/badge.png"></div><div class="menu-text">Security Center<div class="menu-description">Protect your funds</div></div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
-      <div class="menu-item"><div class="menu-icon"><img src="images/tohome/support.png"></div><div class="menu-text">Customer Service Center</div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
-      <div class="menu-item"><div class="menu-icon"><img src="images/tohome/hurray.png"></div><div class="menu-text">Invitation<div class="menu-description">Invite friends and earn up to ₦4,200 Bonus</div></div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
-      <div class="menu-item"><div class="menu-icon"><img src="images/tohome/call.png"></div><div class="menu-text">OPay USSD</div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
-      <div class="menu-item"><div class="menu-icon"><img src="images/tohome/star.png"></div><div class="menu-text">Rate Us</div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
+      <div class="menu-item"><div class="menu-icon"><img src="../images/toban/badge.png"></div><div class="menu-text">Security Center<div class="menu-description">Protect your funds</div></div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
+      <div class="menu-item"><div class="menu-icon"><img src="../images/tohome/support.png"></div><div class="menu-text">Customer Service Center</div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
+      <div class="menu-item"><div class="menu-icon"><img src="../images/tohome/hurray.png"></div><div class="menu-text">Invitation<div class="menu-description">Invite friends and earn up to ₦4,200 Bonus</div></div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
+      <div class="menu-item"><div class="menu-icon"><img src="../images/tohome/call.png"></div><div class="menu-text">OPay USSD</div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
+      <div class="menu-item"><div class="menu-icon"><img src="../images/tohome/star.png"></div><div class="menu-text">Rate Us</div><div class="chevron-icon"><i class="fas fa-chevron-right"></i></div></div>
     </div>
 
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
-      <div class="nav-item" onclick="location.href='dashboard.php'"><div class="nav-icon"><img src="images/tohome/home.png"></div><div class="nav-text">Home</div></div>
-      <div class="nav-item"><div class="nav-icon"><img src="images/dashboard/gold.png"></div><div class="nav-text">Rewards</div></div>
-      <div class="nav-item"><div class="nav-icon"><img src="images/dashboard/finance.png"></div><div class="nav-text">Finance</div></div>
-      <div class="nav-item"><div class="nav-icon"><img src="images/dashboard/card.png"></div><div class="nav-text">Cards</div></div>
-      <div class="nav-item active"><div class="nav-icon"><img src="images/tohome/me.png"></div><div class="nav-text">Me</div></div>
+      <div class="nav-item" onclick="location.href='dashboard.php'"><div class="nav-icon"><img src="../images/tohome/home.png"></div><div class="nav-text">Home</div></div>
+      <div class="nav-item"><div class="nav-icon"><img src="../images/dashboard/gold.png"></div><div class="nav-text">Rewards</div></div>
+      <div class="nav-item"><div class="nav-icon"><img src="../images/dashboard/finance.png"></div><div class="nav-text">Finance</div></div>
+      <div class="nav-item"><div class="nav-icon"><img src="../images/dashboard/card.png"></div><div class="nav-text">Cards</div></div>
+      <div class="nav-item active"><div class="nav-icon"><img src="../images/tohome/me.png"></div><div class="nav-text">Me</div></div>
     </div>
   </div>
 
