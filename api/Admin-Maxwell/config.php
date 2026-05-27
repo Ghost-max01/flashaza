@@ -4,7 +4,7 @@ if (getenv('DATABASE_URL') || getenv('DB_HOST')) {
     require_once __DIR__ . '/../config.php';
 } else {
     // Database credentials
-    $host = 'localhost';
+    $host = '127.0.0.1';
     $db   = 'atjnuaqu_opay';
     $user = 'atjnuaqu_opay';
     $pass = 'Maxwell198$';

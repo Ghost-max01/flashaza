@@ -44,7 +44,7 @@ if ($databaseUrl) {
     }
 } else {
     // 2) Fall back to MySQL using env vars (useful locally or on non-Supabase setups)
-    $DB_HOST = getenv('DB_HOST') ?: 'localhost';
+    $DB_HOST = getenv('DB_HOST') ?: '127.0.0.1';
     $DB_NAME = getenv('DB_NAME') ?: 'atjnuaqu_opay';
     $DB_USER = getenv('DB_USER') ?: 'atjnuaqu_opay';
     $DB_PASS = getenv('DB_PASS') ?: '';
