@@ -3,7 +3,16 @@
   "outputDirectory": "api",
   "functions": {
     "api/router.php": {
-      "runtime": "vercel-php@0.8.0"
+      "runtime": "vercel-php@0.8.0",
+      "excludeFiles": [
+        "css/**",
+        "js/**",
+        "images/**",
+        "sound/**",
+        "json/**",
+        "profile/**",
+        "request/**"
+      ]
     }
   },
   "routes": [
