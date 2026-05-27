@@ -1,5 +1,5 @@
 <?php
-session_start();
+if (session_status()===PHP_SESSION_NONE) session_start();
 if (!isset($_SESSION['admin_email'])) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit();

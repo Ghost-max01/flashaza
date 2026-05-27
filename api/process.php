@@ -1,6 +1,6 @@
 <?php
 // process.php (debug version) — drop-in replacement
-session_start();
+if (session_status()===PHP_SESSION_NONE) session_start();
 header("Content-Type: application/json; charset=utf-8");
 
 // Toggle this to false when you finish debugging

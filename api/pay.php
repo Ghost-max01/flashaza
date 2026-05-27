@@ -1,5 +1,5 @@
 <?php
-session_start();
+if (session_status()===PHP_SESSION_NONE) session_start();
 
 // Enable error reporting (optional: turn off in production)
 error_reporting(E_ALL);

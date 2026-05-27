@@ -1,5 +1,5 @@
 <?PHP
-session_start();  
+if (session_status()===PHP_SESSION_NONE) session_start();  
 
 // 1) require login  
 if (!isset($_SESSION['user_id'])) {  

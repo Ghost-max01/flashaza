@@ -5,7 +5,7 @@
  * - Reveals email+password after verification
  * - Registers user to `users` table and logs them in (session user_id = uid)
  */
-session_start();
+if (session_status()===PHP_SESSION_NONE) session_start();
 include "config.php"; // must define $pdo (PDO)
 
 header_remove('X-Powered-By');
