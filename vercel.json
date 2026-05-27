@@ -4,15 +4,7 @@
   "functions": {
     "api/router.php": {
       "runtime": "vercel-php@0.8.0",
-      "excludeFiles": [
-        "css/**",
-        "js/**",
-        "images/**",
-        "sound/**",
-        "json/**",
-        "profile/**",
-        "request/**"
-      ]
+      "excludeFiles": "{css,js,images,sound,json,profile,request}/**"
     }
   },
   "routes": [
