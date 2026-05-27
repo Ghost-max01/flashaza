@@ -42,7 +42,7 @@ if (!empty($user['subscription_date'])) {
     if ($current_time > $subscription_time) {
         // Subscription has expired
         $update_stmt = $pdo->prepare("UPDATE users 
-            SET subscription_date = now, plan = 'free', email_alert = 0 
+            SET subscription_date = NOW(), plan = 'free', email_alert = 0 
             WHERE uid = :user_id");
         $update_stmt->execute(['user_id' => $user_id]);
         

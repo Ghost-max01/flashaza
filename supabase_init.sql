@@ -17,13 +17,13 @@ CREATE TABLE IF NOT EXISTS users (
   profile TEXT,                      -- URL/path to avatar
   android_id TEXT,
   plan TEXT DEFAULT 'free',
-  subscription_date TIMESTAMP WITH TIME ZONE,
+  subscription_date TEXT,            -- Stored as date string or '0'
   amount_in NUMERIC(14,2) DEFAULT 0,
   amount_out NUMERIC(14,2) DEFAULT 0,
-  email_alert BOOLEAN DEFAULT false,
-  block BOOLEAN DEFAULT false,
+  email_alert INTEGER DEFAULT 0,
+  block INTEGER DEFAULT 0,
   balance NUMERIC(14,2) DEFAULT 0,
-  pin_set BOOLEAN DEFAULT false
+  pin_set INTEGER DEFAULT 0
 );
 
 -- History / Transactions
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS beneficiary (
   bankname TEXT,
   url TEXT,
   uid TEXT REFERENCES users(uid) ON DELETE CASCADE,
-  favorite BOOLEAN DEFAULT false,
+  favorite TEXT DEFAULT 'false',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
