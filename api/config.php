@@ -62,13 +62,17 @@ if ($databaseUrl) {
     } catch (Exception $e) {
         // Try mysqli as a last-resort for MySQL
         if (function_exists('mysqli_connect')) {
-            $mysqli = @new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
-            if ($mysqli->connect_errno) {
-                db_fail('Database connection failed: ' . $mysqli->connect_error);
+            try {
+                $mysqli = @new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+                if ($mysqli->connect_errno) {
+                    db_fail('Database connection failed: ' . $mysqli->connect_error);
+                }
+                $mysqli->set_charset($DB_CHARSET);
+                $conn = $mysqli;
+                $DB_DRIVER = 'mysqli';
+            } catch (Exception $ex) {
+                db_fail('Database connection failed: ' . $ex->getMessage());
             }
-            $mysqli->set_charset($DB_CHARSET);
-            $conn = $mysqli;
-            $DB_DRIVER = 'mysqli';
         } else {
             db_fail('Database connection failed: ' . $e->getMessage());
         }

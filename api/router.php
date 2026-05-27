@@ -1,6 +1,5 @@
 <?php
 // router.php - Single entry-point router/front-controller for Vercel
-session_start();
 
 // Get request path
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
