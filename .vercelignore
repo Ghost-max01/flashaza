@@ -15,3 +15,16 @@ supabase_setup.sh
 # IDE / System directories
 .gemini/
 .DS_Store
+.git/
+.gitignore
+
+# Development & Build files
+node_modules/
+package-lock.json
+
+# Do NOT exclude these - they're needed for static file serving
+# css/
+# js/
+# images/
+# json/
+# sound/
