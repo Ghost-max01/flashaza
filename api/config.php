@@ -119,6 +119,10 @@ class SupabasePDO {
         return true;
     }
 
+    public function inTransaction() {
+        return false;
+    }
+
     public function lastInsertId($name = null) {
         return $this->lastInsertId;
     }
@@ -152,9 +156,11 @@ class SupabasePDO {
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         if ($err) {
+            if (!headers_sent()) header('X-Flashaza-Debug: Supabase request error: ' . substr($err, 0, 120));
             return ['ok' => false, 'error' => $err, 'status' => 0, 'raw' => null];
         }
         if ($status < 200 || $status >= 300) {
+            if (!headers_sent()) header('X-Flashaza-Debug: Supabase HTTP ' . $status . ' on ' . $method . ' ' . $path);
             return ['ok' => false, 'error' => 'HTTP ' . $status, 'status' => $status, 'raw' => $raw];
         }
         return ['ok' => true, 'status' => $status, 'raw' => $raw, 'rowCount' => null];
@@ -187,7 +193,7 @@ class SupabasePDO {
         $where = trim($m[3] ?? '');
         $order = trim($m[4] ?? '');
         $limit = trim($m[5] ?? '');
-        $query = 'select=' . ($select === '*' ? '*' : $select);
+        $query = 'select=' . rawurlencode($select === '*' ? '*' : $select);
         $filters = $this->buildFilters($where, $params);
         if ($filters !== '') {
             $query .= '&' . $filters;
@@ -369,8 +375,14 @@ function supabase_request($method, $path, $body = null, $extraHeaders = []) {
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if ($err) return ['ok' => false, 'error' => $err, 'status' => 0, 'raw' => null];
-    if ($code < 200 || $code >= 300) return ['ok' => false, 'error' => 'HTTP ' . $code, 'status' => $code, 'raw' => $res];
+    if ($err) {
+        if (!headers_sent()) header('X-Flashaza-Debug: Supabase request error: ' . substr($err, 0, 120));
+        return ['ok' => false, 'error' => $err, 'status' => 0, 'raw' => null];
+    }
+    if ($code < 200 || $code >= 300) {
+        if (!headers_sent()) header('X-Flashaza-Debug: Supabase HTTP ' . $code . ' on ' . $method . ' ' . $path);
+        return ['ok' => false, 'error' => 'HTTP ' . $code, 'status' => $code, 'raw' => $res];
+    }
     return ['ok' => true, 'status' => $code, 'raw' => $res];
 }
 

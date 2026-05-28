@@ -7,7 +7,7 @@ $debug = [];
 try {
     if (session_status() === PHP_SESSION_NONE) session_start();
 
-    if (!isset($pdo) || !($pdo instanceof PDO)) throw new Exception("\$pdo not available");
+    if (!isset($pdo) || !method_exists($pdo, 'prepare')) throw new Exception("PDO wrapper not available");
     $uid = $_SESSION['user_id'] ?? null;
     if (!$uid) throw new Exception("No user_id in session");
 
@@ -77,8 +77,9 @@ try {
     if (!empty($debug)) error_log("schedule_file debug: ".implode(" | ", $debug));
 
 } catch (Throwable $e) {
-    if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
+    if (isset($pdo) && method_exists($pdo, 'inTransaction') && $pdo->inTransaction()) $pdo->rollBack();
     $debug[] = "Exception: " . $e->getMessage();
+    if (!headers_sent()) header('X-Flashaza-Debug: schedule_file error: ' . substr(implode(' | ', $debug), 0, 200));
     error_log("schedule_file error: ".implode(" | ", $debug));
 }
 
