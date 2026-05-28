@@ -543,7 +543,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 if (v.length === 10) {
                     // Call verify
                     progressBar.style.display = 'block';
-                    fetch('', {
+                    fetch(window.location.pathname, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                         body: new URLSearchParams({ action: 'verify_phone', phone: v })
@@ -565,7 +565,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                             validationMessage.style.display = 'block';
                         }
                     })
-                    .catch(() => {
+                    .catch((err) => {
+                        console.error('verify fetch error', err);
                         progressBar.style.display = 'none';
                         phoneContainer.classList.add('invalid');
                         validationMessage.textContent = 'Could not verify number. Check connection.';
@@ -607,7 +608,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 progressBar.style.display = 'block';
                 validationMessage.style.display = 'none';
 
-                fetch('', {
+                fetch(window.location.pathname, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                     body: new URLSearchParams({
@@ -626,7 +627,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         validationMessage.style.display = 'block';
                     }
                 })
-                .catch(() => {
+                .catch((err) => {
+                    console.error('register fetch error', err);
                     progressBar.style.display = 'none';
                     validationMessage.textContent = 'Network error. Please try again.';
                     validationMessage.style.display = 'block';
