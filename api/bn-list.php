@@ -102,7 +102,7 @@ if (!isset($_SESSION['user_id'])) {
         </div>
     </div>
 </body>
-<script src="../js/bn-list.js" defer></script>
+<script src="../js/bn-list.js?ver=2" defer></script>
 <script>
   // Disable right-click
   document.addEventListener("contextmenu", function(e){
