@@ -149,6 +149,13 @@ if (!isset($_SESSION['user_id'])) {
         return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
     }
 
+    window.addEventListener('error', function(event) {
+        console.error('bn-list.js global error:', event.message, event.filename, event.lineno, event.colno, event.error);
+    });
+    window.addEventListener('unhandledrejection', function(event) {
+        console.error('bn-list.js unhandled promise rejection:', event.reason);
+    });
+
     function getPaystackLogoUrl(bank) {
         if (!bank) return '';
         // Only use actual image URLs from NigerianBanks or local; no external fallback

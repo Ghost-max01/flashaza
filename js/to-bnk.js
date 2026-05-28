@@ -12,6 +12,24 @@ const nextBtn      = document.getElementById('nextBtn');
 let verified = { ok:false, accountName:'', accountNumber:'', bankName:BANK.name || '', bankUrl:BANK.url || '' };
 console.log('to-bnk.js: BANK data', typeof BANK !== 'undefined' ? BANK : null);
 
+window.addEventListener('error', function(event) {
+    console.error('to-bnk.js global error:', event.message, event.filename, event.lineno, event.colno, event.error);
+});
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('to-bnk.js unhandled promise rejection:', event.reason);
+});
+
+function extractPersonName(raw) {
+    if (!raw) return '';
+    const lines = String(raw).trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    let text = lines.length ? lines[0] : String(raw).trim();
+    text = text.replace(/^(account\s*name|name)\s*[:\-]\s*/i, '');
+    text = text.replace(/\s*[-–—].*$/,'').replace(/\s*\(.*\)$/,'').trim();
+    const words = text.split(/\s+/).filter(w => /^[A-Za-z]+$/.test(w));
+    if (words.length === 0) return text;
+    return words.slice(0, Math.min(4, words.length)).join(' ');
+}
+
 // ======== Navigation to bank list ========
 bankSelector.addEventListener('click', () => {
     window.location.href = 'bn-list.php';
@@ -62,11 +80,36 @@ attachBeneficiaryClicks();
 accInput.addEventListener('input', () => {
     accInput.value = accInput.value.replace(/\D/g,'');
     resetVerificationUI();
-    if (accInput.value.length >= 4 && BANK.code) {
+    if (!BANK.code) return;
+    if (accInput.value.length >= 4 && accInput.value.length < 10) {
+        console.log('to-bnk.js: bypass verify for short transfer value', accInput.value, BANK.code);
+        bypassVerification(accInput.value);
+        return;
+    }
+    if (accInput.value.length === 10) {
         console.log('to-bnk.js: attempt verify account', accInput.value, BANK.code);
         startVerification(accInput.value, BANK.code);
     }
 });
+
+function bypassVerification(accountNumber) {
+    detectBar.style.display = 'flex';
+    detectSpin.style.display = 'none';
+    detectIcon.src = 'images/toban/good.png';
+    detectIcon.style.display = 'block';
+    detectText.textContent = 'Ready';
+    detectText.style.color = 'var(--accent-color)';
+
+    verified.ok = true;
+    verified.accountName = '';
+    verified.accountNumber = accountNumber;
+    verified.bankName = BANK.name || verified.bankName;
+    verified.bankUrl = BANK.url || verified.bankUrl;
+
+    nextBtn.style.opacity = '1';
+    nextBtn.style.pointerEvents = 'auto';
+    nextBtn.style.cursor = 'pointer';
+}
 
 // ======== Verification flow ========
 function resetVerificationUI(){
@@ -96,19 +139,21 @@ function startVerification(accountNumber, bankCode){
         .then(r => r.text())
         .then(txt => {
             detectSpin.style.display = 'none';
+            console.log('to-bnk.js verify_account response:', txt);
 
             const lower = txt.toLowerCase();
-            const isError = lower.includes('error') || lower.includes('invalid') || lower.includes('not') && lower.includes('found');
+            const isError = lower.includes('error') || lower.includes('invalid') || (lower.includes('not') && lower.includes('found'));
+            const cleanedName = extractPersonName(txt.trim());
 
             if (!isError && txt.trim().length >= 3) {
                 // success
                 detectIcon.src = 'images/toban/good.png';
                 detectIcon.style.display = 'block';
-                detectText.textContent = txt.trim();
+                detectText.textContent = cleanedName || txt.trim();
                 detectText.style.color = 'var(--accent-color)';
 
                 verified.ok = true;
-                verified.accountName = txt.trim();
+                verified.accountName = cleanedName || txt.trim();
                 verified.accountNumber = accountNumber;
                 verified.bankName = BANK.name || verified.bankName;
                 verified.bankUrl = BANK.url || verified.bankUrl;
@@ -117,7 +162,7 @@ function startVerification(accountNumber, bankCode){
                 nextBtn.style.pointerEvents = 'auto';
                 nextBtn.style.cursor = 'pointer';
             } else {
-                // failure
+                console.warn('to-bnk.js verify_account invalid:', txt);
                 detectIcon.src = 'images/toban/bd.png';
                 detectIcon.style.display = 'block';
                 detectText.textContent = 'Invalid account name, check again';
@@ -129,7 +174,8 @@ function startVerification(accountNumber, bankCode){
                 nextBtn.style.cursor = 'not-allowed';
             }
         })
-        .catch(() => {
+        .catch((err) => {
+            console.error('to-bnk.js verify_account error:', err);
             detectSpin.style.display = 'none';
             detectIcon.src = 'images/toban/bd.png';
             detectIcon.style.display = 'block';
