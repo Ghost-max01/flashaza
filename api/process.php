@@ -89,8 +89,8 @@ if (!empty($errors)) {
     exit;
 }
 
-// ensure $pdo exists and is PDO
-if (!isset($pdo) || !($pdo instanceof PDO)) {
+// ensure $pdo exists and has prepare method (supports both PDO and SupabasePDO)
+if (!isset($pdo) || !method_exists($pdo, 'prepare')) {
     $debug[] = "PDO object missing or wrong type";
     error_log($server_log_prefix . "PDO not found. Check config.php provides \$pdo instance.");
     echo json_encode([

@@ -10,9 +10,9 @@ if (!isset($_SESSION['user_id'])) {
 require_once 'config.php'; // config.php must set $pdo (PDO instance)
 $uid = $_SESSION['user_id'] ?? null;
 
-// verify $pdo exists and is a PDO
-if (!isset($pdo) || !($pdo instanceof PDO)) {
-    die("DB error: \$pdo is not defined or not a PDO instance. Check config.php");
+// verify $pdo exists and has prepare method
+if (!isset($pdo) || !method_exists($pdo, 'prepare')) {
+    die("DB error: $pdo is not properly configured. Check config.php");
 }
 
 // Prepare containers

@@ -9,8 +9,8 @@ if (!isset($_SESSION['user_id'])) {
 
 // 2) load DB  
 require_once 'config.php'; // must set $pdo (PDO instance)  
-if (!isset($pdo) || !($pdo instanceof PDO)) {  
-    die("DB error: \$pdo is not defined or not a PDO instance. Check config.php");  
+if (!isset($pdo) || !method_exists($pdo, 'prepare')) {  
+    die("DB error: check config.php");  
 }  
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
 
