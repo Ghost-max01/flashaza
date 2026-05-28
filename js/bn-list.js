@@ -1,7 +1,12 @@
 async function fetchBanks() {
     try {
-        let res = await fetch("bn.php");
+        let res = await fetch("/api/bn.php");
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         let banks = await res.json();
+
+        if (!Array.isArray(banks)) {
+            throw new Error('Invalid bank list response');
+        }
 
         const listView = document.querySelector(".list-view");
         listView.innerHTML = ""; // clear
@@ -49,6 +54,10 @@ async function fetchBanks() {
 
     } catch (err) {
         console.error("Error fetching banks", err);
+        const listView = document.querySelector(".list-view");
+        if (listView) {
+            listView.innerHTML = '<li class="linear4"><div class="list-item-text">Unable to load banks. Please refresh.</div></li>';
+        }
     }
 }
 

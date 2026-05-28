@@ -6,7 +6,6 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-$userAgent = $_SERVER['HTTP_USER_AGENT'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -91,75 +90,8 @@ $userAgent = $_SERVER['HTTP_USER_AGENT'];
                 </div>
                 
                 <ul class="list-view">
-                    <!-- Custom list item -->
-                    <li class="linear4">
-                        <div class="circle-image-view">
-                            <img src="https://logo.clearbit.com/accessbankplc.com" alt="Access Bank">
-                        </div>
-                        <div class="list-item-text">Access Bank</div>
-                    </li>
-                    
-                    <li class="linear4">
-                        <div class="circle-image-view">
-                            <img src="https://logo.clearbit.com/citibank.com" alt="Citi Bank">
-                        </div>
-                        <div class="list-item-text">Citi Bank</div>
-                    </li>
-                    
-                    <li class="linear4">
-                        <div class="circle-image-view">
-                            <img src="https://logo.clearbit.com/ecobank.com" alt="Ecobank">
-                        </div>
-                        <div class="list-item-text">Ecobank</div>
-                    </li>
-                    
-                    <li class="linear4">
-                        <div class="circle-image-view">
-                            <img src="https://logo.clearbit.com/fidelitybank.com" alt="Fidelity Bank">
-                        </div>
-                        <div class="list-item-text">Fidelity Bank</div>
-                    </li>
-                    
-                    <li class="linear4">
-                        <div class="circle-image-view">
-                            <img src="https://logo.clearbit.com/firstbanknigeria.com" alt="First Bank">
-                        </div>
-                        <div class="list-item-text">First Bank of Nigeria</div>
-                    </li>
-                    
-                    <li class="linear4">
-                        <div class="circle-image-view">
-                            <img src="https://logo.clearbit.com/gtbank.com" alt="GTBank">
-                        </div>
-                        <div class="list-item-text">Guaranty Trust Bank</div>
-                    </li>
-                    
-                    <li class="linear4">
-                        <div class="circle-image-view">
-                            <img src="https://logo.clearbit.com/standardchartered.com" alt="Standard Chartered">
-                        </div>
-                        <div class="list-item-text">Standard Chartered Bank</div>
-                    </li>
-                    
-                    <li class="linear4">
-                        <div class="circle-image-view">
-                            <img src="https://logo.clearbit.com/sterlingbank.com" alt="Sterling Bank">
-                        </div>
-                        <div class="list-item-text">Sterling Bank</div>
-                    </li>
-                    
-                    <li class="linear4">
-                        <div class="circle-image-view">
-                            <img src="https://logo.clearbit.com/ubagroup.com" alt="UBA">
-                        </div>
-                        <div class="list-item-text">United Bank for Africa</div>
-                    </li>
-                    
-                    <li class="linear4">
-                        <div class="circle-image-view">
-                            <img src="https://logo.clearbit.com/zenithbank.com" alt="Zenith Bank">
-                        </div>
-                        <div class="list-item-text">Zenith Bank</div>
+                    <li class="linear4 loading-item">
+                        <div class="list-item-text">Loading banks...</div>
                     </li>
                 </ul>
             </div>
