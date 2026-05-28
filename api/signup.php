@@ -212,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/signup.css" />
+    <link rel="stylesheet" href="css/signup.css" />
     <style>
           :root {
             --bg-color: #FFFFFF;
@@ -412,7 +412,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <!-- Content -->
         <div class="content">
             <div class="qr-code">
-                <img src="/images/dashboard/qr_opay.png" alt="OPay QR">
+                <img src="images/dashboard/qr_opay.png" alt="OPay QR">
             </div>
 
             <div class="title">Get an OPay Account</div>
@@ -421,7 +421,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 <!-- Phone -->
                 <div class="input-container" id="phone-container">
                     <div class="input-group">
-                        <div class="input-icon"><img src="/images/dashboard/nig.png" alt="Nigeria"></div>
+                        <div class="input-icon"><img src="images/dashboard/nig.png" alt="Nigeria"></div>
                         <div class="country-code">+234</div>
                         <div class="divider">|</div>
                         <input type="tel" class="form-input" id="phone" name="phone" placeholder="Enter Phone Number" pattern="[0-9]{10}" inputmode="numeric" maxlength="10" required>
@@ -471,7 +471,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 <div class="login-link" id="login-link">Log in</div>
             </div>
             <div class="footer-image">
-                <img src="/images/dashboard/footer.png" alt="Footer Image">
+                <img src="images/dashboard/footer.png" alt="Footer Image">
             </div>
         </div>
     </div>

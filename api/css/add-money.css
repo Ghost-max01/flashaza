@@ -1,0 +1,227 @@
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+    body { background-color: #F8F8FB; color: #212121; line-height: 1.5; }
+    .container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .header { display: flex; align-items: center; background: #FFFFFF; padding: 12px 16px; border-bottom: 1px solid #e0e0e0; }
+    .back-btn { font-size: 25px; color: #000; margin-right: 12px; text-decoration: none; font-weight: bold; }
+    .title { flex-grow: 1; font-size: 16px; font-weight: 500; color: #212121; }
+    .continue-btn { color: #00B876; font-size: 16px; font-weight: 500; text-decoration: none; padding: 8px; cursor: pointer; }
+    .form-container { padding: 8px; }
+    .form-section { background: #FFFFFF; border-radius: 4px; margin: 10px; padding: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .section-title { padding: 8px; font-size: 16px; font-weight: 700; color: #000; }
+    .input-container { padding: 3px; position: relative; }
+    input, select { width: 100%; padding: 12px 8px; font-size: 16px; border: none; outline: none; color: #000; background: transparent; }
+    input[type="number"] { -moz-appearance: textfield; }
+    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input::placeholder { color: #9E9E9E; }
+    .error { color: red; font-size: 13px; margin-top: 4px; }
+
+    /* Input field icons */
+    .input-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #9E9E9E; }
+
+    /* Switch */
+    .switch-container { display: flex; align-items: center; padding: 8px; }
+    .switch { position: relative; display: inline-block; width: 50px; height: 24px; margin-right: 10px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #00B876; }
+    input:checked + .slider:before { transform: translateX(26px); }
+    .schedule-options { padding: 8px; margin-left: 10px; }
+    .schedule-options label { display: block; font-size: 14px; margin-bottom: 4px; color: #000; }
+    .schedule-options select { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
+
+    /* Dialog */
+    .dialog-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .dialog {
+      background: #fff;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .dialog-header h3 { font-size: 18px; }
+    .dialog-close { font-size: 22px; cursor: pointer; }
+    .dialog-search {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .bank-list { max-height: 300px; overflow-y: auto; }
+    .bank-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.2s;
+    }
+    .bank-item:hover { background: #f5f5f5; }
+    .bank-logo {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      margin-right: 10px;
+      object-fit: contain;
+      background: #f0f0f0;
+    }
+    .bank-name { font-size: 14px; color: #333; }
+    
+    /* Subscription Dialog */
+    .subscription-dialog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    }
+    
+    .dialog-content {
+        background-color: #fff;
+        border-radius: 16px;
+        padding: 20px;
+        width: 85%;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .dialog-icon {
+        font-size: 50px;
+        color: #f1c40f;
+        margin-bottom: 15px;
+    }
+    
+    .dialog-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #212121;
+    }
+    
+    .dialog-message {
+        font-size: 14px;
+        color: #757575;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+    
+    .dialog-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    
+    .dialog-button {
+        flex: 1;
+        padding: 12px 0;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        font-size: 14px;
+    }
+    
+    .button-dismiss {
+        background-color: #F5F5F5;
+        color: #333;
+    }
+    
+    .button-upgrade {
+        background-color: #00B876;
+        color: white;
+    }
+
+    /* ✅ Dark Mode Styles */
+    @media (prefers-color-scheme: dark) {
+      body { 
+        background-color: #121212; 
+        color: #e0e0e0; 
+      }
+      .container { 
+        background: #1e1e1e; 
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      }
+      .header { 
+        background: #1e1e1e; 
+        border-bottom: 1px solid #2d2d2d; 
+      }
+      .back-btn { color: #e0e0e0; }
+      .title { color: #e0e0e0; }
+      .form-section { 
+        background: #1e1e1e; 
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
+      .section-title { color: #e0e0e0; }
+      input, select { 
+        color: #e0e0e0; 
+        background: #2d2d2d;
+        border-radius: 4px;
+      }
+      input::placeholder { color: #9E9E9E; }
+      .schedule-options label { color: #e0e0e0; }
+      .schedule-options select { 
+        background: #2d2d2d;
+        color: #e0e0e0;
+        border: 1px solid #3d3d3d;
+      }
+      .dialog { 
+        background: #1e1e1e; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+      }
+      .dialog-header h3 { color: #e0e0e0; }
+      .dialog-close { color: #e0e0e0; }
+      .dialog-search { 
+        background: #2d2d2d;
+        color: #e0e0e0;
+        border: 1px solid #3d3d3d;
+      }
+      .bank-item {
+        border-bottom: 1px solid #2d2d2d;
+      }
+      .bank-item:hover { background: #2d2d2d; }
+      .bank-logo { background: #2d2d2d; }
+      .bank-name { color: #e0e0e0; }
+      
+      /* Subscription Dialog Dark Mode */
+      .subscription-dialog .dialog-content {
+        background-color: #1e1e1e;
+      }
+      
+      .subscription-dialog .dialog-title {
+        color: #e0e0e0;
+      }
+      
+      .subscription-dialog .dialog-message {
+        color: #9E9E9E;
+      }
+      
+      .subscription-dialog .button-dismiss {
+        background-color: #2d2d2d;
+        color: #e0e0e0;
+      }
+      
+      .input-icon { color: #9E9E9E; }
+    }

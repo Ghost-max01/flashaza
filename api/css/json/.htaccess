@@ -1,0 +1,11 @@
+# Completely block direct access to images, CSS, and JS
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|css|js)$">
+  Order Deny,Allow
+  Deny from all
+  # Allow only if requested by Apache internally (e.g. via HTML, CSS, JS)
+  <IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{THE_REQUEST} \.(jpg|jpeg|png|gif|webp|svg|css|js) [NC]
+    RewriteRule .* - [F]
+  </IfModule>
+</FilesMatch>

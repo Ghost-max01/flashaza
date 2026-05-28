@@ -1,0 +1,363 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif; /* Changed to a more standard font */
+}
+
+/* Prevent iPhone from underlining numbers */
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-text-size-adjust: none;
+}
+
+a[href^="tel"] {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    background: #F8F8FB;
+    overflow-x: hidden;
+    transition: background-color 0.3s, color 0.3s;
+    font-family: 'Roboto', sans-serif; /* Added to body as well */
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+    /* Body background */
+    body {
+        background: #121212;
+        color: #e0e0e0;
+    }
+    
+    /* Header background and text */
+    .header {
+        background: #1e1e1e !important;
+        color: #e0e0e0 !important;
+    }
+    
+    .header-text {
+        color: #e0e0e0 !important;
+    }
+    
+    /* Material icons color in header */
+    .return-icon {
+        color: #e0e0e0 !important;
+    }
+    
+    /* invert first bg content */
+    .content::before {
+        background-color: #1e1e1e;
+        mix-blend-mode: color;
+    }
+    
+    /* Invert receipt card for dark mode */
+    .receipt-card {
+        filter: invert(1) hue-rotate(180deg) contrast(0.9) brightness(1.1);
+    }
+    
+    /* Re-invert images inside receipt card to maintain proper colors */
+    .receipt-card img {
+        filter: invert(1) hue-rotate(180deg);
+    }
+    
+    /* Receipt title text color */
+    .receipt-title div {
+        color: #e0e0e0 !important;
+    }
+    
+    /* Transaction box inversion */
+    .transaction-box {
+        filter: invert(1) hue-rotate(180deg);
+    }
+    
+    /* Status and value text colors */
+    .status, .value {
+        color: #e0e0e0 !important;
+    }
+    
+    /* Label, date, and footer note text colors */
+    .label, .date, .footer-note {
+        color: #b0b0b0 !important;
+    }
+    
+    /* Divider line color */
+    .divider {
+        border-bottom-color: #444 !important;
+    }
+    
+    /* Footer background and text */
+    .footer {
+        background: #1e1e1e !important;
+    }
+    
+    .footer div {
+        color: #00B876 !important;
+    }
+    
+    /* Footer separator color */
+    .separator {
+        color: #555 !important;
+    }
+    
+    /* Modal styling for dark mode */
+    #shareModal .box {
+        background: #2d2d2d;
+        color: #e0e0e0;
+    }
+    
+    #shareModal .box button {
+        background: #3d3d3d;
+        color: #e0e0e0;
+        border-color: #555;
+    }
+}
+
+/* ===== Header ===== */
+.header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 15px;
+    background: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.header img {
+    height: 20px;
+    margin-right: 8px;
+}
+
+.header-text {
+    font-size: 16px;
+    color: #616161;
+    margin-left: 10px;
+    transition: color 0.3s;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+}
+
+.material-icons {
+    color: #616161;
+    transition: color 0.3s;
+}
+
+/* ===== Content ===== */
+.content {
+    margin-top: 60px; /* push down under header */
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.receipt-card {
+    width: 100%;
+    max-width: 400px;
+    background: url("images/history/background.png");
+    background-size: cover;
+    padding: 4px;
+    height: 490px;
+    background-repeat: no-repeat;
+    transition: filter 0.3s;
+    position: relative; /* Added for proper capturing */
+}
+
+.receipt-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("images/history/background.png");
+    background-size: cover;
+    z-index: -1; /* Ensure it's behind content */
+}
+
+.inner-card {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    background: url("images/history/watermark.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-top: 20px;
+    position: relative; /* For proper capturing */
+}
+
+/* ===== Receipt Title ===== */
+.receipt-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.receipt-title img {
+    height: 28px;
+    margin-right: 60px;
+    transition: filter 0.3s;
+}
+
+.receipt-title div {
+    font-size: 14px;
+    font-weight: 500; /* Normal font weight */
+    color: #000;
+    margin-left: 20px;
+    transition: color 0.3s;
+    font-style: inherit;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+}
+
+/* ===== Transaction Box ===== */
+.transaction-box {
+    background: url("better_bg.png") no-repeat center/cover;
+    border-radius: 6px;
+    padding-top: 20px;
+    text-align: center;
+    padding-bottom: 9px;
+    transition: filter 0.3s;
+    position: relative; /* For proper capturing */
+}
+
+.amount {
+    font-size: 23px;
+    font-weight: 500; /* Normal font weight */
+    color: #00B876;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+    letter-spacing: 0.5px;
+}
+
+.status {
+    font-size: 16px;
+    color: #000;
+    padding-top: 5px;
+    transition: color 0.3s;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+}
+
+.date {
+    font-size: 9px;
+    color: #9E9E9E;
+    margin-top: 5px;
+    transition: color 0.3s;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+}
+
+.divider {
+    border-bottom: 1px solid #E0E0E0;
+    width: 100%;
+    margin-top:12px;
+    transition: border-color 0.3s;
+}
+
+/* ===== Info Rows ===== */
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 17px;
+    font-size: 12px;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+}
+
+.label {
+    color: #9E9E9E;
+    transition: color 0.3s;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+}
+
+.value {
+    color: #424242;
+    text-align: right;
+    transition: color 0.3s;
+    text-decoration: none;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+}
+
+/* ===== Note ===== */
+.footer-note {
+    font-size: 10px;
+    color: #9E9E9E;
+    margin-top: 30px;
+    line-height: 1.2;
+    transition: color 0.3s;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+}
+
+/* ===== Footer ===== */
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 55px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 1000;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.footer div {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #00B876;
+    cursor: pointer;
+    transition: color 0.3s;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+}
+
+.footer img {
+    height: 20px;
+    margin-right: 6px;
+}
+
+.separator {
+    font-size: 20px;
+    color: #9E9E9E;
+    transition: color 0.3s;
+}
+
+/* Share modal */
+#shareModal {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+}
+
+#shareModal .box {
+    background: #fff;
+    padding: 14px;
+    border-radius: 8px;
+    max-width: 320px;
+    width: 90%;
+    text-align: center;
+    transition: background-color 0.3s, color 0.3s;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+}
+
+#shareModal .box button {
+    margin: 6px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #f7f7f7;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    font-family: 'Roboto', sans-serif; /* Added font family */
+}

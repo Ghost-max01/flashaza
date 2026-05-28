@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <title>Opay Login</title>
-  <link rel="stylesheet" href="/css/login.css">
+  <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
   <!-- Return icon -->
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
 
   <!-- QR Code -->
   <div class="qr-container">
-    <img src="/images/dashboard/qr_opay.png" alt="OPay QR" style="height: 35px;">
+    <img src="images/dashboard/qr_opay.png" alt="OPay QR" style="height: 35px;">
   </div>
 
   <!-- Login Form -->
@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
       <a href="/signup.php" class="signup-link">Click here to get one</a>
   <!-- Footer -->
   <div class="footer-image">
-    <img src="/images/dashboard/footer.png" alt="Footer Image">
+    <img src="images/dashboard/footer.png" alt="Footer Image">
   </div>
 </body>
 </html>
