@@ -158,6 +158,21 @@ if (!isset($_SESSION['user_id'])) {
         return '';
     }
 
+    function submitBankSelection(bank) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'to-bn.php';
+        ['name', 'url', 'code'].forEach(field => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = field;
+            input.value = bank[field] || '';
+            form.appendChild(input);
+        });
+        document.body.appendChild(form);
+        form.submit();
+    }
+
     // ─── Build a single list item ───
     function createBankItem(bank) {
         const li = document.createElement('li');
@@ -187,14 +202,11 @@ if (!isset($_SESSION['user_id'])) {
         `;
 
         li.addEventListener('click', () => {
-            // Pass selection back to your existing bn-list.js handler or session
-            if (typeof window.onBankSelected === 'function') {
-                window.onBankSelected(bank);
-            } else {
-                // Fallback: store in sessionStorage and go back
-                sessionStorage.setItem('selected_bank', JSON.stringify(bank));
-                history.back();
-            }
+            submitBankSelection({
+                name: bank.name || bank.bank_name || '',
+                url: bank.logo || bank.url || '',
+                code: bank.code || bank.bank_code || bank.id || ''
+            });
         });
 
         return li;
