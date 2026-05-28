@@ -93,6 +93,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             json_response(['ok' => false, 'message' => 'Phone must be exactly 10 digits'], 400);
         }
 
+        if (empty($SUPABASE_AVAILABLE) || $SUPABASE_AVAILABLE === false) {
+            json_response(['ok' => false, 'message' => $SUPABASE_ERROR ?: 'Database unavailable.'], 503);
+        }
+
         // Optionally check if already registered
         $stmt = $pdo->prepare("SELECT 1 FROM users WHERE number = :num LIMIT 1");
         $stmt->execute(['num' => $phone]);
@@ -119,6 +123,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 
     if ($action === 'register') {
+        if (empty($SUPABASE_AVAILABLE) || $SUPABASE_AVAILABLE === false) {
+            json_response(['ok' => false, 'message' => $SUPABASE_ERROR ?: 'Database unavailable.'], 503);
+        }
+
         // Pull session-verified phone
         $verified_phone = $_SESSION['verified_phone'] ?? null;
         $verified_name  = $_SESSION['verified_name'] ?? null;
