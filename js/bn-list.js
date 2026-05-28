@@ -2,8 +2,10 @@ async function fetchBanks() {
     const listView = document.querySelector(".list-view");
     if (!listView) return;
 
+    console.log('bn-list.js: fetching bank list from bn.php');
     try {
         let res = await fetch("bn.php");
+        console.log('bn-list.js: fetch response', res.status, res.statusText);
         if (!res.ok) {
             let text = await res.text();
             throw new Error('HTTP ' + res.status + ': ' + text);
@@ -11,7 +13,7 @@ async function fetchBanks() {
 
         let banks = await res.json();
         if (!Array.isArray(banks)) {
-            throw new Error('Invalid bank list response');
+            throw new Error('Invalid bank list response: ' + JSON.stringify(banks));
         }
 
         listView.innerHTML = "";
@@ -61,7 +63,7 @@ async function fetchBanks() {
         console.error("Error fetching banks", err);
         const listView = document.querySelector(".list-view");
         if (listView) {
-            listView.innerHTML = '<li class="linear4"><div class="list-item-text">Unable to load banks. Please refresh.</div></li>';
+            listView.innerHTML = `<li class="linear4"><div class="list-item-text">Unable to load banks. ${err.message || 'Please refresh.'}</div></li>`;
         }
     }
 }

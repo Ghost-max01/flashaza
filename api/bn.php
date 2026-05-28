@@ -2,7 +2,21 @@
 // bn.php
 header('Content-Type: application/json');
 
-$paystackKey = trim(getenv('PAYSTACK_SECRET_KEY') ?: '');
+function getEnvValue($name) {
+    $value = getenv($name);
+    if ($value !== false && trim($value) !== '') {
+        return trim($value);
+    }
+    if (!empty($_ENV[$name])) {
+        return trim($_ENV[$name]);
+    }
+    if (!empty($_SERVER[$name])) {
+        return trim($_SERVER[$name]);
+    }
+    return '';
+}
+
+$paystackKey = getEnvValue('PAYSTACK_SECRET_KEY');
 if ($paystackKey === '') {
     http_response_code(500);
     echo json_encode(['error' => 'PAYSTACK_SECRET_KEY not configured']);
@@ -27,6 +41,11 @@ if ($err) {
 }
 
 $data = json_decode($response, true);
+if ($code !== 200) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Paystack API returned HTTP ' . $code, 'raw' => $data]);
+    exit();
+}
 if (!is_array($data) || !isset($data['status']) || $data['status'] !== true || !isset($data['data']) || !is_array($data['data'])) {
     http_response_code(500);
     echo json_encode(['error' => 'Invalid Paystack response', 'raw' => $data]);
