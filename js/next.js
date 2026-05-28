@@ -43,9 +43,9 @@ function _UI(){
     const accountName   = payload?.accountname   || 'Web Tech';  
     const accountNumber = payload?.accountnumber || '9123458653';  
     const bankName      = payload?.bankname      || 'OPay';  
-    const bankLogoUrl   = payload?.url           || 'https://logo.clearbit.com/ubagroup.com';  
+    const bankLogoUrl   = payload?.url           || '../images/toban/naira.png';
 
-    const bankLogo = document.getElementById('banklogo');  
+    const bankLogo = document.getElementById('banklogo');
     const bankLogoLoader = document.getElementById('bankLogoLoader');  
     bankLogoLoader.style.display='block';  
     bankLogo.style.opacity='0';  
@@ -110,7 +110,7 @@ function showBottomSheet(){
     const accountName   = payload?.accountname   || 'Web Tech';  
     const accountNumber = payload?.accountnumber || '9123458653';  
     const bankName      = payload?.bankname      || 'OPay';  
-    const bankLogoUrl   = payload?.url           || 'https://logo.clearbit.com/ubagroup.com';  
+const bankLogoUrl   = payload?.url           || '../images/toban/naira.png';
     const amount = amountInput.value;  
 
     document.getElementById('bs-amount').textContent = amount;  

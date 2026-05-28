@@ -51,13 +51,13 @@ if (!isset($_SESSION['user_id'])) {
         <div class="linear1">
             <div class="linear2">
                 <div class="image-view">
-                    <img src="https://cdn3.iconfinder.com/data/icons/feather-5/24/x-512.png" alt="Clear" width="20" height="20">
+                    <img src="../images/toban/clear.png" alt="Clear" width="20" height="20">
                 </div>
                 <div class="text-view-header" style="padding: 8px;">Select Bank</div>
             </div>
             <div class="linear-sracg">
                 <div class="image-view">
-                    <img src="https://cdn3.iconfinder.com/data/icons/feather-5/24/search-512.png" alt="Search" width="20" height="20">
+                    <img src="../images/toban/search.png" alt="Search" width="20" height="20">
                 </div>
                 <input type="text" id="bankSearchInput" class="edit-text" placeholder="Search Bank Name">
             </div>
