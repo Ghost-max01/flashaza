@@ -82,11 +82,13 @@ function getBankLogoUrl($bankName = '', $bankCode = '') {
 
     foreach ($candidates as $cand) {
         if ($cand === '') continue;
-        $cdn = 'https://paystack.com/banks/' . rawurlencode($cand) . '.png';
-        if (url_exists($cdn)) return $cdn;
+        if (preg_match('/^[0-9]{3,4}$/', $cand)) {
+            return 'paystack-logo.php?code=' . rawurlencode($cand);
+        }
+        return 'paystack-logo.php?slug=' . rawurlencode($cand);
     }
 
-    // Local fallback if Paystack CDN is unavailable
+    // Local fallback if Paystack proxy is unavailable
     $localPaths = [
         __DIR__ . "/../images/toban/{$slug}.png",
         __DIR__ . "/../images/toban/{$slug}.jpg",

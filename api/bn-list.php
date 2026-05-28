@@ -154,11 +154,11 @@ if (!isset($_SESSION['user_id'])) {
         const code = (bank.code || '').toString().trim();
         const paystackCode = /^[0-9]{3,4}$/.test(code) ? code : '';
         if (paystackCode) {
-            return `https://paystack.com/banks/${encodeURIComponent(paystackCode)}.png`;
+            return `paystack-logo.php?code=${encodeURIComponent(paystackCode)}`;
         }
         const slugSource = (bank.slug || bank.name || '').toString().trim().toLowerCase();
         const slug = slugSource.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-        return slug ? `https://paystack.com/banks/${encodeURIComponent(slug)}.png` : '';
+        return slug ? `paystack-logo.php?slug=${encodeURIComponent(slug)}` : '';
     }
 
     // ─── Build a single list item ───
@@ -203,33 +203,57 @@ if (!isset($_SESSION['user_id'])) {
         return li;
     }
 
-    // ─── Fetch & render bank list ───
+    // ─── Fetch & render bank list (merge Paystack + NigerianBanks logos, keep UI intact) ───
     async function loadBanks() {
         const listEl = document.getElementById('bankList');
 
+        function normalizeName(name) {
+            return String(name || '').toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').trim();
+        }
+
         try {
-            const res = await fetch('paystack-banks.php');
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error('Network response was not ok: ' + text);
+            // Primary: Paystack for full bank list
+            const payRes = await fetch('paystack-banks.php');
+            if (!payRes.ok) {
+                const text = await payRes.text();
+                throw new Error('Paystack error: ' + text);
             }
-            const payload = await res.json();
-            const banks = Array.isArray(payload.data) ? payload.data : [];
+            const payPayload = await payRes.json();
+            const payBanks = Array.isArray(payPayload.data) ? payPayload.data : [];
 
-            if (!banks.length) {
-                throw new Error('No banks returned from Paystack');
+            // Secondary: NigerianBanks for logos (best-effort)
+            let ngBanks = [];
+            try {
+                const ngRes = await fetch('https://nigerianbanks.xyz/');
+                if (ngRes.ok) ngBanks = await ngRes.json();
+            } catch (e) {
+                ngBanks = [];
             }
 
-            // Sort alphabetically
-            banks.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            // Build logo map from NigerianBanks by normalized name
+            const ngLogoMap = {};
+            ngBanks.forEach(nb => {
+                const k = normalizeName(nb.name || nb.bank_name || '');
+                if (!k) return;
+                ngLogoMap[k] = nb.logo || nb.url || nb.image || nb.logo_url || nb.icon || '';
+            });
+
+            // Merge: prefer Paystack (name+code) but attach logo from NigerianBanks when possible
+            const merged = payBanks.map(pb => {
+                const name = pb.name || pb.bank_name || '';
+                const code = (pb.code || pb.bank_code || pb.id || '') + '';
+                const key = normalizeName(name);
+                const ngLogo = ngLogoMap[key] || '';
+                const logo = ngLogo || (`paystack-logo.php?code=${encodeURIComponent(code)}`);
+                return { name: name, code: code, logo: logo };
+            });
+
+            merged.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
             listEl.innerHTML = '';
-
             let currentLetter = '';
-            banks.forEach(bank => {
-                const firstLetter = bank.name[0].toUpperCase();
-
-                // Insert alphabet divider when the letter changes
+            merged.forEach(bank => {
+                const firstLetter = (bank.name || '').charAt(0).toUpperCase();
                 if (firstLetter !== currentLetter) {
                     currentLetter = firstLetter;
                     const divider = document.createElement('li');
@@ -237,21 +261,21 @@ if (!isset($_SESSION['user_id'])) {
                     divider.innerHTML = `<div class="text-view-gray">${currentLetter}</div>`;
                     listEl.appendChild(divider);
                 }
-
-                listEl.appendChild(createBankItem(bank));
+                // createBankItem expects properties like name, code, logo/url — pass as-is
+                listEl.appendChild(createBankItem({ name: bank.name, code: bank.code, logo: bank.logo }));
             });
 
         } catch (err) {
-            console.warn('Paystack fetch failed, falling back to backup source:', err);
+            console.warn('Primary merge failed, falling back to NigerianBanks only:', err);
             try {
                 const backupRes = await fetch('https://nigerianbanks.xyz/');
                 if (!backupRes.ok) throw new Error('Backup response not ok');
                 const backupBanks = await backupRes.json();
-                backupBanks.sort((a, b) => a.name.localeCompare(b.name));
+                backupBanks.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
                 listEl.innerHTML = '';
                 let currentLetter = '';
                 backupBanks.forEach(bank => {
-                    const firstLetter = bank.name[0].toUpperCase();
+                    const firstLetter = (bank.name || bank.bank_name || '').charAt(0).toUpperCase();
                     if (firstLetter !== currentLetter) {
                         currentLetter = firstLetter;
                         const divider = document.createElement('li');
@@ -259,7 +283,9 @@ if (!isset($_SESSION['user_id'])) {
                         divider.innerHTML = `<div class="text-view-gray">${currentLetter}</div>`;
                         listEl.appendChild(divider);
                     }
-                    listEl.appendChild(createBankItem(bank));
+                    // NigerianBanks item may have `logo` or `url` fields
+                    const logo = bank.logo || bank.url || bank.image || '';
+                    listEl.appendChild(createBankItem({ name: bank.name || bank.bank_name, code: bank.code || bank.bank_code, logo: logo }));
                 });
             } catch (backupErr) {
                 listEl.innerHTML = `<li class="linear4 loading-item">
