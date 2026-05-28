@@ -4,6 +4,7 @@ header('Content-Type: application/json');
 
 $paystackKey = trim(getenv('PAYSTACK_SECRET_KEY') ?: '');
 if ($paystackKey === '') {
+    http_response_code(500);
     echo json_encode(['error' => 'PAYSTACK_SECRET_KEY not configured']);
     exit();
 }
@@ -20,12 +21,14 @@ $err = curl_error($ch);
 curl_close($ch);
 
 if ($err) {
+    http_response_code(500);
     echo json_encode(['error' => 'Curl error: ' . $err]);
     exit();
 }
 
 $data = json_decode($response, true);
 if (!is_array($data) || !isset($data['status']) || $data['status'] !== true || !isset($data['data']) || !is_array($data['data'])) {
+    http_response_code(500);
     echo json_encode(['error' => 'Invalid Paystack response', 'raw' => $data]);
     exit();
 }
@@ -54,6 +57,7 @@ foreach ($data['data'] as $bank) {
 }
 
 if (empty($banks)) {
+    http_response_code(500);
     echo json_encode(['error' => 'No banks returned from Paystack']);
     exit();
 }

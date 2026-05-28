@@ -1,15 +1,20 @@
 async function fetchBanks() {
-    try {
-        let res = await fetch("/api/bn.php");
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        let banks = await res.json();
+    const listView = document.querySelector(".list-view");
+    if (!listView) return;
 
+    try {
+        let res = await fetch("bn.php");
+        if (!res.ok) {
+            let text = await res.text();
+            throw new Error('HTTP ' + res.status + ': ' + text);
+        }
+
+        let banks = await res.json();
         if (!Array.isArray(banks)) {
             throw new Error('Invalid bank list response');
         }
 
-        const listView = document.querySelector(".list-view");
-        listView.innerHTML = ""; // clear
+        listView.innerHTML = "";
 
         banks.forEach(bank => {
             let li = document.createElement("li");
