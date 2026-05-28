@@ -83,16 +83,10 @@ if (!is_array($data) || !isset($data['data']) || !is_array($data['data'])) {
 
 $banks = [];
 foreach ($data['data'] as $bank) {
-    $slug = trim((string)($bank['slug'] ?? ''));
-    $logoUrl = '';
-    if ($slug !== '') {
-        $logoUrl = 'https://cdn.jsdelivr.net/gh/supermx1/nigerian-banks-api@main/logos/' . $slug . '.png';
-    }
     $banks[] = [
         'name' => $bank['name'] ?? '',
         'code' => $bank['code'] ?? '',
-        'slug' => $slug,
-        'logo' => $logoUrl,
+        'slug' => trim((string)($bank['slug'] ?? '')),
         'active' => $bank['active'] ?? false,
         'pay_with_bank' => $bank['pay_with_bank'] ?? false,
     ];

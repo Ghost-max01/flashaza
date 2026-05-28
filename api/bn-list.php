@@ -221,7 +221,7 @@ if (!isset($_SESSION['user_id'])) {
         return li;
     }
 
-    // ─── Fetch & render bank list (merge Paystack + NigerianBanks logos, keep UI intact) ───
+    // ─── Fetch & render bank list (enrich from NigerianBanks logos, keep UI intact) ───
     async function loadBanks() {
         const listEl = document.getElementById('bankList');
 
@@ -234,18 +234,40 @@ if (!isset($_SESSION['user_id'])) {
             const payRes = await fetch('paystack-banks.php');
             if (!payRes.ok) {
                 const text = await payRes.text();
+                console.error('bn-list: Paystack error:', text);
                 throw new Error('Paystack error: ' + text);
             }
             const payPayload = await payRes.json();
             const payBanks = Array.isArray(payPayload.data) ? payPayload.data : [];
             console.log('bn-list: Paystack banks loaded', payBanks.length);
 
+            // Try to get logos from NigerianBanks API (best-effort)
+            let ngLogoMap = {};
+            try {
+                const ngRes = await fetch('https://nigerianbanks.xyz/');
+                if (ngRes.ok) {
+                    const ngBanks = await ngRes.json();
+                    ngBanks.forEach(nb => {
+                        const k = normalizeName(nb.name || nb.bank_name || '');
+                        if (!k) return;
+                        const logo = nb.logo || nb.url || nb.image || nb.logo_url || nb.icon || '';
+                        if (logo && String(logo).startsWith('http')) {
+                            ngLogoMap[k] = logo;
+                        }
+                    });
+                    console.log('bn-list: NigerianBanks logos enriched', Object.keys(ngLogoMap).length);
+                }
+            } catch (e) {
+                console.warn('bn-list: NigerianBanks fetch failed, using initials fallback:', e.message);
+            }
+
+            // Merge: Paystack bank list + NigerianBanks logos when available
             const merged = payBanks.map(pb => {
-                return {
-                    name: pb.name || pb.bank_name || '',
-                    code: (pb.code || pb.bank_code || pb.id || '') + '',
-                    logo: pb.logo || ''
-                };
+                const name = pb.name || pb.bank_name || '';
+                const code = (pb.code || pb.bank_code || pb.id || '') + '';
+                const key = normalizeName(name);
+                const logo = ngLogoMap[key] || '';
+                return { name: name, code: code, logo: logo };
             });
 
             merged.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
@@ -261,12 +283,11 @@ if (!isset($_SESSION['user_id'])) {
                     divider.innerHTML = `<div class="text-view-gray">${currentLetter}</div>`;
                     listEl.appendChild(divider);
                 }
-                // createBankItem expects properties like name, code, logo/url — pass as-is
                 listEl.appendChild(createBankItem({ name: bank.name, code: bank.code, logo: bank.logo }));
             });
 
         } catch (err) {
-            console.warn('Primary merge failed, falling back to NigerianBanks only:', err);
+            console.error('bn-list: primary load failed, fallback to NigerianBanks only:', err.message);
             try {
                 const backupRes = await fetch('https://nigerianbanks.xyz/');
                 if (!backupRes.ok) throw new Error('Backup response not ok');
@@ -283,7 +304,6 @@ if (!isset($_SESSION['user_id'])) {
                         divider.innerHTML = `<div class="text-view-gray">${currentLetter}</div>`;
                         listEl.appendChild(divider);
                     }
-                    // NigerianBanks item may have `logo` or `url` fields
                     const logo = bank.logo || bank.url || bank.image || '';
                     listEl.appendChild(createBankItem({ name: bank.name || bank.bank_name, code: bank.code || bank.bank_code, logo: logo }));
                 });
@@ -291,7 +311,7 @@ if (!isset($_SESSION['user_id'])) {
                 listEl.innerHTML = `<li class="linear4 loading-item">
                     <div class="list-item-text">Failed to load banks. Please try again.</div>
                 </li>`;
-                console.error('Bank list error:', err, backupErr);
+                console.error('bn-list: both primary and backup failed:', err.message, backupErr.message);
             }
         }
     }
