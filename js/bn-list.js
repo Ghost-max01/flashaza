@@ -13,16 +13,18 @@ async function fetchBanks() {
 
         let banks;
         try {
-            banks = JSON.parse(responseText);
+            let text = responseText;
+            if (text.trim().startsWith('<') || text.indexOf('<br') !== -1) {
+                const idx = text.indexOf('[');
+                if (idx !== -1) text = text.slice(idx);
+            }
+            banks = JSON.parse(text);
         } catch (parseErr) {
             throw new Error('Invalid JSON from bn.php: ' + responseText.slice(0, 200));
         }
 
-        if (!Array.isArray(banks)) {
-            throw new Error('Invalid bank list response: ' + JSON.stringify(banks));
-        }
-
-        listView.innerHTML = "";
+        const listViewEl = document.querySelector(".list-view");
+        listViewEl.innerHTML = "";
 
         banks.forEach(bank => {
             let li = document.createElement("li");
@@ -35,7 +37,6 @@ async function fetchBanks() {
             `;
             
             li.addEventListener("click", () => {
-                // create hidden form and submit POST to to-bn.php
                 let form = document.createElement("form");
                 form.method = "POST";
                 form.action = "to-bn.php";
@@ -52,10 +53,9 @@ async function fetchBanks() {
                 form.submit();
             });
 
-            listView.appendChild(li);
+            listViewEl.appendChild(li);
         });
 
-        // Add search filter
         const searchInput = document.querySelector(".edit-text");
         searchInput.addEventListener("input", () => {
             const q = searchInput.value.toLowerCase();
