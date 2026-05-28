@@ -548,7 +548,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                         body: new URLSearchParams({ action: 'verify_phone', phone: v })
                     })
-                    .then(r => r.json())
+                    .then(async (r) => {
+                        if (!r.ok) {
+                            const text = await r.text();
+                            console.error('verify HTTP error', r.status, text);
+                            throw new Error('HTTP ' + r.status);
+                        }
+                        try {
+                            return await r.json();
+                        } catch (parseErr) {
+                            const text = await r.text();
+                            console.error('verify response text', text);
+                            throw parseErr;
+                        }
+                    })
                     .then(data => {
                         progressBar.style.display = 'none';
                         if (data.ok) {
@@ -617,7 +630,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         password: password
                     })
                 })
-                .then(r => r.json())
+                .then(async (r) => {
+                    if (!r.ok) {
+                        const text = await r.text();
+                        console.error('register HTTP error', r.status, text);
+                        throw new Error('HTTP ' + r.status);
+                    }
+                    try {
+                        return await r.json();
+                    } catch (parseErr) {
+                        const text = await r.text();
+                        console.error('register response text', text);
+                        throw parseErr;
+                    }
+                })
                 .then(data => {
                     progressBar.style.display = 'none';
                     if (data.ok) {
