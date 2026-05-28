@@ -149,18 +149,30 @@ if (!isset($_SESSION['user_id'])) {
         return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
     }
 
+    function getPaystackLogoUrl(bank) {
+        if (!bank) return '';
+        const code = (bank.code || '').toString().trim().toLowerCase();
+        if (code) {
+            return `https://cdn.paystack.co/banks/${encodeURIComponent(code)}.png`;
+        }
+        const name = (bank.name || '').toString().trim().toLowerCase();
+        if (!name) return '';
+        const slug = name.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        return slug ? `https://cdn.paystack.co/banks/${encodeURIComponent(slug)}.png` : '';
+    }
+
     // ─── Build a single list item ───
     function createBankItem(bank) {
         const li = document.createElement('li');
         li.className = 'linear4';
-        li.dataset.name = bank.name.toLowerCase();
+        li.dataset.name = (bank.name || '').toLowerCase();
 
-        // Logo or fallback avatar
+        const logoUrl = getPaystackLogoUrl(bank) || bank.logo || '';
         let logoHtml;
-        if (bank.logo) {
+        if (logoUrl) {
             logoHtml = `<img
                 class="bank-logo-img"
-                src="${bank.logo}"
+                src="${logoUrl}"
                 alt="${bank.name}"
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="bank-logo-fallback" style="background:${getFallbackColor(bank.name)};display:none;">

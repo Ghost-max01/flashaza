@@ -64,13 +64,29 @@ function url_exists($url) {
     return ($code >= 200 && $code < 400);
 }
 
-// Helper: resolve bank logo URL. Try local images, then Paystack CDN (public), then default.
+// Helper: resolve bank logo URL. Prefer Paystack CDN logos automatically, then local fallback.
 function getBankLogoUrl($bankName = '', $bankCode = '') {
     $bankName = trim((string)$bankName);
     $bankCode = trim((string)$bankCode);
-    $slug = strtolower(preg_replace('/[^a-z0-9]+/','-', $bankName));
 
-    // 1) Local image by slug
+    $candidates = [];
+    if ($bankCode !== '') {
+        $candidates[] = strtolower($bankCode);
+    }
+    $slug = strtolower(preg_replace('/[^a-z0-9]+/','-', $bankName));
+    if ($slug !== '') {
+        $candidates[] = $slug;
+        $candidates[] = str_replace('-bank','',$slug);
+        $candidates[] = str_replace('--','-',$slug);
+    }
+
+    foreach ($candidates as $cand) {
+        if ($cand === '') continue;
+        $cdn = 'https://cdn.paystack.co/banks/' . rawurlencode($cand) . '.png';
+        if (url_exists($cdn)) return $cdn;
+    }
+
+    // Local fallback if Paystack CDN is unavailable
     $localPaths = [
         __DIR__ . "/../images/toban/{$slug}.png",
         __DIR__ . "/../images/toban/{$slug}.jpg",
@@ -82,59 +98,6 @@ function getBankLogoUrl($bankName = '', $bankCode = '') {
         }
     }
 
-    // 2) Known bank name mappings (common fallbacks)
-    $map = [
-        'access' => 'access-bank',
-        'access bank' => 'access-bank',
-        'first' => 'first-bank',
-        'first bank' => 'first-bank',
-        'first bank of nigeria' => 'first-bank',
-        'zenith' => 'zenith',
-        'zenith bank' => 'zenith',
-        'gtbank' => 'guaranty-trust-bank',
-        'gt bank' => 'guaranty-trust-bank',
-        'guaranty trust bank' => 'guaranty-trust-bank',
-        'uba' => 'uba',
-        'union' => 'union-bank',
-        'union bank' => 'union-bank',
-        'ecobank' => 'ecobank',
-        'sterling' => 'sterling-bank',
-        'polaris' => 'polaris-bank',
-        'heritage' => 'heritage-bank',
-    ];
-
-    $candidates = [];
-    if ($slug !== '') $candidates[] = $slug;
-    // variations
-    $candidates[] = str_replace('-bank','',$slug);
-    $candidates[] = str_replace('--','-',$slug);
-    if ($bankCode !== '') $candidates[] = strtolower($bankCode);
-    foreach ($map as $k=>$v) {
-        if ($bankName !== '' && stripos($bankName, $k) !== false) $candidates[] = $v;
-    }
-    // normalize and unique
-    $candidates = array_values(array_unique(array_filter(array_map(function($s){ return trim((string)$s); }, $candidates))));
-
-    // 3) Try Paystack CDN (public) for each candidate
-    foreach ($candidates as $cand) {
-        if ($cand === '') continue;
-        $cdn = 'https://cdn.paystack.co/banks/' . $cand . '.png';
-        if (url_exists($cdn)) return $cdn;
-    }
-
-    // 4) If bankName contains known short codes (e.g., GT, UBA), try them
-    $shorts = preg_replace('/[^A-Z0-9]/i','', $bankName);
-    if ($shorts) {
-        $cdn = 'https://cdn.paystack.co/banks/' . strtolower($shorts) . '.png';
-        if (url_exists($cdn)) return $cdn;
-    }
-
-    // 5) Use provided URL if valid
-    if (!empty($bankCode) && filter_var($bankCode, FILTER_VALIDATE_URL)) {
-        return $bankCode;
-    }
-
-    // 6) Default bank icon
     return '../images/toban/bank.png';
 }
 
@@ -267,7 +230,7 @@ $bankLogo = getBankLogoUrl($bankName, $bankCode);
             </div>
         </div>
         <div class="event-item">
-            <div class="event-icon"><img src="../images/toban/coin.png" alt=""></div>
+            <div class="event-icon"><img src="../images/toban/naira.png" alt=""></div>
             <div class="event-content">
                 <div class="event-title">Win up to ₦1 Billion!</div>
                 <div class="event-desc">Get more explosive odds on Bet9ja</div>
