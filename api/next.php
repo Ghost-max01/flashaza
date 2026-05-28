@@ -70,14 +70,13 @@ $formatted_balance = number_format($user_balance, 2);
 <meta charset="UTF-8">  
 <meta name="viewport" content="width=device-width, initial-scale=1.0">  
 <title>Transfer to Bank</title>  
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
 <link rel="stylesheet" href="../css/next.css">
 </head>  
 <body>  
 <div class="container" id="mainContainer">  
     <div class="header">  
         <div class="image-view" id="backButton">  
-            <img src="https://cdn3.iconfinder.com/data/icons/feather-5/24/chevron-left-512.png" alt="Back" width="24" height="24">  
+            <img src="../images/toban/view.png" alt="Back" width="24" height="24">  
         </div>  
         <div class="header-text">Transfer to Bank</div>  
         <div class="records-btn">Records</div>  
@@ -102,7 +101,7 @@ $formatted_balance = number_format($user_balance, 2);
             <div class="currency-symbol">₦</div>  
             <input type="text" id="edittext2" class="amount-input" placeholder="100.00 - 5,000,000.00" inputmode="decimal">  
             <div id="clear" class="clear-btn">  
-                <img src="https://cdn3.iconfinder.com/data/icons/feather-5/24/x-512.png" alt="Clear" width="20" height="20">  
+                <img src="../images/toban/clear.png" alt="Clear" width="20" height="20">  
             </div>  
         </div>  
         <div class="divider"></div>  
@@ -152,7 +151,7 @@ $formatted_balance = number_format($user_balance, 2);
 <div class="bottom-sheet-container" id="bottomSheet">  
     <div class="bottom-sheet">  
         <!-- close -->  
-        <img class="close-icon" id="closeBottomSheet" src="https://cdn3.iconfinder.com/data/icons/feather-5/24/x-512.png" alt="Close">  
+        <img class="close-icon" id="closeBottomSheet" src="../images/toban/clear.png" alt="Close">  
 
         <div class="amount-section">  
             <div class="bs-currency-symbol">₦</div>  
@@ -189,15 +188,15 @@ $formatted_balance = number_format($user_balance, 2);
         <div class="payment-method">  
             <div class="method-label">Payment method</div>  
             <div class="method-value">All</div>  
-            <img class="chevron-icon" src="https://cdn3.iconfinder.com/data/icons/feather-5/24/chevron-right-512.png" alt="More">  
+            <img class="chevron-icon" src="../images/toban/view.png" alt="More">  
         </div>  
 
         <div class="balance-section">  
             <div class="balance-header">  
                 <div class="balance-title">Available Balance (<span id="bs-available-balance"><?php echo $formatted_balance; ?></span>)</div>  
-                <img class="balance-icon" src="https://cdn3.iconfinder.com/data/icons/feather-5/24/info-512.png" alt="Info">  
+                <img class="balance-icon" src="../images/toban/badge.png" alt="Info">  
                 <div style="flex:1;"></div>  
-                <img class="check-icon" src="https://cdn3.iconfinder.com/data/icons/feather-5/24/check-512.png" alt="Selected">  
+                <img class="check-icon" src="../images/toban/good.png" alt="Selected">  
             </div>  
             <div class="dotted-line">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</div>  
             <div class="wallet-balance">  
@@ -222,7 +221,7 @@ $formatted_balance = number_format($user_balance, 2);
     <div class="pin-bottom-sheet">  
         <div class="pin-header">  
             <div class="pin-caption" id="pinSheetTitle">Enter Payment PIN</div>  
-            <img class="pin-close-icon" src="https://cdn3.iconfinder.com/data/icons/feather-5/24/x-512.png" alt="Close" id="closePinBottomSheet">  
+            <img class="pin-close-icon" src="../images/toban/clear.png" alt="Close" id="closePinBottomSheet">  
         </div>  
 
         <!-- PIN Inputs (readonly + inputmode=none, 1 digit each) -->  
@@ -268,6 +267,12 @@ $formatted_balance = number_format($user_balance, 2);
 </div>  
 
 
+<script>
+const userBalance = <?php echo json_encode($user_balance); ?>;
+let pinSet = <?php echo json_encode($pin_set); ?>;
+const formattedBalance = "<?php echo $formatted_balance; ?>";
+</script>
+<script src="../js/next.js"></script>
 <script>
   // Disable right-click
   document.addEventListener("contextmenu", function(e){
