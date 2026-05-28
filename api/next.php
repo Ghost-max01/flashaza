@@ -531,25 +531,7 @@ async function verifyPin(pin){
         clearPinInputs();  
     }  
 }  
-<script>  
-/* ===== Boot data from PHP ===== */  
-const userBalance = <?php echo json_encode($user_balance); ?>;  
-let pinSet        = <?php echo json_encode($pin_set); ?>; // 0 or 1  
-const formattedBalance = "<?php echo $formatted_balance; ?>";  
 
-/* ===== PIN stage defaults (respect DB: null/empty => set) ===== */  
-let pinStage = pinSet ? "enter" : "set"; // "set" | "confirm" | "enter"  
-
-/* ===== Helpers ===== */  
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}  
-function formatAmount(v){  
-    v = v.replace(/[^0-9.]/g,'');  
-    const parts = v.split('.');  
-    if (parts.length>2){ v = parts[0]+'.'+parts[1]; }  
-    if (parts[1]){ parts[1]=parts[1].substring(0,2); v = parts[0]+'.'+parts[1]; }  
-    let [i,d]=v.split('.');  
-    i = (i||'').replace(/\B(?=(\d{3})+(?!\d))/g,',');  
-    return d!==undefined ? i+'.'+d : i;  
 }  
 function parseAmount(v){return parseFloat((v||'').replace(/,/g,''));}  
 function validateAmount(v){  
