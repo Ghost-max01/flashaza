@@ -1,5 +1,9 @@
 <?php
-// transfer.php
+// Enable reporting but do not display to user; log and expose to browser console
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../error_log.txt');
 if (session_status()===PHP_SESSION_NONE) session_start();
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -31,6 +35,102 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
     $v = strtolower(trim((string)($r['favorite'] ?? '')));
     return $v === '1' || $v === 'true' || $v === 'yes';
 }));
+
+// Collect PHP errors to surface them into the browser console (not HTML)
+$php_errors = [];
+set_error_handler(function($severity, $message, $file, $line) use (&$php_errors) {
+    $php_errors[] = ['severity'=>$severity, 'message'=>$message, 'file'=>$file, 'line'=>$line];
+    // allow PHP to continue with its normal error handling (logging)
+    return false;
+});
+register_shutdown_function(function() use (&$php_errors) {
+    $err = error_get_last();
+    if ($err) {
+        $php_errors[] = $err;
+    }
+});
+
+// Helper: check URL exists (HEAD request)
+function url_exists($url) {
+    if (filter_var($url, FILTER_VALIDATE_URL) === false) return false;
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_NOBODY, true);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    return ($code >= 200 && $code < 400);
+}
+
+// Helper: resolve bank logo URL. Prefer Paystack (if key present), then local images, then default.
+function getBankLogoUrl($bankName = '', $bankCode = '') {
+    $bankName = trim((string)$bankName);
+    $bankCode = trim((string)$bankCode);
+    $slug = strtolower(preg_replace('/[^a-z0-9]+/','-', $bankName));
+
+    // 1) Local image by slug
+    $localPaths = [
+        __DIR__ . "/../images/toban/{$slug}.png",
+        __DIR__ . "/../images/toban/{$slug}.jpg",
+        __DIR__ . "/../images/toban/{$slug}.svg",
+    ];
+    foreach ($localPaths as $p) {
+        if (file_exists($p)) {
+            $rel = '../images/toban/' . basename($p);
+            return $rel;
+        }
+    }
+
+    // 2) Try Paystack CDN if secret present (best-effort)
+    $paystackSecret = trim(getenv('PAYSTACK_SECRET') ?: '');
+    if ($paystackSecret !== '') {
+        $candidateSlug = $slug ?: strtolower($bankCode);
+        if ($candidateSlug !== '') {
+            $cdn = 'https://cdn.paystack.co/banks/' . $candidateSlug . '.png';
+            if (url_exists($cdn)) return $cdn;
+            // some banks may use code-based png
+            $cdn2 = 'https://cdn.paystack.co/banks/' . $bankCode . '.png';
+            if ($bankCode !== '' && url_exists($cdn2)) return $cdn2;
+        }
+        // As a fallback try the API to get a slug (best-effort; may fail without correct endpoint)
+        $ch = curl_init('https://api.paystack.co/bank');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $paystackSecret]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 8);
+        $res = curl_exec($ch);
+        curl_close($ch);
+        $json = json_decode($res ?? '', true);
+        if (is_array($json) && isset($json['data']) && is_array($json['data'])) {
+            foreach ($json['data'] as $entry) {
+                $n = $entry['name'] ?? ($entry['bank_name'] ?? '');
+                $c = $entry['code'] ?? ($entry['bank_code'] ?? '');
+                if ($n && stripos($n, $bankName) !== false) {
+                    $guess = strtolower(preg_replace('/[^a-z0-9]+/','-', $n));
+                    $cdn = 'https://cdn.paystack.co/banks/' . $guess . '.png';
+                    if (url_exists($cdn)) return $cdn;
+                }
+                if ($c && $bankCode !== '' && (string)$c === (string)$bankCode) {
+                    $cdn = 'https://cdn.paystack.co/banks/' . $c . '.png';
+                    if (url_exists($cdn)) return $cdn;
+                }
+            }
+        }
+    }
+
+    // 3) Use provided URL if valid
+    if ($bankCode === '' && $bankName !== '') {
+        // nothing
+    }
+
+    // 4) Default bank icon
+    $default = '../images/toban/bank.png';
+    return $default;
+}
+
+// Pre-resolve selected bank logo URL for the header
+$bankLogo = getBankLogoUrl($bankName, $bankCode);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,7 +164,7 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
 
         <div class="bank-selector" id="bankSelector">
             <div class="bank-logo">
-                <img id="bankLogo" src="<?php echo htmlspecialchars($bankUrl); ?>" alt="Bank logo">
+                <img id="bankLogo" src="<?php echo htmlspecialchars($bankLogo); ?>" alt="Bank logo">
             </div>
             <div class="bank-name" id="bankName"><?php echo $bankName ? htmlspecialchars($bankName) : 'Select Bank'; ?></div>
             <div class="chevron">›</div>
@@ -102,13 +202,13 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
                          data-accountnumber="<?php echo htmlspecialchars($b['accountnumber']); ?>"
                          data-bankname="<?php echo htmlspecialchars($b['bankname']); ?>"
                          data-accountname="<?php echo htmlspecialchars($b['accountname']); ?>"
-                         data-url="<?php echo htmlspecialchars($b['url']); ?>">
+                         data-url="<?php echo htmlspecialchars(getBankLogoUrl($b['bankname'] ?? '')); ?>">
                         <div class="b-left">
                             <div class="b-name"><?php echo htmlspecialchars($b['accountname']); ?></div>
                             <div class="b-sub"><?php echo htmlspecialchars($b['accountnumber'].'   '.$b['bankname']); ?></div>
                         </div>
                         <div class="b-avatar">
-                            <img src="<?php echo htmlspecialchars($b['url']); ?>" alt="Profile Image">
+                            <img src="<?php echo htmlspecialchars(getBankLogoUrl($b['bankname'] ?? '')); ?>" alt="Profile Image">
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -129,13 +229,13 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
                          data-accountnumber="<?php echo htmlspecialchars($b['accountnumber']); ?>"
                          data-bankname="<?php echo htmlspecialchars($b['bankname']); ?>"
                          data-accountname="<?php echo htmlspecialchars($b['accountname']); ?>"
-                         data-url="<?php echo htmlspecialchars($b['url']); ?>">
+                         data-url="<?php echo htmlspecialchars(getBankLogoUrl($b['bankname'] ?? '')); ?>">
                         <div class="b-left">
                             <div class="b-name"><?php echo htmlspecialchars($b['accountname']); ?></div>
                             <div class="b-sub"><?php echo htmlspecialchars($b['accountnumber'].'   '.$b['bankname']); ?></div>
                         </div>
                         <div class="b-avatar">
-                            <img src="<?php echo htmlspecialchars($b['url']); ?>" alt="Profile Image">
+                            <img src="<?php echo htmlspecialchars(getBankLogoUrl($b['bankname'] ?? '')); ?>" alt="Profile Image">
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -171,7 +271,7 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
 <script>
 // ======== Server data ========
 const BANK = <?php echo json_encode([
-    'name'=>$bankName,'url'=>$bankUrl,'code'=>$bankCode
+    'name'=>$bankName,'url'=>$bankLogo,'code'=>$bankCode
 ], JSON_UNESCAPED_SLASHES); ?>;
 
 </script>
@@ -194,5 +294,19 @@ const BANK = <?php echo json_encode([
     }
   }
 </script>
+<?php if (!empty($php_errors)): ?>
+<script>
+    (function(){
+        const phpErrs = <?php echo json_encode($php_errors, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE); ?> || [];
+        phpErrs.forEach(function(e){
+            try {
+                console.error('PHP error:', e.message || e);
+            } catch (ex) {
+                console.error('PHP error (raw)', e);
+            }
+        });
+    })();
+</script>
+<?php endif; ?>
 </body>
 </html>
