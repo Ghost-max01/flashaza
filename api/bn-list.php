@@ -196,12 +196,20 @@ if (!isset($_SESSION['user_id'])) {
         const listEl = document.getElementById('bankList');
 
         try {
-            const res = await fetch('https://nigerianbanks.xyz/');
-            if (!res.ok) throw new Error('Network response was not ok');
-            const banks = await res.json();
+            const res = await fetch('paystack-banks.php');
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error('Network response was not ok: ' + text);
+            }
+            const payload = await res.json();
+            const banks = Array.isArray(payload.data) ? payload.data : [];
+
+            if (!banks.length) {
+                throw new Error('No banks returned from Paystack');
+            }
 
             // Sort alphabetically
-            banks.sort((a, b) => a.name.localeCompare(b.name));
+            banks.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
             listEl.innerHTML = '';
 
@@ -222,10 +230,31 @@ if (!isset($_SESSION['user_id'])) {
             });
 
         } catch (err) {
-            listEl.innerHTML = `<li class="linear4 loading-item">
-                <div class="list-item-text">Failed to load banks. Please try again.</div>
-            </li>`;
-            console.error('Bank list error:', err);
+            console.warn('Paystack fetch failed, falling back to backup source:', err);
+            try {
+                const backupRes = await fetch('https://nigerianbanks.xyz/');
+                if (!backupRes.ok) throw new Error('Backup response not ok');
+                const backupBanks = await backupRes.json();
+                backupBanks.sort((a, b) => a.name.localeCompare(b.name));
+                listEl.innerHTML = '';
+                let currentLetter = '';
+                backupBanks.forEach(bank => {
+                    const firstLetter = bank.name[0].toUpperCase();
+                    if (firstLetter !== currentLetter) {
+                        currentLetter = firstLetter;
+                        const divider = document.createElement('li');
+                        divider.className = 'linearA';
+                        divider.innerHTML = `<div class="text-view-gray">${currentLetter}</div>`;
+                        listEl.appendChild(divider);
+                    }
+                    listEl.appendChild(createBankItem(bank));
+                });
+            } catch (backupErr) {
+                listEl.innerHTML = `<li class="linear4 loading-item">
+                    <div class="list-item-text">Failed to load banks. Please try again.</div>
+                </li>`;
+                console.error('Bank list error:', err, backupErr);
+            }
         }
     }
 
