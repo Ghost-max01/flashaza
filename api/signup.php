@@ -53,10 +53,10 @@ function get_paystack_bank_code() {
     return trim(getenv('PAYSTACK_BANK_CODE') ?: '');
 }
 
-function resolve_opay_account($account_number, $bank_code = '100004') {
+function resolve_opay_account($account_number, $bank_code = '999992') {
     $paystackKey = get_paystack_secret_key();
     $configuredBank = get_paystack_bank_code();
-    if ($configuredBank !== '' && $bank_code === '100004') {
+    if ($configuredBank !== '' && $bank_code === '999992') {
         $bank_code = $configuredBank;
     }
 
