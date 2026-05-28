@@ -1,5 +1,11 @@
-﻿<?php
-// bn.php
+<?php
+// bn.php - Paystack-backed bank list
+// Ensure no accidental output (no BOM/whitespace before <?php)
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+error_reporting(E_ALL);
+
+ob_start();
 header('Content-Type: application/json');
 
 function getEnvValue($name) {
@@ -19,6 +25,7 @@ function getEnvValue($name) {
 $paystackKey = getEnvValue('PAYSTACK_SECRET_KEY');
 if ($paystackKey === '') {
     http_response_code(500);
+    if (ob_get_length()) ob_clean();
     echo json_encode(['error' => 'PAYSTACK_SECRET_KEY not configured']);
     exit();
 }
@@ -36,6 +43,7 @@ curl_close($ch);
 
 if ($err) {
     http_response_code(500);
+    if (ob_get_length()) ob_clean();
     echo json_encode(['error' => 'Curl error: ' . $err]);
     exit();
 }
@@ -43,11 +51,14 @@ if ($err) {
 $data = json_decode($response, true);
 if ($code !== 200) {
     http_response_code(500);
+    if (ob_get_length()) ob_clean();
     echo json_encode(['error' => 'Paystack API returned HTTP ' . $code, 'raw' => $data]);
     exit();
 }
+
 if (!is_array($data) || !isset($data['status']) || $data['status'] !== true || !isset($data['data']) || !is_array($data['data'])) {
     http_response_code(500);
+    if (ob_get_length()) ob_clean();
     echo json_encode(['error' => 'Invalid Paystack response', 'raw' => $data]);
     exit();
 }
@@ -77,8 +88,10 @@ foreach ($data['data'] as $bank) {
 
 if (empty($banks)) {
     http_response_code(500);
+    if (ob_get_length()) ob_clean();
     echo json_encode(['error' => 'No banks returned from Paystack']);
     exit();
 }
 
+if (ob_get_length()) ob_clean();
 echo json_encode($banks);
