@@ -233,32 +233,12 @@ if (!isset($_SESSION['user_id'])) {
             const payBanks = Array.isArray(payPayload.data) ? payPayload.data : [];
             console.log('bn-list: Paystack banks loaded', payBanks.length);
 
-            // Secondary: NigerianBanks for logos (best-effort)
-            let ngBanks = [];
-            try {
-                const ngRes = await fetch('https://nigerianbanks.xyz/');
-                if (ngRes.ok) ngBanks = await ngRes.json();
-            } catch (e) {
-                ngBanks = [];
-            }
-
-            // Build logo map from NigerianBanks by normalized name
-            const ngLogoMap = {};
-            ngBanks.forEach(nb => {
-                const k = normalizeName(nb.name || nb.bank_name || '');
-                if (!k) return;
-                ngLogoMap[k] = nb.logo || nb.url || nb.image || nb.logo_url || nb.icon || '';
-            });
-
-            // Merge: prefer Paystack (name+code) but attach logo from NigerianBanks when possible
             const merged = payBanks.map(pb => {
-                const name = pb.name || pb.bank_name || '';
-                const code = (pb.code || pb.bank_code || pb.id || '') + '';
-                const key = normalizeName(name);
-                const ngLogo = ngLogoMap[key] || '';
-                // Use NigerianBanks logo if available; otherwise no fallback URL (show initials)
-                const logo = ngLogo || '';
-                return { name: name, code: code, logo: logo };
+                return {
+                    name: pb.name || pb.bank_name || '',
+                    code: (pb.code || pb.bank_code || pb.id || '') + '',
+                    logo: pb.logo || ''
+                };
             });
 
             merged.sort((a, b) => (a.name || '').localeCompare(b.name || ''));

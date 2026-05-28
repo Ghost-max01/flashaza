@@ -78,9 +78,10 @@ function url_exists($url) {
 }
 
 // Helper: resolve bank logo URL. Use local images > NigerianBanks logos; otherwise empty (show initials).
-function getBankLogoUrl($bankName = '', $bankCode = '') {
+function getBankLogoUrl($bankName = '', $bankCode = '', $bankUrl = '') {
     $bankName = trim((string)$bankName);
     $bankCode = trim((string)$bankCode);
+    $bankUrl = trim((string)$bankUrl);
 
     // Local fallback if available
     $slug = strtolower(preg_replace('/[^a-z0-9]+/','-', $bankName));
@@ -97,12 +98,15 @@ function getBankLogoUrl($bankName = '', $bankCode = '') {
         }
     }
 
-    // No external URLs; return empty to use initials fallback
+    if ($bankUrl !== '' && filter_var($bankUrl, FILTER_VALIDATE_URL)) {
+        return $bankUrl;
+    }
+
     return '';
 }
 
 // Pre-resolve selected bank logo URL for the header
-$bankLogo = getBankLogoUrl($bankName, $bankCode);
+$bankLogo = getBankLogoUrl($bankName, $bankCode, $bankUrl);
 ?>
 <!DOCTYPE html>
 <html lang="en">
