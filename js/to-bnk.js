@@ -21,13 +21,24 @@ window.addEventListener('unhandledrejection', function(event) {
 
 function extractPersonName(raw) {
     if (!raw) return '';
-    const lines = String(raw).trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    let text = lines.length ? lines[0] : String(raw).trim();
-    text = text.replace(/^(account\s*name|name)\s*[:\-]\s*/i, '');
-    text = text.replace(/\s*[-–—].*$/,'').replace(/\s*\(.*\)$/,'').trim();
-    const words = text.split(/\s+/).filter(w => /^[A-Za-z]+$/.test(w));
+    
+    // Trim and take first line only
+    let text = String(raw).trim().split(/\r?\n/)[0].trim();
+    
+    // Remove common prefixes like "Account Name:", "Name:", etc.
+    text = text.replace(/^(account\s*name|name|acct\s*name|account\s*holder|holder)\s*[:\-\s]+/i, '').trim();
+    
+    // Remove trailing junk like account numbers, dates, phone numbers in parentheses
+    text = text.replace(/\s*[-–—].*$/,'').replace(/\s*\([^)]*\d[^)]*\).*$/,'').trim();
+    
+    // Extract only alphabetic words (person names don't have slashes, commas, etc.)
+    const words = text.split(/[\s,;/|]+/).filter(w => /^[A-Za-z]+$/.test(w) && w.length > 1);
+    
     if (words.length === 0) return text;
-    return words.slice(0, Math.min(4, words.length)).join(' ');
+    if (words.length === 1) return words[0];
+    
+    // Return first 3 words (enough for most names)
+    return words.slice(0, 3).join(' ');
 }
 
 // ======== Navigation to bank list ========

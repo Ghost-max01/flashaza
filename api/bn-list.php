@@ -266,7 +266,16 @@ if (!isset($_SESSION['user_id'])) {
                 const name = pb.name || pb.bank_name || '';
                 const code = (pb.code || pb.bank_code || pb.id || '') + '';
                 const key = normalizeName(name);
-                const logo = ngLogoMap[key] || '';
+                let logo = ngLogoMap[key] || '';
+                
+                // Fallback: compute GitHub slug-based URL for banks not in NigerianBanks
+                if (!logo && pb.slug) {
+                    const slug = String(pb.slug).toLowerCase().trim();
+                    if (slug) {
+                        logo = 'https://raw.githubusercontent.com/supermx1/nigerian-banks-api/main/logos/' + slug + '.png';
+                    }
+                }
+                
                 return { name: name, code: code, logo: logo };
             });
 
