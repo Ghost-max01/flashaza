@@ -159,6 +159,7 @@ if (!isset($_SESSION['user_id'])) {
     }
 
     function submitBankSelection(bank) {
+        console.log('bn-list: submitting bank selection', bank);
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = 'to-bn.php';
@@ -180,13 +181,14 @@ if (!isset($_SESSION['user_id'])) {
         li.dataset.name = (bank.name || '').toLowerCase();
 
         const logoUrl = getPaystackLogoUrl(bank) || bank.logo || '';
+        console.debug('bn-list: createBankItem', { name: bank.name, code: bank.code, logoUrl });
         let logoHtml;
         if (logoUrl) {
             logoHtml = `<img
                 class="bank-logo-img"
                 src="${logoUrl}"
                 alt="${bank.name}"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                onerror="console.warn('Bank logo failed to load', this.src, this.alt); this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="bank-logo-fallback" style="background:${getFallbackColor(bank.name)};display:none;">
                 ${getInitials(bank.name)}
             </div>`;
@@ -229,6 +231,7 @@ if (!isset($_SESSION['user_id'])) {
             }
             const payPayload = await payRes.json();
             const payBanks = Array.isArray(payPayload.data) ? payPayload.data : [];
+            console.log('bn-list: Paystack banks loaded', payBanks.length);
 
             // Secondary: NigerianBanks for logos (best-effort)
             let ngBanks = [];

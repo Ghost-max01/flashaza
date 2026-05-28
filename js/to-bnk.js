@@ -10,6 +10,7 @@ const detectText   = document.getElementById('detectText');
 const nextBtn      = document.getElementById('nextBtn');
 
 let verified = { ok:false, accountName:'', accountNumber:'', bankName:BANK.name || '', bankUrl:BANK.url || '' };
+console.log('to-bnk.js: BANK data', typeof BANK !== 'undefined' ? BANK : null);
 
 // ======== Navigation to bank list ========
 bankSelector.addEventListener('click', () => {
@@ -23,6 +24,9 @@ if (BANK.name) {
     if (BANK.url) {
         bankLogo.src = BANK.url;
         bankLogo.style.display = 'block';
+        bankLogo.addEventListener('error', () => {
+            console.warn('to-bnk.js: bank logo failed to load', bankLogo.src, BANK);
+        });
     }
 }
 
@@ -54,11 +58,12 @@ function attachBeneficiaryClicks() {
 }
 attachBeneficiaryClicks();
 
-// ======== Account number input (digits only, max 10) ========
+// ======== Account number input (digits only) ========
 accInput.addEventListener('input', () => {
-    accInput.value = accInput.value.replace(/\D/g,'').slice(0,10);
+    accInput.value = accInput.value.replace(/\D/g,'');
     resetVerificationUI();
-    if (accInput.value.length === 10 && BANK.code) {
+    if (accInput.value.length >= 4 && BANK.code) {
+        console.log('to-bnk.js: attempt verify account', accInput.value, BANK.code);
         startVerification(accInput.value, BANK.code);
     }
 });

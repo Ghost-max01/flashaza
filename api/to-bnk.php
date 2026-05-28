@@ -12,6 +12,19 @@ if (!isset($_SESSION['user_id'])) {
 require_once "config.php"; // must define $pdo (PDO)
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $postedName = trim($_POST['name'] ?? $_POST['bankname'] ?? '');
+    $postedUrl  = trim($_POST['url'] ?? $_POST['banklogo'] ?? '');
+    $postedCode = trim($_POST['code'] ?? $_POST['bankcode'] ?? '');
+    if ($postedName !== '' || $postedUrl !== '' || $postedCode !== '') {
+        $_SESSION['bank'] = [
+            'name' => $postedName,
+            'url'  => $postedUrl,
+            'code' => $postedCode,
+        ];
+    }
+}
+
 // Selected bank from bn-list.php via to-bn.php (session)
 $selectedBank = $_SESSION['bank'] ?? null;
 $bankName = $selectedBank['name'] ?? '';
@@ -226,14 +239,13 @@ $bankLogo = getBankLogoUrl($bankName, $bankCode);
     </div>
 </div>
 
-<script src="../js/to-bnk.js" defer></script>
 <script>
 // ======== Server data ========
 const BANK = <?php echo json_encode([
     'name'=>$bankName,'url'=>$bankLogo,'code'=>$bankCode
 ], JSON_UNESCAPED_SLASHES); ?>;
-
 </script>
+<script src="../js/to-bnk.js" defer></script>
 <script>
   // Disable right-click
   document.addEventListener("contextmenu", function(e){
