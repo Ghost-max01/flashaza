@@ -45,4 +45,89 @@ if (!$databaseUrl) {
         }
     }
 }
+
+// --- Supabase REST helper (use when you prefer HTTPS REST calls instead of direct TCP) ---
+$USE_SUPABASE_REST = false;
+$SUPABASE_URL = trim(getenv('SUPABASE_URL') ?: '');
+$SUPABASE_ANON_KEY = trim(getenv('SUPABASE_ANON_KEY') ?: '');
+$SUPABASE_SERVICE_ROLE_KEY = trim(getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '');
+if ($SUPABASE_URL !== '' && $SUPABASE_SERVICE_ROLE_KEY !== '') {
+    $USE_SUPABASE_REST = true;
+    if ($SUPABASE_ANON_KEY === '') {
+        $SUPABASE_ANON_KEY = $SUPABASE_SERVICE_ROLE_KEY;
+    }
+}
+
+function supabase_request($method, $path, $body = null, $extraHeaders = []) {
+    global $SUPABASE_URL, $SUPABASE_ANON_KEY, $SUPABASE_SERVICE_ROLE_KEY;
+    $base = rtrim($SUPABASE_URL, '/') . '/rest/v1';
+    $url = $base . $path;
+
+    $ch = curl_init($url);
+    $headers = [
+        'apikey: ' . $SUPABASE_ANON_KEY,
+        'Authorization: Bearer ' . $SUPABASE_SERVICE_ROLE_KEY,
+    ];
+    foreach ($extraHeaders as $h) {
+        $headers[] = $h;
+    }
+
+    $opts = [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER     => $headers,
+        CURLOPT_TIMEOUT        => 20,
+    ];
+
+    if ($method === 'POST') {
+        $opts[CURLOPT_POST] = true;
+        $opts[CURLOPT_POSTFIELDS] = $body;
+    } elseif ($method === 'PATCH' || $method === 'PUT' || $method === 'DELETE') {
+        $opts[CURLOPT_CUSTOMREQUEST] = $method;
+        if ($body !== null) $opts[CURLOPT_POSTFIELDS] = $body;
+    }
+
+    curl_setopt_array($ch, $opts);
+    $res = curl_exec($ch);
+    $err = curl_error($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($err) return ['ok' => false, 'error' => $err, 'status' => 0, 'raw' => null];
+    return ['ok' => true, 'status' => $code, 'raw' => $res];
+}
+
+function supabase_user_exists_by_email($email) {
+    global $USE_SUPABASE_REST;
+    if (!$USE_SUPABASE_REST) return false;
+    $path = '/users?select=1&email=eq.' . rawurlencode($email);
+    $r = supabase_request('GET', $path);
+    if (!$r['ok'] || $r['status'] !== 200) return false;
+    $data = json_decode($r['raw'], true);
+    return is_array($data) && count($data) > 0;
+}
+
+function supabase_user_exists_by_number($number) {
+    global $USE_SUPABASE_REST;
+    if (!$USE_SUPABASE_REST) return false;
+    $path = '/users?select=1&number=eq.' . rawurlencode($number);
+    $r = supabase_request('GET', $path);
+    if (!$r['ok'] || $r['status'] !== 200) return false;
+    $data = json_decode($r['raw'], true);
+    return is_array($data) && count($data) > 0;
+}
+
+function supabase_insert_user(array $row) {
+    global $USE_SUPABASE_REST;
+    if (!$USE_SUPABASE_REST) return ['ok' => false, 'message' => 'Supabase REST not configured'];
+    $path = '/users';
+    $body = json_encode($row);
+    $headers = ['Content-Type: application/json', 'Prefer: return=representation'];
+    $r = supabase_request('POST', $path, $body, $headers);
+    if (!$r['ok']) return ['ok' => false, 'message' => $r['error'] ?? 'request failed'];
+    if ($r['status'] !== 201 && $r['status'] !== 200) {
+        return ['ok' => false, 'message' => 'Insert failed: HTTP ' . $r['status']];
+    }
+    $data = json_decode($r['raw'], true);
+    return ['ok' => true, 'data' => $data];
+}
 ?>

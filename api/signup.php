@@ -158,7 +158,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         // Verify the phone via external OPay gateway even when the DB is down.
         // Database registration checks are deferred until the final register action.
-        if (!empty($SUPABASE_AVAILABLE) && $SUPABASE_AVAILABLE === true) {
+        if (!empty($USE_SUPABASE_REST)) {
+            if (supabase_user_exists_by_number($phone)) {
+                json_response(['ok' => false, 'message' => 'This phone number is already registered. Please log in.'], 409);
+            }
+        } elseif (!empty($SUPABASE_AVAILABLE) && $SUPABASE_AVAILABLE === true) {
             $stmt = $pdo->prepare("SELECT 1 FROM users WHERE number = :num LIMIT 1");
             $stmt->execute(['num' => $phone]);
             if ($stmt->fetchColumn()) {
@@ -185,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 
     if ($action === 'register') {
-        if (empty($SUPABASE_AVAILABLE) || $SUPABASE_AVAILABLE === false) {
+        if ((empty($SUPABASE_AVAILABLE) || $SUPABASE_AVAILABLE === false) && (empty($USE_SUPABASE_REST) || $USE_SUPABASE_REST === false)) {
             json_response(['ok' => false, 'message' => $SUPABASE_ERROR ?: 'Database unavailable.'], 503);
         }
 
@@ -206,11 +210,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             json_response(['ok' => false, 'message' => 'Password must be 6 digits.'], 400);
         }
 
-        // Check duplicates
-        $q = $pdo->prepare("SELECT 1 FROM users WHERE email = :email OR number = :number LIMIT 1");
-        $q->execute(['email' => $email, 'number' => $verified_phone]);
-        if ($q->fetchColumn()) {
-            json_response(['ok' => false, 'message' => 'Email or phone already registered.'], 409);
+        // Check duplicates (SUPABASE REST preferred if configured)
+        if (!empty($USE_SUPABASE_REST)) {
+            if (supabase_user_exists_by_email($email) || supabase_user_exists_by_number($verified_phone)) {
+                json_response(['ok' => false, 'message' => 'Email or phone already registered.'], 409);
+            }
+        } else {
+            $q = $pdo->prepare("SELECT 1 FROM users WHERE email = :email OR number = :number LIMIT 1");
+            $q->execute(['email' => $email, 'number' => $verified_phone]);
+            if ($q->fetchColumn()) {
+                json_response(['ok' => false, 'message' => 'Email or phone already registered.'], 409);
+            }
         }
 
         // Re-resolve (defense-in-depth)
@@ -229,33 +239,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
-        // Insert
-        $sql = "INSERT INTO users
+        // Insert (SUPABASE REST or direct DB)
+        if (!empty($USE_SUPABASE_REST)) {
+            $payload = [
+                'uid' => $uid,
+                'name' => $resolved_name,
+                'number' => $verified_phone,
+                'device' => $device,
+                'email' => $email,
+                'date' => $now,
+                'password' => $hash,
+                'profile' => '',
+                'android_id' => $android_id,
+                'plan' => 'free',
+                'subscription_date' => 0,
+                'amount_in' => '0.00',
+                'amount_out' => '0.00',
+                'email_alert' => 0,
+                'block' => 0,
+                'balance' => '35000'
+            ];
+            $ins = supabase_insert_user($payload);
+            if (empty($ins['ok'])) {
+                json_response(['ok' => false, 'message' => $ins['message'] ?? 'Could not create account.'], 500);
+            }
+        } else {
+            $sql = "INSERT INTO users
             (uid, name, number, device, email, date, password, profile, android_id, plan, subscription_date, amount_in, amount_out, email_alert, block, balance)
             VALUES
             (:uid, :name, :number, :device, :email, :date, :password, :profile, :android_id, :plan, :subscription_date, :amount_in, :amount_out, :email_alert, :block, :balance)";
-        $stmt = $pdo->prepare($sql);
-        $ok = $stmt->execute([
-            'uid'               => $uid,
-            'name'              => $resolved_name,
-            'number'            => $verified_phone,
-            'device'            => $device,
-            'email'             => $email,
-            'date'              => $now,
-            'password'          => $hash,
-            'profile'           => '',
-            'android_id'        => $android_id,
-            'plan'              => 'free',
-            'subscription_date' => 0,
-            'amount_in'         => '0.00',
-            'amount_out'        => '0.00',
-            'email_alert'       => 0,
-            'block'             => 0,
-            'balance'           => '35000'
-        ]);
+            $stmt = $pdo->prepare($sql);
+            $ok = $stmt->execute([
+                'uid'               => $uid,
+                'name'              => $resolved_name,
+                'number'            => $verified_phone,
+                'device'            => $device,
+                'email'             => $email,
+                'date'              => $now,
+                'password'          => $hash,
+                'profile'           => '',
+                'android_id'        => $android_id,
+                'plan'              => 'free',
+                'subscription_date' => 0,
+                'amount_in'         => '0.00',
+                'amount_out'        => '0.00',
+                'email_alert'       => 0,
+                'block'             => 0,
+                'balance'           => '35000'
+            ]);
 
-        if (!$ok) {
-            json_response(['ok' => false, 'message' => 'Could not create account.'], 500);
+            if (!$ok) {
+                json_response(['ok' => false, 'message' => 'Could not create account.'], 500);
+            }
         }
 
         // Login (session) and redirect
