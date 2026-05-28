@@ -549,15 +549,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         body: new URLSearchParams({ action: 'verify_phone', phone: v })
                     })
                     .then(async (r) => {
+                        const text = await r.text();
                         if (!r.ok) {
-                            const text = await r.text();
                             console.error('verify HTTP error', r.status, text);
-                            throw new Error('HTTP ' + r.status);
+                            throw new Error('HTTP ' + r.status + ' - ' + text);
                         }
                         try {
-                            return await r.json();
+                            return JSON.parse(text);
                         } catch (parseErr) {
-                            const text = await r.text();
                             console.error('verify response text', text);
                             throw parseErr;
                         }
@@ -631,15 +630,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     })
                 })
                 .then(async (r) => {
+                    const text = await r.text();
                     if (!r.ok) {
-                        const text = await r.text();
                         console.error('register HTTP error', r.status, text);
-                        throw new Error('HTTP ' + r.status);
+                        throw new Error('HTTP ' + r.status + ' - ' + text);
                     }
                     try {
-                        return await r.json();
+                        return JSON.parse(text);
                     } catch (parseErr) {
-                        const text = await r.text();
                         console.error('register response text', text);
                         throw parseErr;
                     }
