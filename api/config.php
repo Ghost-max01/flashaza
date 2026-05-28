@@ -193,13 +193,24 @@ class SupabasePDO {
         $where = trim($m[3] ?? '');
         $order = trim($m[4] ?? '');
         $limit = trim($m[5] ?? '');
-        $query = 'select=' . rawurlencode($select === '*' ? '*' : $select);
+        $query = 'select=' . ($select === '*' ? '*' : rawurlencode($select));
         $filters = $this->buildFilters($where, $params);
         if ($filters !== '') {
             $query .= '&' . $filters;
         }
         if ($order !== '') {
-            $query .= '&order=' . rawurlencode(str_replace(' ', '.', $order));
+            $orders = array_map('trim', explode(',', $order));
+            $normalized = [];
+            foreach ($orders as $orderPart) {
+                if (preg_match('/^(\w+)(?:\s+(ASC|DESC))?$/i', $orderPart, $om)) {
+                    $field = $om[1];
+                    $direction = isset($om[2]) && strtoupper($om[2]) === 'DESC' ? 'desc' : (isset($om[2]) && strtoupper($om[2]) === 'ASC' ? 'asc' : 'asc');
+                    $normalized[] = $field . '.' . $direction;
+                } else {
+                    $normalized[] = str_replace(' ', '.', $orderPart);
+                }
+            }
+            $query .= '&order=' . rawurlencode(implode(',', $normalized));
         }
         if ($limit !== '') {
             $query .= '&limit=' . intval($limit);
