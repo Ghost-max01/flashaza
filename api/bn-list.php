@@ -151,14 +151,14 @@ if (!isset($_SESSION['user_id'])) {
 
     function getPaystackLogoUrl(bank) {
         if (!bank) return '';
-        const code = (bank.code || '').toString().trim().toLowerCase();
-        if (code) {
-            return `https://cdn.paystack.co/banks/${encodeURIComponent(code)}.png`;
+        const code = (bank.code || '').toString().trim();
+        const paystackCode = /^[0-9]{3,4}$/.test(code) ? code : '';
+        if (paystackCode) {
+            return `https://paystack.com/banks/${encodeURIComponent(paystackCode)}.png`;
         }
-        const name = (bank.name || '').toString().trim().toLowerCase();
-        if (!name) return '';
-        const slug = name.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-        return slug ? `https://cdn.paystack.co/banks/${encodeURIComponent(slug)}.png` : '';
+        const slugSource = (bank.slug || bank.name || '').toString().trim().toLowerCase();
+        const slug = slugSource.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        return slug ? `https://paystack.com/banks/${encodeURIComponent(slug)}.png` : '';
     }
 
     // ─── Build a single list item ───

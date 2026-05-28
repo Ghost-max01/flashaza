@@ -82,7 +82,7 @@ function getBankLogoUrl($bankName = '', $bankCode = '') {
 
     foreach ($candidates as $cand) {
         if ($cand === '') continue;
-        $cdn = 'https://cdn.paystack.co/banks/' . rawurlencode($cand) . '.png';
+        $cdn = 'https://paystack.com/banks/' . rawurlencode($cand) . '.png';
         if (url_exists($cdn)) return $cdn;
     }
 

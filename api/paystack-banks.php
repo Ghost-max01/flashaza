@@ -2,10 +2,10 @@
 if (session_status()===PHP_SESSION_NONE) session_start();
 header('Content-Type: application/json; charset=UTF-8');
 
-$secret = trim(getenv('PAYSTACK_SECRET') ?: '');
+$secret = trim(getenv('PAYSTACK_SECRET_KEY') ?: getenv('PAYSTACK_SECRET') ?: '');
 if ($secret === '') {
     http_response_code(500);
-    echo json_encode(['status' => false, 'message' => 'PAYSTACK_SECRET not configured']);
+    echo json_encode(['status' => false, 'message' => 'PAYSTACK_SECRET_KEY not configured']);
     exit;
 }
 
