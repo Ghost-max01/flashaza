@@ -1,7 +1,6 @@
 <?php
 if (session_status()===PHP_SESSION_NONE) session_start();
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -14,6 +13,38 @@ if (!isset($_SESSION['user_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bank Selection</title>
     <link rel="stylesheet" href="../css/bn-list.css">
+    <style>
+        /* Logo fix styles — only for list items, no UI/UX changes */
+        .bank-logo-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: #f4f4f4;
+            border: 1px solid #eee;
+            flex-shrink: 0;
+        }
+        .bank-logo-fallback {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .linear4 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .list-item-text {
+            flex: 1;
+        }
+    </style>
 </head>
 <body>
     <div class="linear-layout">
@@ -28,7 +59,7 @@ if (!isset($_SESSION['user_id'])) {
                 <div class="image-view">
                     <img src="https://cdn3.iconfinder.com/data/icons/feather-5/24/search-512.png" alt="Search" width="20" height="20">
                 </div>
-                <input type="text" class="edit-text" placeholder="Search Bank Name">
+                <input type="text" id="bankSearchInput" class="edit-text" placeholder="Search Bank Name">
             </div>
         </div>
         
@@ -45,9 +76,7 @@ if (!isset($_SESSION['user_id'])) {
                                 <img src="../images/toban/opay.png" alt="OPay" width="50" height="50">
                             </div>
                             <div class="text-view-small">OPay</div>
-                            <div class="image-view">
-                                
-                            </div>
+                            <div class="image-view"></div>
                         </div>
                         <div class="linear14">
                             <div class="image-view">
@@ -89,37 +118,170 @@ if (!isset($_SESSION['user_id'])) {
                     <div class="text-view-gray">A</div>
                 </div>
                 
-                <ul class="list-view">
+                <ul class="list-view" id="bankList">
                     <li class="linear4 loading-item">
                         <div class="list-item-text">Loading banks...</div>
                     </li>
                 </ul>
             </div>
             
-            <div class="alphabet-sidebar">
+            <div class="alphabet-sidebar" id="alphabetSidebar">
                 A<br><br>B<br><br>C<br><br>D<br><br>E<br><br>F<br><br>G<br><br>H<br><br>I<br><br>J<br><br>K<br><br>L<br><br>M<br><br>N<br><br>O<br><br>P<br><br>Q<br><br>R<br><br>S<br><br>T<br><br>U<br><br>V<br><br>W<br><br>X<br><br>Y<br><br>Z
             </div>
         </div>
     </div>
 </body>
-<script src="../js/bn-list.js?ver=2" defer></script>
-<script>
-  // Disable right-click
-  document.addEventListener("contextmenu", function(e){
-    e.preventDefault();
-  });
 
-  // Disable common inspect keys
+<script>
+    // ─── Palette for fallback avatars (when a bank has no logo URL) ───
+    const FALLBACK_COLORS = [
+        '#1a73e8','#e53935','#43a047','#fb8c00',
+        '#8e24aa','#00897b','#f4511e','#039be5'
+    ];
+
+    function getFallbackColor(name) {
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        return FALLBACK_COLORS[Math.abs(hash) % FALLBACK_COLORS.length];
+    }
+
+    function getInitials(name) {
+        return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    }
+
+    // ─── Build a single list item ───
+    function createBankItem(bank) {
+        const li = document.createElement('li');
+        li.className = 'linear4';
+        li.dataset.name = bank.name.toLowerCase();
+
+        // Logo or fallback avatar
+        let logoHtml;
+        if (bank.logo) {
+            logoHtml = `<img
+                class="bank-logo-img"
+                src="${bank.logo}"
+                alt="${bank.name}"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="bank-logo-fallback" style="background:${getFallbackColor(bank.name)};display:none;">
+                ${getInitials(bank.name)}
+            </div>`;
+        } else {
+            logoHtml = `<div class="bank-logo-fallback" style="background:${getFallbackColor(bank.name)};">
+                ${getInitials(bank.name)}
+            </div>`;
+        }
+
+        li.innerHTML = `
+            ${logoHtml}
+            <div class="list-item-text">${bank.name}</div>
+        `;
+
+        li.addEventListener('click', () => {
+            // Pass selection back to your existing bn-list.js handler or session
+            if (typeof window.onBankSelected === 'function') {
+                window.onBankSelected(bank);
+            } else {
+                // Fallback: store in sessionStorage and go back
+                sessionStorage.setItem('selected_bank', JSON.stringify(bank));
+                history.back();
+            }
+        });
+
+        return li;
+    }
+
+    // ─── Fetch & render bank list ───
+    async function loadBanks() {
+        const listEl = document.getElementById('bankList');
+
+        try {
+            const res = await fetch('https://nigerianbanks.xyz/');
+            if (!res.ok) throw new Error('Network response was not ok');
+            const banks = await res.json();
+
+            // Sort alphabetically
+            banks.sort((a, b) => a.name.localeCompare(b.name));
+
+            listEl.innerHTML = '';
+
+            let currentLetter = '';
+            banks.forEach(bank => {
+                const firstLetter = bank.name[0].toUpperCase();
+
+                // Insert alphabet divider when the letter changes
+                if (firstLetter !== currentLetter) {
+                    currentLetter = firstLetter;
+                    const divider = document.createElement('li');
+                    divider.className = 'linearA';
+                    divider.innerHTML = `<div class="text-view-gray">${currentLetter}</div>`;
+                    listEl.appendChild(divider);
+                }
+
+                listEl.appendChild(createBankItem(bank));
+            });
+
+        } catch (err) {
+            listEl.innerHTML = `<li class="linear4 loading-item">
+                <div class="list-item-text">Failed to load banks. Please try again.</div>
+            </li>`;
+            console.error('Bank list error:', err);
+        }
+    }
+
+    // ─── Live search ───
+    document.getElementById('bankSearchInput').addEventListener('input', function () {
+        const query = this.value.toLowerCase().trim();
+        const items = document.querySelectorAll('#bankList .linear4');
+        const dividers = document.querySelectorAll('#bankList .linearA');
+
+        // Hide all dividers first
+        dividers.forEach(d => d.style.display = 'none');
+
+        items.forEach(li => {
+            const match = li.dataset.name && li.dataset.name.includes(query);
+            li.style.display = match ? '' : 'none';
+
+            // Show the divider for this letter if at least one item is visible
+            if (match) {
+                let prev = li.previousElementSibling;
+                while (prev) {
+                    if (prev.classList.contains('linearA')) {
+                        prev.style.display = '';
+                        break;
+                    }
+                    prev = prev.previousElementSibling;
+                }
+            }
+        });
+    });
+
+    // ─── Alphabet sidebar tap-to-scroll ───
+    document.getElementById('alphabetSidebar').addEventListener('click', function (e) {
+        const letter = e.target.textContent.trim();
+        if (!letter || letter.length !== 1) return;
+
+        const dividers = document.querySelectorAll('#bankList .linearA');
+        for (const d of dividers) {
+            if (d.querySelector('.text-view-gray')?.textContent.trim() === letter) {
+                d.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                break;
+            }
+        }
+    });
+
+    // Load on page ready
+    loadBanks();
+</script>
+
+<script src="../js/bn-list.js?ver=2" defer></script>
+
+<script>
+  document.addEventListener("contextmenu", function(e){ e.preventDefault(); });
   document.onkeydown = function(e) {
-    if (e.keyCode == 123) { // F12
-      return false;
-    }
-    if (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0))) {
-      return false;
-    }
-    if (e.ctrlKey && (e.keyCode == 'U'.charCodeAt(0))) { // Ctrl+U
-      return false;
-    }
+    if (e.keyCode == 123) return false;
+    if (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0))) return false;
+    if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
   }
 </script>
 </html>
