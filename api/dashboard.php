@@ -17,6 +17,12 @@ if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
 include 'config.php';
 require_once 'schedule_file.php';
 
+if (empty($pdo) || (!$SUPABASE_AVAILABLE && !$USE_SUPABASE_REST)) {
+    header('Content-Type: text/plain; charset=utf-8', true, 503);
+    echo 'Backend unavailable. Please check Supabase settings.';
+    exit();
+}
+
 // Fetch user details from database
 $user_id = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT * FROM users WHERE uid = :user_id");

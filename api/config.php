@@ -8,6 +8,289 @@ $DB_DRIVER = null;
 $SUPABASE_AVAILABLE = false;
 $SUPABASE_ERROR = '';
 
+$SUPABASE_URL = trim(getenv('SUPABASE_URL') ?: '');
+$SUPABASE_ANON_KEY = trim(getenv('SUPABASE_ANON_KEY') ?: '');
+$SUPABASE_SERVICE_ROLE_KEY = trim(getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '');
+$USE_SUPABASE_REST = false;
+if ($SUPABASE_URL !== '' && $SUPABASE_SERVICE_ROLE_KEY !== '') {
+    $USE_SUPABASE_REST = true;
+    if ($SUPABASE_ANON_KEY === '') {
+        $SUPABASE_ANON_KEY = $SUPABASE_SERVICE_ROLE_KEY;
+    }
+}
+
+class SupabasePDOStatement {
+    private $pdo;
+    private $sql;
+    private $params = [];
+    private $result = null;
+    private $rowCount = 0;
+
+    public function __construct($pdo, $sql) {
+        $this->pdo = $pdo;
+        $this->sql = $sql;
+    }
+
+    public function execute($params = null) {
+        if ($params !== null) {
+            $this->params = $params;
+        }
+        $request = $this->pdo->buildRequest($this->sql, $this->params);
+        if (!$request) {
+            throw new Exception('Unsupported SQL for Supabase REST: ' . $this->sql);
+        }
+        $response = $this->pdo->request($request['method'], $request['path'], $request['body'], $request['headers'] ?? []);
+        if (!$response['ok']) {
+            throw new Exception('Supabase REST request failed: ' . ($response['error'] ?? 'unknown'));
+        }
+        $this->rowCount = $response['rowCount'] ?? 0;
+        $this->result = json_decode($response['raw'] ?? '[]', true);
+        if ($this->result === null && in_array($request['method'], ['PATCH', 'POST', 'DELETE'], true)) {
+            $this->result = [];
+        }
+        return true;
+    }
+
+    public function fetch($mode = null) {
+        if ($this->result === null) {
+            $this->execute();
+        }
+        return is_array($this->result) ? ($this->result[0] ?? false) : false;
+    }
+
+    public function fetchAll($mode = null) {
+        if ($this->result === null) {
+            $this->execute();
+        }
+        return is_array($this->result) ? $this->result : [];
+    }
+
+    public function fetchColumn($col = 0) {
+        $row = $this->fetch();
+        if (!$row) {
+            return false;
+        }
+        if (is_int($col)) {
+            return array_values($row)[$col] ?? false;
+        }
+        return $row[$col] ?? false;
+    }
+
+    public function rowCount() {
+        return $this->rowCount;
+    }
+
+    public function setFetchMode() {
+        return true;
+    }
+}
+
+class SupabasePDO {
+    private $url;
+    private $anonKey;
+    private $serviceKey;
+    public $lastInsertId = 0;
+
+    public function __construct($url, $anonKey, $serviceKey) {
+        $this->url = rtrim($url, '/');
+        $this->anonKey = $anonKey;
+        $this->serviceKey = $serviceKey;
+    }
+
+    public function prepare($sql) {
+        return new SupabasePDOStatement($this, $sql);
+    }
+
+    public function query($sql) {
+        $stmt = $this->prepare($sql);
+        $stmt->execute();
+        return $stmt;
+    }
+
+    public function beginTransaction() {
+        return true;
+    }
+
+    public function commit() {
+        return true;
+    }
+
+    public function rollBack() {
+        return true;
+    }
+
+    public function lastInsertId($name = null) {
+        return $this->lastInsertId;
+    }
+
+    public function request($method, $path, $body = null, $headers = []) {
+        $url = $this->url . '/rest/v1' . $path;
+        $ch = curl_init($url);
+        $defaultHeaders = [
+            'apikey: ' . $this->anonKey,
+            'Authorization: Bearer ' . $this->serviceKey,
+        ];
+        $allHeaders = array_merge($defaultHeaders, $headers);
+        $opts = [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => $allHeaders,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_TIMEOUT => 10,
+        ];
+        if ($method === 'POST') {
+            $opts[CURLOPT_POST] = true;
+            $opts[CURLOPT_POSTFIELDS] = $body;
+        } elseif (in_array($method, ['PATCH', 'PUT', 'DELETE'], true)) {
+            $opts[CURLOPT_CUSTOMREQUEST] = $method;
+            if ($body !== null) {
+                $opts[CURLOPT_POSTFIELDS] = $body;
+            }
+        }
+        curl_setopt_array($ch, $opts);
+        $raw = curl_exec($ch);
+        $err = curl_error($ch);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($err) {
+            return ['ok' => false, 'error' => $err, 'status' => 0, 'raw' => null];
+        }
+        if ($status < 200 || $status >= 300) {
+            return ['ok' => false, 'error' => 'HTTP ' . $status, 'status' => $status, 'raw' => $raw];
+        }
+        return ['ok' => true, 'status' => $status, 'raw' => $raw, 'rowCount' => null];
+    }
+
+    public function buildRequest($sql, $params) {
+        $sql = trim($sql);
+        $type = strtoupper(strtok($sql, " \t\n\r"));
+        if ($type === 'SELECT') {
+            return $this->buildSelectRequest($sql, $params);
+        }
+        if ($type === 'UPDATE') {
+            return $this->buildUpdateRequest($sql, $params);
+        }
+        if ($type === 'INSERT') {
+            return $this->buildInsertRequest($sql, $params);
+        }
+        if ($type === 'DELETE') {
+            return $this->buildDeleteRequest($sql, $params);
+        }
+        return null;
+    }
+
+    private function buildSelectRequest($sql, $params) {
+        if (!preg_match('/^SELECT\s+(.*?)\s+FROM\s+(\w+)(?:\s+WHERE\s+(.*?))?(?:\s+ORDER\s+BY\s+(.*?))?(?:\s+LIMIT\s+(\d+))?$/is', $sql, $m)) {
+            return null;
+        }
+        $select = trim($m[1]);
+        $table = trim($m[2]);
+        $where = trim($m[3] ?? '');
+        $order = trim($m[4] ?? '');
+        $limit = trim($m[5] ?? '');
+        $query = 'select=' . ($select === '*' ? '*' : $select);
+        $filters = $this->buildFilters($where, $params);
+        if ($filters !== '') {
+            $query .= '&' . $filters;
+        }
+        if ($order !== '') {
+            $query .= '&order=' . rawurlencode(str_replace(' ', '.', $order));
+        }
+        if ($limit !== '') {
+            $query .= '&limit=' . intval($limit);
+        }
+        return ['method' => 'GET', 'path' => '/' . $table . '?' . $query, 'body' => null, 'headers' => []];
+    }
+
+    private function buildUpdateRequest($sql, $params) {
+        if (!preg_match('/^UPDATE\s+(\w+)\s+SET\s+(.*?)\s+WHERE\s+(.*)$/is', $sql, $m)) {
+            return null;
+        }
+        $table = trim($m[1]);
+        $assignments = trim($m[2]);
+        $where = trim($m[3]);
+        $body = [];
+        $valueParams = is_array($params) ? array_values($params) : [];
+        foreach (preg_split('/\s*,\s*/', $assignments) as $assignment) {
+            $assignment = trim($assignment);
+            if (preg_match('/^(\w+)\s*=\s*([:?]?\w+)$/', $assignment, $a)) {
+                $key = $a[1];
+                $param = $a[2];
+                if ($param === '?') {
+                    $body[$key] = array_shift($valueParams);
+                } else {
+                    $body[$key] = $params[ltrim($param, ':')] ?? null;
+                }
+            } elseif (preg_match('/^(\w+)\s*=\s*(?:\'([^\']*)\'|"([^"]*)"|(\d+))$/', $assignment, $a)) {
+                $key = $a[1];
+                $body[$key] = $a[2] !== '' ? $a[2] : ($a[3] !== '' ? $a[3] : $a[4]);
+            }
+        }
+        $filters = $this->buildFilters($where, $params);
+        return ['method' => 'PATCH', 'path' => '/' . $table . '?' . $filters, 'body' => json_encode($body), 'headers' => ['Content-Type: application/json', 'Prefer: return=representation']];
+    }
+
+    private function buildInsertRequest($sql, $params) {
+        if (!preg_match('/^INSERT\s+INTO\s+(\w+)\s*\((.*?)\)\s*VALUES\s*\((.*?)\)$/is', $sql, $m)) {
+            return null;
+        }
+        $table = trim($m[1]);
+        $columns = array_map('trim', explode(',', $m[2]));
+        $values = array_map('trim', explode(',', $m[3]));
+        $body = [];
+        $valueParams = is_array($params) ? array_values($params) : [];
+        foreach ($columns as $i => $col) {
+            $val = $values[$i] ?? '';
+            if ($val === '?') {
+                $body[$col] = array_shift($valueParams);
+            } elseif (substr($val, 0, 1) === ':') {
+                $body[$col] = $params[ltrim($val, ':')] ?? null;
+            } else {
+                $body[$col] = trim($val, "'\"");
+            }
+        }
+        return ['method' => 'POST', 'path' => '/' . $table, 'body' => json_encode($body), 'headers' => ['Content-Type: application/json', 'Prefer: return=representation']];
+    }
+
+    private function buildDeleteRequest($sql, $params) {
+        if (!preg_match('/^DELETE\s+FROM\s+(\w+)\s+WHERE\s+(.*)$/is', $sql, $m)) {
+            return null;
+        }
+        $table = trim($m[1]);
+        $where = trim($m[2]);
+        $filters = $this->buildFilters($where, $params);
+        return ['method' => 'DELETE', 'path' => '/' . $table . '?' . $filters, 'body' => null, 'headers' => ['Prefer: return=representation']];
+    }
+
+    private function buildFilters($where, $params) {
+        if ($where === '') {
+            return '';
+        }
+        $parts = preg_split('/\s+AND\s+/i', $where);
+        $filters = [];
+        $valueParams = is_array($params) ? array_values($params) : [];
+        foreach ($parts as $part) {
+            $part = trim($part);
+            if (preg_match('/^(\w+)\s*=\s*([:?]?\w+)$/', $part, $m)) {
+                $key = $m[1];
+                $param = $m[2];
+                if ($param === '?') {
+                    $value = array_shift($valueParams);
+                } else {
+                    $value = $params[ltrim($param, ':')] ?? null;
+                }
+                $filters[] = $key . '=eq.' . rawurlencode($value);
+                continue;
+            }
+            if (preg_match('/^(\w+)\s*=\s*(?:\'([^\']*)\'|"([^"]*)"|(\d+))$/', $part, $m)) {
+                $key = $m[1];
+                $value = $m[2] !== '' ? $m[2] : ($m[3] !== '' ? $m[3] : $m[4]);
+                $filters[] = $key . '=eq.' . rawurlencode($value);
+            }
+        }
+        return implode('&', $filters);
+    }
+}
+
 function db_fail($msg) {
     if (!headers_sent()) header('Content-Type: application/json');
     echo json_encode(["status" => false, "message" => $msg]);
@@ -15,9 +298,9 @@ function db_fail($msg) {
 }
 
 $databaseUrl = getenv('DATABASE_URL');
-if (!$databaseUrl) {
+if (!$databaseUrl && !$USE_SUPABASE_REST) {
     $SUPABASE_ERROR = 'DATABASE_URL not set. Supabase connection required.';
-} else {
+} elseif (!$USE_SUPABASE_REST) {
     $parts = parse_url($databaseUrl);
     if ($parts === false) {
         $SUPABASE_ERROR = 'Invalid DATABASE_URL';
@@ -44,20 +327,14 @@ if (!$databaseUrl) {
             error_log('Supabase connection failed: ' . $e->getMessage());
         }
     }
+} elseif ($USE_SUPABASE_REST) {
+    $pdo = new SupabasePDO($SUPABASE_URL, $SUPABASE_ANON_KEY, $SUPABASE_SERVICE_ROLE_KEY);
+    $conn = $pdo;
+    $DB_DRIVER = 'supabase_rest';
+    $SUPABASE_AVAILABLE = true;
 }
 
 // --- Supabase REST helper (use when you prefer HTTPS REST calls instead of direct TCP) ---
-$USE_SUPABASE_REST = false;
-$SUPABASE_URL = trim(getenv('SUPABASE_URL') ?: '');
-$SUPABASE_ANON_KEY = trim(getenv('SUPABASE_ANON_KEY') ?: '');
-$SUPABASE_SERVICE_ROLE_KEY = trim(getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '');
-if ($SUPABASE_URL !== '' && $SUPABASE_SERVICE_ROLE_KEY !== '') {
-    $USE_SUPABASE_REST = true;
-    if ($SUPABASE_ANON_KEY === '') {
-        $SUPABASE_ANON_KEY = $SUPABASE_SERVICE_ROLE_KEY;
-    }
-}
-
 function supabase_request($method, $path, $body = null, $extraHeaders = []) {
     global $SUPABASE_URL, $SUPABASE_ANON_KEY, $SUPABASE_SERVICE_ROLE_KEY;
     $base = rtrim($SUPABASE_URL, '/') . '/rest/v1';
@@ -93,6 +370,7 @@ function supabase_request($method, $path, $body = null, $extraHeaders = []) {
     curl_close($ch);
 
     if ($err) return ['ok' => false, 'error' => $err, 'status' => 0, 'raw' => null];
+    if ($code < 200 || $code >= 300) return ['ok' => false, 'error' => 'HTTP ' . $code, 'status' => $code, 'raw' => $res];
     return ['ok' => true, 'status' => $code, 'raw' => $res];
 }
 
