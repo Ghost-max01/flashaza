@@ -14,11 +14,6 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
 }  
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
 
-// If not mobile
-if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
-    die("Sorry, this website is only available on mobile devices.");
-}
-
 $uid = $_SESSION['user_id'];  
 // 3) get product_id from URL  
 $product_id = isset($_GET['product_id']) ? trim($_GET['product_id']) : '';  

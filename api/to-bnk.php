@@ -8,11 +8,6 @@ if (!isset($_SESSION['user_id'])) {
 require_once "config.php"; // must define $pdo (PDO)
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
 
-// If not mobile
-if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
-    die("Sorry, this website is only available on mobile devices.");
-}
-
 // Selected bank from bn-list.php via to-bn.php (session)
 $selectedBank = $_SESSION['bank'] ?? null;
 $bankName = $selectedBank['name'] ?? '';

@@ -9,11 +9,6 @@ if (!isset($_SESSION['user_id'])) {
 
 require_once 'config.php'; // Make sure $pdo is defined in this file
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
-
-// If not mobile
-if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
-    die("Sorry, this website is only available on mobile devices.");
-}
 try {
     if (isset($_GET['product_id']) && !empty($_GET['product_id'])) {
         $product_id = trim($_GET['product_id']);

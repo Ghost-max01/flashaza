@@ -9,11 +9,6 @@ if (!isset($_SESSION['user_id'])) {
 $uid = $_SESSION['user_id'];
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
 
-// ✅ Restrict to mobile
-if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
-    die("Sorry, this website is only available on mobile devices.");
-}
-
 // ✅ Database + subscription check
 require_once 'config.php';
 $stmt = $pdo->prepare("SELECT subscription_date FROM users WHERE uid = :uid");

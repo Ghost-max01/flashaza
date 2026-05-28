@@ -13,11 +13,6 @@ $stmt->execute(['uid' => $_SESSION['user_id']]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
 
-// If not mobile
-if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
-    die("Sorry, this website is only available on mobile devices.");
-}
-
 // ✅ Proper subscription check using DateTime (Africa/Lagos)
 $tz = new DateTimeZone('Africa/Lagos');
 $currentDate = new DateTime('now', $tz);

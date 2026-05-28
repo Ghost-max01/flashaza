@@ -20,11 +20,6 @@ $recents = [];
 $favourites = [];
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
 
-// If not mobile
-if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
-    die("Sorry, this website is only available on mobile devices.");
-}
-
 try {
     // Fetch recents
     $sql1 = "SELECT id, accountnumber, accountname, bankname, favorite

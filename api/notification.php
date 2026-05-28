@@ -9,9 +9,6 @@ if (!isset($_SESSION['user_id'])) {
 
 // Detect device
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
-if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
-    die("Sorry, this website is only available on mobile devices.");
-}
 
 require_once 'config.php';
 

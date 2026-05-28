@@ -11,10 +11,6 @@ foreach ($transaction_session_vars as $var) {
 
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
 
-// If not mobile
-if (!preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent)) {
-    die("Sorry, this website is only available on mobile devices.");
-}
 if (!isset($_SESSION['user_id'])) { 
     header("Location: login.php"); 
     exit; 
