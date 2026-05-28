@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // verify_account.php
 header('Content-Type: text/plain; charset=utf-8');
 
@@ -17,6 +17,55 @@ if (!preg_match('/^\d{10}$/', $account_number) || $bank_code === '') {
     exit;
 }
 
+$secretKey = trim(getenv('PAYSTACK_SECRET_KEY') ?: '');
+$defaultBank = trim(getenv('PAYSTACK_BANK_CODE') ?: '');
+if ($defaultBank !== '' && $bank_code === '100004') {
+    $bank_code = $defaultBank;
+}
+
+if ($secretKey !== '') {
+    $url = sprintf(
+        'https://api.paystack.co/bank/resolve?account_number=%s&bank_code=%s',
+        urlencode($account_number),
+        urlencode($bank_code)
+    );
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: Bearer ' . $secretKey,
+            'Cache-Control: no-cache',
+        ],
+        CURLOPT_TIMEOUT        => 20,
+    ]);
+
+    $res = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+
+    if ($err) {
+        echo 'error: network error';
+        exit;
+    }
+
+    $data = json_decode($res, true);
+    if (!is_array($data)) {
+        echo 'error: invalid Paystack response';
+        exit;
+    }
+
+    if (!empty($data['status']) && $data['status'] === true && !empty($data['data']['account_name'])) {
+        echo $data['data']['account_name'];
+        exit;
+    }
+
+    $message = $data['message'] ?? 'Unable to resolve account number';
+    echo 'error: ' . trim($message);
+    exit;
+}
+
+// Legacy fallback for older OPay verification service.
 $remote = "https://webtech.net.ng/vrf/verify.php";
 $ch = curl_init($remote);
 curl_setopt_array($ch, [

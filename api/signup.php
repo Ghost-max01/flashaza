@@ -1,7 +1,7 @@
 <?php
 /**
  * signup.php
- * - Verifies OPay account name via your custom API (https://webtech.net.ng/vrf/verify.php)
+ * - Verifies account name using Paystack when configured, with legacy OPay fallback
  * - Reveals email+password after verification
  * - Registers user to `users` table and logs them in (session user_id = uid)
  */
@@ -44,8 +44,73 @@ function get_device_name() {
     return $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
 }
 
-// ðŸ”¹ Your gateway for OPay verification
+// ✅ OPay/Paystack verification helper
+function get_paystack_secret_key() {
+    return trim(getenv('PAYSTACK_SECRET_KEY') ?: '');
+}
+
+function get_paystack_bank_code() {
+    return trim(getenv('PAYSTACK_BANK_CODE') ?: '');
+}
+
 function resolve_opay_account($account_number, $bank_code = '100004') {
+    $paystackKey = get_paystack_secret_key();
+    $configuredBank = get_paystack_bank_code();
+    if ($configuredBank !== '' && $bank_code === '100004') {
+        $bank_code = $configuredBank;
+    }
+
+    if ($paystackKey !== '') {
+        return paystack_resolve_account($account_number, $bank_code, $paystackKey);
+    }
+
+    return resolve_opay_account_legacy($account_number, $bank_code);
+}
+
+function paystack_resolve_account($account_number, $bank_code, $secretKey) {
+    $url = sprintf(
+        'https://api.paystack.co/bank/resolve?account_number=%s&bank_code=%s',
+        urlencode($account_number),
+        urlencode($bank_code)
+    );
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: Bearer ' . $secretKey,
+            'Cache-Control: no-cache',
+        ],
+        CURLOPT_TIMEOUT        => 20,
+    ]);
+
+    $res = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+
+    if ($err) {
+        return ['ok' => false, 'message' => 'Network error: ' . $err];
+    }
+
+    $data = json_decode($res, true);
+    if (!is_array($data)) {
+        return ['ok' => false, 'message' => 'Invalid Paystack response'];
+    }
+
+    if (!empty($data['status']) && $data['status'] === true && !empty($data['data']['account_name'])) {
+        return [
+            'ok'            => true,
+            'account_name'  => $data['data']['account_name'],
+            'account_number'=> $account_number,
+            'bank_name'     => $data['data']['bank_name'] ?? 'Paystack'
+        ];
+    }
+
+    $message = $data['message'] ?? 'Unable to resolve account number';
+    return ['ok' => false, 'message' => trim($message)];
+}
+
+function resolve_opay_account_legacy($account_number, $bank_code = '100004') {
     $url = 'https://webtech.net.ng/vrf/verify.php';
     $post = http_build_query([
         'account_number' => $account_number,
@@ -69,12 +134,10 @@ function resolve_opay_account($account_number, $bank_code = '100004') {
 
     $res = trim($res);
 
-    // If API returns "Error ..." treat as invalid account
     if (stripos($res, 'error') !== false) {
         return ['ok' => false, 'message' => 'Incorrect OPay account number'];
     }
 
-    // Otherwise treat raw response as the account name
     return [
         'ok'            => true,
         'account_name'  => $res,
