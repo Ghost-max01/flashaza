@@ -151,14 +151,16 @@ if (!isset($_SESSION['user_id'])) {
 
     function getPaystackLogoUrl(bank) {
         if (!bank) return '';
-        const code = (bank.code || '').toString().trim();
-        const paystackCode = /^[0-9]{3,4}$/.test(code) ? code : '';
-        if (paystackCode) {
-            return `paystack-logo.php?code=${encodeURIComponent(paystackCode)}`;
+        // Use direct NigerianBanks logo if available
+        if (bank.logo) return bank.logo;
+        // Fallback to Clearbit by bank name
+        const name = (bank.name || '').toString().trim();
+        if (!name) return '';
+        const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        if (slug) {
+            return `https://logo.clearbit.com/${slug}.com`;
         }
-        const slugSource = (bank.slug || bank.name || '').toString().trim().toLowerCase();
-        const slug = slugSource.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-        return slug ? `paystack-logo.php?slug=${encodeURIComponent(slug)}` : '';
+        return '';
     }
 
     // ─── Build a single list item ───
@@ -244,7 +246,8 @@ if (!isset($_SESSION['user_id'])) {
                 const code = (pb.code || pb.bank_code || pb.id || '') + '';
                 const key = normalizeName(name);
                 const ngLogo = ngLogoMap[key] || '';
-                const logo = ngLogo || (`paystack-logo.php?code=${encodeURIComponent(code)}`);
+                // Use NigerianBanks logo if available; otherwise use Clearbit fallback
+                const logo = ngLogo || (name ? `https://logo.clearbit.com/${name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.com` : '');
                 return { name: name, code: code, logo: logo };
             });
 

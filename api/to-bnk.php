@@ -64,39 +64,31 @@ function url_exists($url) {
     return ($code >= 200 && $code < 400);
 }
 
-// Helper: resolve bank logo URL. Prefer Paystack CDN logos automatically, then local fallback.
+// Helper: resolve bank logo URL. Prefer NigerianBanks logos, then Clearbit, then local fallback.
 function getBankLogoUrl($bankName = '', $bankCode = '') {
     $bankName = trim((string)$bankName);
     $bankCode = trim((string)$bankCode);
 
-    $candidates = [];
-    if ($bankCode !== '') {
-        $candidates[] = strtolower($bankCode);
-    }
+    // Local fallback if available
     $slug = strtolower(preg_replace('/[^a-z0-9]+/','-', $bankName));
     if ($slug !== '') {
-        $candidates[] = $slug;
-        $candidates[] = str_replace('-bank','',$slug);
-        $candidates[] = str_replace('--','-',$slug);
-    }
-
-    foreach ($candidates as $cand) {
-        if ($cand === '') continue;
-        if (preg_match('/^[0-9]{3,4}$/', $cand)) {
-            return 'paystack-logo.php?code=' . rawurlencode($cand);
+        $localPaths = [
+            __DIR__ . "/../images/toban/{$slug}.png",
+            __DIR__ . "/../images/toban/{$slug}.jpg",
+            __DIR__ . "/../images/toban/{$slug}.svg",
+        ];
+        foreach ($localPaths as $p) {
+            if (file_exists($p)) {
+                return '../images/toban/' . basename($p);
+            }
         }
-        return 'paystack-logo.php?slug=' . rawurlencode($cand);
     }
 
-    // Local fallback if Paystack proxy is unavailable
-    $localPaths = [
-        __DIR__ . "/../images/toban/{$slug}.png",
-        __DIR__ . "/../images/toban/{$slug}.jpg",
-        __DIR__ . "/../images/toban/{$slug}.svg",
-    ];
-    foreach ($localPaths as $p) {
-        if (file_exists($p)) {
-            return '../images/toban/' . basename($p);
+    // Clearbit fallback
+    if ($bankName !== '') {
+        $slug = strtolower(preg_replace('/[^a-z0-9]+/', '-', $bankName));
+        if ($slug !== '') {
+            return 'https://logo.clearbit.com/' . rawurlencode($slug) . '.com';
         }
     }
 
