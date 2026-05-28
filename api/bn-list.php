@@ -151,14 +151,9 @@ if (!isset($_SESSION['user_id'])) {
 
     function getPaystackLogoUrl(bank) {
         if (!bank) return '';
-        // Use direct NigerianBanks logo if available
-        if (bank.logo) return bank.logo;
-        // Fallback to Clearbit by bank name
-        const name = (bank.name || '').toString().trim();
-        if (!name) return '';
-        const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-        if (slug) {
-            return `https://logo.clearbit.com/${slug}.com`;
+        // Only use actual image URLs from NigerianBanks or local; no external fallback
+        if (bank.logo && String(bank.logo).startsWith('http')) {
+            return bank.logo;
         }
         return '';
     }
@@ -246,8 +241,8 @@ if (!isset($_SESSION['user_id'])) {
                 const code = (pb.code || pb.bank_code || pb.id || '') + '';
                 const key = normalizeName(name);
                 const ngLogo = ngLogoMap[key] || '';
-                // Use NigerianBanks logo if available; otherwise use Clearbit fallback
-                const logo = ngLogo || (name ? `https://logo.clearbit.com/${name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.com` : '');
+                // Use NigerianBanks logo if available; otherwise no fallback URL (show initials)
+                const logo = ngLogo || '';
                 return { name: name, code: code, logo: logo };
             });
 

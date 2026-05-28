@@ -64,7 +64,7 @@ function url_exists($url) {
     return ($code >= 200 && $code < 400);
 }
 
-// Helper: resolve bank logo URL. Prefer NigerianBanks logos, then Clearbit, then local fallback.
+// Helper: resolve bank logo URL. Use local images > NigerianBanks logos; otherwise empty (show initials).
 function getBankLogoUrl($bankName = '', $bankCode = '') {
     $bankName = trim((string)$bankName);
     $bankCode = trim((string)$bankCode);
@@ -84,15 +84,8 @@ function getBankLogoUrl($bankName = '', $bankCode = '') {
         }
     }
 
-    // Clearbit fallback
-    if ($bankName !== '') {
-        $slug = strtolower(preg_replace('/[^a-z0-9]+/', '-', $bankName));
-        if ($slug !== '') {
-            return 'https://logo.clearbit.com/' . rawurlencode($slug) . '.com';
-        }
-    }
-
-    return '../images/toban/bank.png';
+    // No external URLs; return empty to use initials fallback
+    return '';
 }
 
 // Pre-resolve selected bank logo URL for the header
