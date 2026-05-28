@@ -45,10 +45,11 @@ try {
 
     // User details
     $stmt = $pdo->prepare("SELECT name, email, number FROM users WHERE uid = :user_id");
-    $stmt->execute([':user_id' => $_SESSION['user_id']]);
+    $stmt->execute(['user_id' => $_SESSION['user_id']]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$user) {
+        if (!headers_sent()) header('X-Flashaza-Debug: pay user_id=' . $_SESSION['user_id']);
         die("User not found");
     }
 

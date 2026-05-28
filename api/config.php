@@ -302,7 +302,14 @@ class SupabasePDO {
                 if ($param === '?') {
                     $value = array_shift($valueParams);
                 } else {
-                    $value = $params[ltrim($param, ':')] ?? null;
+                    $paramName = ltrim($param, ':');
+                    if (is_array($params) && array_key_exists($paramName, $params)) {
+                        $value = $params[$paramName];
+                    } elseif (is_array($params) && array_key_exists($param, $params)) {
+                        $value = $params[$param];
+                    } else {
+                        $value = null;
+                    }
                 }
                 $filters[] = $key . '=eq.' . rawurlencode((string)$value);
                 continue;
