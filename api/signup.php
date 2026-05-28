@@ -93,15 +93,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             json_response(['ok' => false, 'message' => 'Phone must be exactly 10 digits'], 400);
         }
 
-        if (empty($SUPABASE_AVAILABLE) || $SUPABASE_AVAILABLE === false) {
-            json_response(['ok' => false, 'message' => $SUPABASE_ERROR ?: 'Database unavailable.'], 503);
-        }
-
-        // Optionally check if already registered
-        $stmt = $pdo->prepare("SELECT 1 FROM users WHERE number = :num LIMIT 1");
-        $stmt->execute(['num' => $phone]);
-        if ($stmt->fetchColumn()) {
-            json_response(['ok' => false, 'message' => 'This phone number is already registered. Please log in.'], 409);
+        // Verify the phone via external OPay gateway even when the DB is down.
+        // Database registration checks are deferred until the final register action.
+        if (!empty($SUPABASE_AVAILABLE) && $SUPABASE_AVAILABLE === true) {
+            $stmt = $pdo->prepare("SELECT 1 FROM users WHERE number = :num LIMIT 1");
+            $stmt->execute(['num' => $phone]);
+            if ($stmt->fetchColumn()) {
+                json_response(['ok' => false, 'message' => 'This phone number is already registered. Please log in.'], 409);
+            }
         }
 
         // Resolve with your gateway
