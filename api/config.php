@@ -25,6 +25,7 @@ class SupabasePDOStatement {
     private $params = [];
     private $result = null;
     private $rowCount = 0;
+    private $rowPointer = 0;
 
     public function __construct($pdo, $sql) {
         $this->pdo = $pdo;
@@ -48,6 +49,7 @@ class SupabasePDOStatement {
         if ($this->result === null && in_array($request['method'], ['PATCH', 'POST', 'DELETE'], true)) {
             $this->result = [];
         }
+        $this->rowPointer = 0;
         return true;
     }
 
@@ -55,7 +57,10 @@ class SupabasePDOStatement {
         if ($this->result === null) {
             $this->execute();
         }
-        return is_array($this->result) ? ($this->result[0] ?? false) : false;
+        if (!is_array($this->result) || $this->rowPointer >= count($this->result)) {
+            return false;
+        }
+        return $this->result[$this->rowPointer++];
     }
 
     public function fetchAll($mode = null) {
