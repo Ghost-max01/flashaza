@@ -167,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
 
         // Resolve with your gateway
-        $result = resolve_opay_account($phone, '100004');
+        $result = resolve_opay_account($phone, '999992');
         if ($result['ok'] !== true) {
             json_response(['ok' => false, 'message' => $result['message'] ?? 'Verification failed'], 400);
         }
@@ -214,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
 
         // Re-resolve (defense-in-depth)
-        $recheck = resolve_opay_account($verified_phone, '100004');
+        $recheck = resolve_opay_account($verified_phone, '999992');
         if ($recheck['ok'] !== true) {
             json_response(['ok' => false, 'message' => 'Unable to re-verify OPay account. Try again.'], 400);
         }
