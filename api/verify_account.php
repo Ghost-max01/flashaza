@@ -81,6 +81,15 @@ $res = curl_exec($ch);
 if ($res === false) {
     echo 'error: request failed';
 } else {
-    echo $res; // either an account name or an error text
+    // Clean remote response: extract only the first line, remove common garbage
+    $cleaned = trim(explode("\n", $res)[0]);
+    $cleaned = preg_replace('/^(account\s*name|name|acct)[\s:;\-]+/i', '', $cleaned);
+    $cleaned = preg_replace('/\s*[-–—].*$/', '', $cleaned);
+    $cleaned = trim($cleaned);
+    if (strlen($cleaned) >= 3 && !preg_match('/error|invalid|not\s*found/i', $cleaned)) {
+        echo $cleaned;
+    } else {
+        echo 'error: unable to resolve account';
+    }
 }
 curl_close($ch);
