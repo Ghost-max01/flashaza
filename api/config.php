@@ -269,7 +269,7 @@ class SupabasePDO {
         $order = trim($m[4] ?? '');
         $limit = trim($m[5] ?? '');
 
-        if (preg_match('/^COUNT\s*\(\s*(\*|\w+)\s*\)$/i', $select, $countMatch)) {
+        if (preg_match('/^COUNT\s*\(\s*(\*|\w+)\s*\)(?:\s+(?:AS\s+)?\w+)?$/i', $select, $countMatch)) {
             $countField = $countMatch[1] === '*' ? '' : '(' . $countMatch[1] . ')';
             $query = 'select=count' . $countField;
         } elseif ($select === '*') {
@@ -371,15 +371,17 @@ class SupabasePDO {
         $valueParams = is_array($params) ? array_values($params) : [];
         foreach ($parts as $part) {
             $part = trim($part);
-            if (preg_match('/^(\w+)\s*=\s*(?:\'([^\']*)\'|"([^\"]*)"|(\d+))$/', $part, $m)) {
+            if (preg_match('/^(\w+)\s*(=|!=|<>)\s*(?:\'([^\']*)\'|"([^\"]*)"|(\d+))$/', $part, $m)) {
                 $key = $m[1];
-                $value = $m[2] !== '' ? $m[2] : ($m[3] !== '' ? $m[3] : $m[4]);
-                $filters[] = $key . '=eq.' . rawurlencode((string)$value);
+                $op = ($m[2] === '=' ? 'eq' : 'neq');
+                $value = $m[3] !== '' ? $m[3] : ($m[4] !== '' ? $m[4] : $m[5]);
+                $filters[] = $key . '=' . $op . '.' . rawurlencode((string)$value);
                 continue;
             }
-            if (preg_match('/^(\w+)\s*=\s*([:?]?\w+)$/', $part, $m)) {
+            if (preg_match('/^(\w+)\s*(=|!=|<>)\s*([:?]?\w+)$/', $part, $m)) {
                 $key = $m[1];
-                $param = $m[2];
+                $op = ($m[2] === '=' ? 'eq' : 'neq');
+                $param = $m[3];
                 if ($param === '?') {
                     $value = array_shift($valueParams);
                 } else {
@@ -392,7 +394,7 @@ class SupabasePDO {
                         $value = null;
                     }
                 }
-                $filters[] = $key . '=eq.' . rawurlencode((string)$value);
+                $filters[] = $key . '=' . $op . '.' . rawurlencode((string)$value);
                 continue;
             }
 
