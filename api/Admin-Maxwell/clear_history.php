@@ -10,9 +10,9 @@ require_once 'config.php';
 // Database connection functions
 function prepareStatement($query) {
     global $pdo, $conn;
-    if (isset($pdo) && $pdo instanceof PDO) {
+    if (isset($pdo) && is_object($pdo) && method_exists($pdo, 'prepare')) {
         return $pdo->prepare($query);
-    } elseif (isset($conn) && $conn instanceof mysqli) {
+    } elseif (isset($conn) && is_object($conn) && method_exists($conn, 'prepare')) {
         return $conn->prepare($query);
     } else {
         die("No valid database connection.");

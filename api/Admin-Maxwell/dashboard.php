@@ -10,24 +10,24 @@ if (!isset($_SESSION['admin_email'])) {
 // Database configuration
 require_once 'config.php';
 
-// Function to prepare a statement for either PDO or MySQLi
+// Function to prepare a statement for either PDO, SupabasePDO, or MySQLi
 function prepareStatement($query) {
     global $pdo, $conn;
-    if (isset($pdo) && $pdo instanceof PDO) {
+    if (isset($pdo) && is_object($pdo) && method_exists($pdo, 'prepare')) {
         return $pdo->prepare($query);
-    } elseif (isset($conn) && $conn instanceof mysqli) {
+    } elseif (isset($conn) && is_object($conn) && method_exists($conn, 'prepare')) {
         return $conn->prepare($query);
     } else {
         die("No valid database connection.");
     }
 }
 
-// Function to run a query for either PDO or MySQLi
+// Function to run a query for either PDO, SupabasePDO, or MySQLi
 function runQuery($query) {
     global $pdo, $conn;
-    if (isset($pdo) && $pdo instanceof PDO) {
+    if (isset($pdo) && is_object($pdo) && method_exists($pdo, 'query')) {
         return $pdo->query($query);
-    } elseif (isset($conn) && $conn instanceof mysqli) {
+    } elseif (isset($conn) && is_object($conn) && method_exists($conn, 'query')) {
         return $conn->query($query);
     } else {
         die("No valid database connection.");
