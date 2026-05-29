@@ -38,11 +38,27 @@ class SupabasePDOStatement {
         }
         $request = $this->pdo->buildRequest($this->sql, $this->params);
         if (!$request) {
-            throw new Exception('Unsupported SQL for Supabase REST: ' . $this->sql);
+            $message = 'Unsupported SQL for Supabase REST: ' . $this->sql;
+            if (!headers_sent()) {
+                header('X-Flashaza-Debug: ' . substr($message, 0, 200));
+            }
+            error_log($message);
+            throw new Exception($message);
         }
         $response = $this->pdo->request($request['method'], $request['path'], $request['body'], $request['headers'] ?? []);
         if (!$response['ok']) {
-            throw new Exception('Supabase REST request failed: ' . ($response['error'] ?? 'unknown'));
+            $error = $response['error'] ?? 'unknown';
+            $raw = isset($response['raw']) ? trim($response['raw']) : '';
+            $status = $response['status'] ?? 'unknown';
+            $message = 'Supabase REST request failed: HTTP ' . $status . ' ' . $error . ' | SQL=' . $this->sql . ' | PATH=' . $request['path'];
+            if ($raw !== '') {
+                $message .= ' | RAW=' . substr($raw, 0, 200);
+            }
+            if (!headers_sent()) {
+                header('X-Flashaza-Debug: ' . substr($message, 0, 200));
+            }
+            error_log($message);
+            throw new Exception($message);
         }
         $this->rowCount = $response['rowCount'] ?? 0;
         $this->result = json_decode($response['raw'] ?? '[]', true);
@@ -149,6 +165,9 @@ class SupabasePDO {
 
     public function __construct($url, $anonKey, $serviceKey) {
         $this->url = rtrim($url, '/');
+        if (stripos($this->url, '/rest/v1') !== false) {
+            $this->url = preg_replace('#/rest/v1/*$#i', '', $this->url);
+        }
         $this->anonKey = $anonKey;
         $this->serviceKey = $serviceKey;
     }
