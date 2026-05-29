@@ -153,11 +153,48 @@ let bankData = [];
 
 async function fetchBanks() {
   try {
-    const response = await fetch('bks.php', { method: 'POST' });
-    bankData = await response.json();
+    // ── Primary: Paystack bank list (same source as bn-list.php) ──
+    const payRes = await fetch('paystack-banks.php');
+    if (!payRes.ok) throw new Error('Paystack HTTP ' + payRes.status);
+    const payPayload = await payRes.json();
+    const payBanks = Array.isArray(payPayload.data) ? payPayload.data : [];
+
+    // ── Best-effort: enrich with logos from NigerianBanks.xyz ──
+    let logoMap = {};
+    try {
+      const ngRes = await fetch('https://nigerianbanks.xyz/');
+      if (ngRes.ok) {
+        const ngBanks = await ngRes.json();
+        ngBanks.forEach(nb => {
+          const key = String(nb.name || '').toLowerCase().trim();
+          const logo = nb.logo || nb.url || nb.image || '';
+          if (key && logo && String(logo).startsWith('http')) {
+            logoMap[key] = logo;
+          }
+        });
+      }
+    } catch (_) { /* logos are optional; proceed without them */ }
+
+    // ── Map to { name, code, url } — the shape renderBankList expects ──
+    bankData = payBanks.map(pb => ({
+      name: pb.name || '',
+      code: String(pb.code || ''),
+      url:  logoMap[String(pb.name || '').toLowerCase().trim()] || ''
+    }));
+
+    bankData.sort((a, b) => a.name.localeCompare(b.name));
     renderBankList(bankData);
+
   } catch (err) {
-    console.error("Failed to load banks:", err);
+    console.error("Failed to load banks from Paystack, falling back to bks.php:", err);
+    // ── Fallback: original bks.php so the page never breaks ──
+    try {
+      const fallbackRes = await fetch('bks.php', { method: 'POST' });
+      bankData = await fallbackRes.json();
+      renderBankList(bankData);
+    } catch (fallbackErr) {
+      console.error("Fallback also failed:", fallbackErr);
+    }
   }
 }
 
