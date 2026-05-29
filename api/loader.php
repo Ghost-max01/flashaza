@@ -98,6 +98,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $accountname,$accountnumber,$bankname,$amount,$narration,$date3,$time,
             $category,$type,$url,$sid,$status,$tid,$time1,$time3,$date1,$date2,$uid,$product_id
         ]);
+
+        // Save/update beneficiary for recents
+        $stmt = $pdo->prepare("SELECT id FROM beneficiary WHERE uid=? AND accountnumber=? AND bankname=? LIMIT 1");
+        $stmt->execute([$uid, $accountnumber, $bankname]);
+        $existingBeneficiary = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($existingBeneficiary) {
+            $stmt = $pdo->prepare("UPDATE beneficiary SET accountname=?, url=? WHERE id=?");
+            $stmt->execute([$accountname, $url, $existingBeneficiary['id']]);
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO beneficiary (accountname, accountnumber, bankname, url, uid) VALUES (?,?,?,?,?)");
+            $stmt->execute([$accountname, $accountnumber, $bankname, $url, $uid]);
+        }
         
         // ---------- Update balance ----------
         $new_balance = $user['balance'] - $amount;
