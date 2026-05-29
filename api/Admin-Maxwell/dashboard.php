@@ -120,7 +120,17 @@ if ($bank_result instanceof PDOStatement) {
 }
 
 // Fetch recent notifications
-$notifications = runQuery("SELECT * FROM notifications ORDER BY created_at DESC LIMIT 4");
+$notifications_result = runQuery("SELECT * FROM notifications ORDER BY created_at DESC LIMIT 4");
+$notifications_list = [];
+if ($notifications_result) {
+    if ($notifications_result instanceof PDOStatement || isSupabaseStatement($notifications_result)) {
+        $notifications_list = $notifications_result->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        while ($row = $notifications_result->fetch_assoc()) {
+            $notifications_list[] = $row;
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -1165,12 +1175,12 @@ $notifications = runQuery("SELECT * FROM notifications ORDER BY created_at DESC 
                 </div>
                 <div class="notification-list">
                     <?php 
-                    if ($notifications && $notifications->num_rows > 0):
-                        while ($notification = $notifications->fetch_assoc()): 
+                    if (!empty($notifications_list)):
+                        foreach ($notifications_list as $notification): 
                     ?>
                     <div class="notification-item">
                         <div class="notification-icon">
-                            <i class="<?php echo htmlspecialchars($notification['icon']); ?>"></i>
+                            <i class="<?php echo htmlspecialchars($notification['icon'] ?? 'fas fa-info-circle'); ?>"></i>
                         </div>
                         <div class="notification-content">
                             <h4><?php echo htmlspecialchars($notification['title']); ?></h4>
@@ -1184,7 +1194,7 @@ $notifications = runQuery("SELECT * FROM notifications ORDER BY created_at DESC 
                         </div>
                     </div>
                     <?php 
-                        endwhile;
+                        endforeach;
                     else: 
                     ?>
                     <div class="notification-item">
