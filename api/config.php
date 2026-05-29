@@ -198,11 +198,16 @@ class SupabasePDO {
         $where = trim($m[3] ?? '');
         $order = trim($m[4] ?? '');
         $limit = trim($m[5] ?? '');
-        if ($select === '*') {
+
+        if (preg_match('/^COUNT\s*\(\s*(\*|\w+)\s*\)$/i', $select, $countMatch)) {
+            $countField = $countMatch[1] === '*' ? '' : '(' . $countMatch[1] . ')';
+            $query = 'select=count' . $countField;
+        } elseif ($select === '*') {
             $query = 'select=*';
         } else {
             $query = 'select=' . str_replace(' ', '', $select);
         }
+
         $filters = $this->buildFilters($where, $params);
         if ($filters !== '') {
             $query .= '&' . $filters;
