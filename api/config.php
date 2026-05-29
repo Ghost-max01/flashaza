@@ -313,7 +313,7 @@ class SupabasePDO {
         $valueParams = is_array($params) ? array_values($params) : [];
         foreach (preg_split('/\s*,\s*/', $assignments) as $assignment) {
             $assignment = trim($assignment);
-            if (preg_match('/^(\w+)\s*=\s*([:?]?\w+)$/', $assignment, $a)) {
+            if (preg_match('/^(\w+)\s*=\s*([:?]?\w+|\?)$/', $assignment, $a)) {
                 $key = $a[1];
                 $param = $a[2];
                 if ($param === '?') {
@@ -326,7 +326,7 @@ class SupabasePDO {
                 $body[$key] = $a[2] !== '' ? $a[2] : ($a[3] !== '' ? $a[3] : $a[4]);
             }
         }
-        $filters = $this->buildFilters($where, $params);
+        $filters = $this->buildFilters($where, $valueParams);
         return ['method' => 'PATCH', 'path' => '/' . $table . '?' . $filters, 'body' => json_encode($body), 'headers' => ['Content-Type: application/json', 'Prefer: return=representation']];
     }
 
@@ -378,7 +378,7 @@ class SupabasePDO {
                 $filters[] = $key . '=' . $op . '.' . rawurlencode((string)$value);
                 continue;
             }
-            if (preg_match('/^(\w+)\s*(=|!=|<>)\s*([:?]?\w+)$/', $part, $m)) {
+            if (preg_match('/^(\w+)\s*(=|!=|<>)\s*([:?]?\w+|\?)$/', $part, $m)) {
                 $key = $m[1];
                 $op = ($m[2] === '=' ? 'eq' : 'neq');
                 $param = $m[3];
