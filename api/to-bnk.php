@@ -47,7 +47,7 @@ $beneficiaries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $beneficiaries = array_values(array_filter($beneficiaries, function($row) {
     $name = trim((string)($row['accountname'] ?? ''));
     $bank = trim((string)($row['bankname'] ?? ''));
-    if ($name === '' || $bank === '') {
+    if ($name === '') {
         return false;
     }
     $combined = $name . ' ' . $bank;
@@ -57,7 +57,7 @@ $beneficiaries = array_values(array_filter($beneficiaries, function($row) {
     if (preg_match('/\b(warning|error|notice|fatal|cannot modify|headers already sent|php|syntax error|parse error)\b/i', $combined)) {
         return false;
     }
-    return preg_match_all('/\b[A-Za-z]{2,}\b/', $name) >= 2;
+    return preg_match('/[A-Za-z]{2,}/', $name);
 }));
 
 // Split favourites

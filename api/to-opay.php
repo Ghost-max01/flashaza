@@ -33,7 +33,7 @@ try {
         $name = trim((string)($row['accountname'] ?? ''));
         $bank = trim((string)($row['bankname'] ?? ''));
         $combined = $name . ' ' . $bank;
-        if ($name === '' || $bank === '') {
+        if ($name === '') {
             return false;
         }
         if (preg_match('/<[^>]+>/', $combined)) {
@@ -42,7 +42,7 @@ try {
         if (preg_match('/\b(warning|error|notice|fatal|cannot modify|headers already sent|php|syntax error|parse error)\b/i', $combined)) {
             return false;
         }
-        return preg_match_all('/\b[A-Za-z]{2,}\b/', $name) >= 2;
+        return preg_match('/[A-Za-z]{2,}/', $name);
     }));
 
     // Fetch favourites
@@ -57,7 +57,7 @@ try {
         $name = trim((string)($row['accountname'] ?? ''));
         $bank = trim((string)($row['bankname'] ?? ''));
         $combined = $name . ' ' . $bank;
-        if ($name === '' || $bank === '') {
+        if ($name === '') {
             return false;
         }
         if (preg_match('/<[^>]+>/', $combined)) {
@@ -66,7 +66,7 @@ try {
         if (preg_match('/\b(warning|error|notice|fatal|cannot modify|headers already sent|php|syntax error|parse error)\b/i', $combined)) {
             return false;
         }
-        return preg_match_all('/\b[A-Za-z]{2,}\b/', $name) >= 2;
+        return preg_match('/[A-Za-z]{2,}/', $name);
     }));
 
 } catch (PDOException $e) {
