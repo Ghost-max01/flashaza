@@ -237,60 +237,121 @@ if (!isset($_SESSION['user_id'])) {
             const payBanks = Array.isArray(payPayload.data) ? payPayload.data : [];
             console.log('bn-list: Paystack banks loaded', payBanks.length);
 
-            // ── Client-side logo enrichment (fills gaps the server missed) ──
-            let codeLogoMap = {};  // bank code → logo URL (most reliable)
-            let nameLogoMap = {};  // normalized name → logo URL (fallback)
+            // ── Client-side logo enrichment (multi-strategy matching) ──
+            let logoByCode = {};   // bank code → logo URL
+            let logoBySlug = {};   // slug → logo URL
+            let logoByName = {};   // normalized name → logo URL
+            let logoByShort = {};  // short name (first 2 words) → logo URL
 
+            // Aggressive normalization: strip common suffixes for better matching
             function normalizeName(name) {
-                return String(name || '').toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').trim();
+                return String(name || '').toLowerCase()
+                    .replace(/[^a-z0-9 ]/g, ' ')
+                    .replace(/\b(plc|limited|ltd|nigeria|ng|lc)\b/g, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
             }
+
+            // Even more aggressive: strip "microfinance bank", "mfb", "bank" for short matching
+            function shortName(name) {
+                return normalizeName(name)
+                    .replace(/\b(microfinance bank|microfinance|mfb|bank|digital|financial|services|finance|money|mobile)\b/g, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            }
+
+            // Local overrides mapping for major banks
+            function getLocalLogo(code, slug, name) {
+                code = String(code || '').trim();
+                slug = String(slug || '').toLowerCase().trim();
+                name = String(name || '').toLowerCase().trim();
+
+                if (code === '999992' || code === '100004' || slug.includes('opay') || slug.includes('paycom') || name.includes('opay')) {
+                    return '../images/toban/opay.png';
+                }
+                if (code === '044' || slug.includes('access') || name.includes('access bank')) {
+                    return '../images/toban/access.png';
+                }
+                if (code === '011' || slug.includes('first-bank') || name.includes('first bank')) {
+                    return '../images/toban/first.png';
+                }
+                if (code === '058' || slug.includes('gtb') || slug.includes('guaranty-trust') || name.includes('guaranty trust')) {
+                    return '../images/toban/gt.png';
+                }
+                if (code === '033' || slug === 'uba' || slug.includes('united-bank-for-africa') || name.includes('united bank for africa') || name === 'uba') {
+                    return '../images/toban/uba.png';
+                }
+                if (code === '057' || slug.includes('zenith') || name.includes('zenith bank')) {
+                    return '../images/toban/zenith.png';
+                }
+                return '';
+            }
+
+            // Store a logo into all relevant maps
+            function indexLogo(entry, logoUrl) {
+                const code = String(entry.code || '').trim();
+                const slug = String(entry.slug || '').trim();
+                const name = entry.name || entry.bank_name || '';
+                const nName = normalizeName(name);
+                const sName = shortName(name);
+
+                if (code && logoUrl) logoByCode[code] = logoUrl;
+                if (slug && logoUrl) logoBySlug[slug] = logoUrl;
+                if (nName && logoUrl && !logoByName[nName]) logoByName[nName] = logoUrl;
+                if (sName && sName.length > 2 && logoUrl && !logoByShort[sName]) logoByShort[sName] = logoUrl;
+            }
+
+            const SM_BASE = 'https://supermx1.github.io/nigerian-banks-api/';
 
             // Fetch both logo sources in parallel (best-effort, never blocks)
             await Promise.allSettled([
-                // Source 1: supermx1 GitHub dataset — matched by bank CODE (high coverage)
-                fetch('https://supermx1.github.io/nigerian-banks-api/data.json')
+                // Source 1: supermx1 GitHub dataset — indexed by code, slug, AND name
+                fetch(SM_BASE + 'data.json')
                     .then(r => r.ok ? r.json() : Promise.reject('not ok'))
                     .then(banks => {
-                        const baseUrl = 'https://supermx1.github.io/nigerian-banks-api/';
                         banks.forEach(b => {
-                            const code = String(b.code || '').trim();
-                            const slug = String(b.slug || '').trim();
                             let logo = String(b.logo || '').trim();
-                            if (logo && !logo.startsWith('http')) logo = baseUrl + logo;
-                            if (code && logo) codeLogoMap[code] = logo;
-                            // Also map by slug for extra matching
-                            if (slug && logo) codeLogoMap['slug:' + slug] = logo;
+                            if (!logo) return;
+                            if (!logo.startsWith('http')) logo = SM_BASE + logo;
+                            indexLogo(b, logo);
                         });
-                        console.log('bn-list: supermx1 logos by code', Object.keys(codeLogoMap).length);
+                        console.log('bn-list: supermx1 indexed — codes:', Object.keys(logoByCode).length,
+                            'slugs:', Object.keys(logoBySlug).length,
+                            'names:', Object.keys(logoByName).length);
                     }),
-                // Source 2: NigerianBanks.xyz — matched by normalized NAME (extra fallback)
+                // Source 2: NigerianBanks.xyz — indexed by name
                 fetch('https://nigerianbanks.xyz/')
                     .then(r => r.ok ? r.json() : Promise.reject('not ok'))
                     .then(banks => {
                         banks.forEach(nb => {
-                            const k = normalizeName(nb.name || nb.bank_name || '');
-                            if (!k) return;
                             const logo = nb.logo || nb.url || nb.image || nb.logo_url || nb.icon || '';
                             if (logo && String(logo).startsWith('http')) {
-                                nameLogoMap[k] = logo;
+                                indexLogo(nb, logo);
                             }
                         });
-                        console.log('bn-list: NigerianBanks logos by name', Object.keys(nameLogoMap).length);
+                        console.log('bn-list: NigerianBanks indexed — names:', Object.keys(logoByName).length);
                     })
             ]);
 
-            // Build the list — use server logo first, then code-based, then slug-based, then name-based
+            // Build the list with multi-strategy logo resolution
             const merged = payBanks.map(pb => {
                 const name = pb.name || pb.bank_name || '';
                 const code = (pb.code || pb.bank_code || pb.id || '') + '';
                 const slug = pb.slug || '';
+                const nName = normalizeName(name);
+                const sName = shortName(name);
                 const serverLogo = pb.logo || '';
-                // Priority: server-provided → code match → slug match → name match
-                const logo = serverLogo
-                    || codeLogoMap[code]
-                    || codeLogoMap['slug:' + slug]
-                    || nameLogoMap[normalizeName(name)]
-                    || '';
+
+                // Priority chain: local override → server → code → slug → full name → short name → speculative URL
+                const local = getLocalLogo(code, slug, name);
+                const logo = local
+                    || serverLogo
+                    || logoByCode[code]
+                    || logoBySlug[slug]
+                    || logoByName[nName]
+                    || logoByShort[sName]
+                    || (slug ? SM_BASE + 'logos/' + slug + '.png' : '');
+
                 return { name, code, logo };
             });
 
