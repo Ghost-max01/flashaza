@@ -18,9 +18,9 @@ if (!isset($_SESSION['user_id'])) {
 
 include "config.php"; // $pdo connect DB
 
-// Debug mode
+// Errors logged only, not displayed
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
 // ✅ Set timezone so time is correct
 date_default_timezone_set('Africa/Lagos');
@@ -56,9 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $url = $_POST['url'] ?? '';
     
     if (empty($accountnumber) || $amount <= 0) {
-        echo "<pre>DEBUG: Invalid input\n";
-        print_r($_POST);
-        echo "</pre>";
+        echo json_encode(['error' => 'Invalid input']);
         exit;
     }
     
@@ -136,7 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
     } catch (Exception $e) {
         $pdo->rollBack();
-        echo "<pre>DEBUG ERROR: ".$e->getMessage()."</pre>";
+        error_log("Transaction error: " . $e->getMessage());
+        echo json_encode(['error' => 'Transaction processing failed']);
         exit;
     }
 }

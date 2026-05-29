@@ -1,4 +1,7 @@
 ﻿<?php
+ob_start();
+ini_set('display_errors', 0);
+error_reporting(0);
 header('Content-Type: text/plain; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

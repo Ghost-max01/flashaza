@@ -8,9 +8,9 @@ $userAgent = $_SERVER['HTTP_USER_AGENT'];
 
 include "config.php"; // provides $pdo
 
-// Debug while testing
+// Errors logged only, not displayed
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
 $uid = $_SESSION['user_id'];
 

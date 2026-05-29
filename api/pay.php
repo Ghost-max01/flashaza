@@ -1,9 +1,9 @@
 <?php
 if (session_status()===PHP_SESSION_NONE) session_start();
 
-// Enable error reporting (optional: turn off in production)
+// Errors logged only, not displayed
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
