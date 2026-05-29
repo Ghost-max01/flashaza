@@ -31,8 +31,10 @@ input.addEventListener('input', function() {
         .then(res => res.text())
         .then(text => {
             text = text.trim();
+            const lower = text.toLowerCase();
+            const hasHtml = /<[^>]+>/.test(text);
             const cleanedName = cleanAccountName(text);
-            if (!text || text.toLowerCase().startsWith('error:')) {
+            if (!text || lower.startsWith('error:') || lower.includes('warning') || hasHtml || cleanedName.length < 3) {
                 alert(text || "Unable to verify account");
                 input.disabled = false;
                 searching.style.display = 'none';

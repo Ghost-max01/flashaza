@@ -142,11 +142,13 @@ function startVerification(accountNumber, bankCode){
             detectSpin.style.display = 'none';
             console.log('to-bnk.js verify_account response:', txt);
 
-            const lower = txt.toLowerCase();
-            const isError = lower.includes('error') || lower.includes('invalid') || (lower.includes('not') && lower.includes('found'));
-            const cleanedName = extractPersonName(txt.trim());
+            const text = txt.trim();
+            const lower = text.toLowerCase();
+            const hasHtml = /<[^>]+>/.test(text);
+            const isError = lower.includes('error') || lower.includes('invalid') || lower.includes('warning') || (lower.includes('not') && lower.includes('found')) || hasHtml;
+            const cleanedName = extractPersonName(text);
 
-            if (!isError && txt.trim().length >= 3) {
+            if (!isError && cleanedName.length >= 3) {
                 // success
                 detectIcon.src = 'images/toban/good.png';
                 detectIcon.style.display = 'block';
