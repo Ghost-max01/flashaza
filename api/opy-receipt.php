@@ -56,16 +56,19 @@ try {
         <div class="header">
             <div class="back-btn" onclick="goBack()">‹</div>
             <div class="header-title">Transaction Details</div>
-                <img src="/images/history/support.png" style="width: 30px; height: 30px;" alt="help">
+            <img src="../images/history/support.png" style="width: 30px; height: 30px;" alt="help">
+        </div>
+        
+        <!-- Main Content -->
         <div class="scroll-container" id="scrollContainer">
             <div class="content-section" id="headSection" style="margin-top: 50px;">
                 <!-- Profile Image -->
                 <div class="profile-container">
-                    <img src="<?php echo isset($transaction['url']) ? htmlspecialchars($transaction['url']) : '/images/history/logo.png'; ?>" 
+                    <img src="<?php echo isset($transaction['url']) ? htmlspecialchars($transaction['url']) : 'images/dashboard/trade.png'; ?>" 
                          alt="profile" 
                          class="profile-image" 
                          id="profileImage"
-                         onerror="this.onerror=null; this.src='/images/history/logo.png';">
+                         onerror="this.onerror=null; this.classList.add('fallback'); this.src=''; this.innerHTML='<?php echo isset($transaction['accountname']) ? substr($transaction['accountname'], 0, 1) : 'N'; ?>';">
                 </div>
                 
                 <div class="transaction-from" id="transferFrom">Transfer from Nova Banking</div>
@@ -98,7 +101,7 @@ try {
                 <div class="detail-row">
                     <div class="detail-label">Transaction No.</div>
                     <div class="detail-value" id="tid">250225010100418357292729</div>
-                    <img src="/images/history/copy.png" style="width: 15px; height: 15px;" alt="">
+                    <img src="../images/history/copy.png" style="width: 15px; height: 15px;" alt="">
                 </div>
                 
                 <div class="detail-row" id="pmedRow">
@@ -127,12 +130,12 @@ try {
                 
                 <div class="more-actions">
                     <div class="action-item" onclick="transferBack()">
-                        <img src="/images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
+                        <img src="../images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
                         <span>Transfer Back</span>
                     </div>
                     
                     <div class="action-item" onclick="viewRecords()">
-                        <img src="/images/history/record.png" style="width: 20px; height: 20px;" alt="record">
+                        <img src="../images/history/record.png" style="width: 20px; height: 20px;" alt="record">
                         <span>View Records</span>
                     </div>
                 </div>
@@ -163,7 +166,7 @@ try {
             accountnumber: "<?php echo isset($transaction['accountnumber']) ? $transaction['accountnumber'] : '9151234789'; ?>",
             tid: "<?php echo isset($transaction['tid']) ? $transaction['tid'] : '250225010100418357292729'; ?>",
             date: "<?php echo isset($transaction['date2']) ? $transaction['date2'] : 'Feb 25th, 2025 08:19:56'; ?>",
-            url: "<?php echo isset($transaction['url']) ? $transaction['url'] : '/images/history/logo.png'; ?>"
+            url: "<?php echo isset($transaction['url']) ? $transaction['url'] : 'images/dashboard/trade.png'; ?>"
         };
 
         // DOM elements

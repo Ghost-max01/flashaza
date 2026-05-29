@@ -51,7 +51,7 @@ $js_transaction_data = json_encode([
         'processing' => $transaction['time1'] ?? 'Processing',
         'received' => $transaction['time3'] ?? 'Pending',
     ],
-    'profileImage' => !empty($transaction['url']) ? $transaction['url'] : '/images/history/logo.png'
+    'profileImage' => !empty($transaction['url']) ? $transaction['url'] : '../images/history/logo.png'
 ]);
 ?>
 <!DOCTYPE html>
@@ -70,11 +70,14 @@ $js_transaction_data = json_encode([
     <div class="header">
       <div class="back-arrow">‹</div>
       <div class="header-title">Transaction Details</div>
-      <img src="/images/history/support.png" alt="menu" class="menu-icon" />
+      <img src="../images/history/support.png" alt="menu" class="menu-icon" />
+    </div>
+
+    
     <!-- Main Content -->
     <div class="scroll-view">
       <div class="card" style="margin-top: 20px;">
-        <div class="profile-image"><img id="profileImage" src="/images/history/logo.png" alt="Receipt Logo" onerror="this.onerror=null; this.src='/images/history/logo.png';"></div>
+        <div class="profile-image"><img id="profileImage" src="" alt=""></div>
         <div class="amount-section">
           <div class="transfer-text" id="transferText">Transfer to </div>
           <div class="amount" id="amount">₦0.00</div>
@@ -82,11 +85,11 @@ $js_transaction_data = json_encode([
         </div>
         <center>
           <div class="timeline">
-            <img src="/images/history/tick.png" alt="dot" class="timeline-dot" />
+            <img src="../images/history/tick.png" alt="dot" class="timeline-dot" />
             <div class="timeline-line" id="timelineLine1"></div>
-            <img src="/images/history/tick.png" alt="dot" class="timeline-dot" />
+            <img src="../images/history/tick.png" alt="dot" class="timeline-dot" />
             <div class="timeline-line" id="timelineLine2"></div>
-            <img src="/images/history/tick.png" alt="dot" class="timeline-dot" />
+            <img src="../images/history/tick.png" alt="dot" class="timeline-dot" />
           </div>
         </center>
         <div class="timeline-labels">
@@ -143,7 +146,7 @@ $js_transaction_data = json_encode([
         <div class="detail-row">
           <div class="detail-label">Transaction No.</div>
           <div class="detail-value" id="transactionId">
-            250225010100418357292729 <img style="width:13px; height:13px;" src="/images/history/copy.png" alt="">
+            250225010100418357292729 <img style="width:13px; height:13px;" src="../images/history/copy.png" alt="">
           </div>
         </div>
         <div class="detail-row">
@@ -158,7 +161,7 @@ $js_transaction_data = json_encode([
           <div class="detail-label">Session ID</div>
           <div class="detail-value" id="sessionId">
             100004250223182413127782423243
-            <img style="width:13px; height:13px;" src="/images/history/copy.png" alt="">
+            <img style="width:13px; height:13px;" src="../images/history/copy.png" alt="">
           </div>
         </div>
       </div>
@@ -176,7 +179,7 @@ $js_transaction_data = json_encode([
         </center>
         <div class="more-actions">
           <div class="action-item" onclick="transferBack()">
-            <img src="/images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
+            <img src="../images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
             <span>Transfer Back</span>
           </div>
           <div class="action-item" onclick="viewRecords()"><span></span></div>
@@ -225,9 +228,9 @@ $js_transaction_data = json_encode([
       recipientElement.innerHTML = `${transactionData.recipientDetails.name}<br><span style="font-size:12px; color:#616161;">${transactionData.recipientDetails.bank} | ${transactionData.recipientDetails.account}</span>`;
       
       // Update other details
-      document.getElementById('transactionId').innerHTML = `${transactionData.id} <img style="width:13px; height:13px;" src="/images/history/copy.png" alt="">`;
+      document.getElementById('transactionId').innerHTML = `${transactionData.id} <img style="width:13px; height:13px;" src="../images/history/copy.png" alt="">`;
       document.getElementById('transactionDate').textContent = transactionData.transactionDate;
-      document.getElementById('sessionId').innerHTML = `${transactionData.sessionId} <img style="width:13px; height:13px;" src="/images/history/copy.png" alt="">`;
+      document.getElementById('sessionId').innerHTML = `${transactionData.sessionId} <img style="width:13px; height:13px;" src="../images/history/copy.png" alt="">`;
       
       // Update timeline
       document.getElementById('paymentTime').textContent = transactionData.timeline.payment;
@@ -260,9 +263,9 @@ $js_transaction_data = json_encode([
         statusElement.textContent = 'Successful';
         
         // Update timeline images to all ticks
-        timelineDots[0].src = '/images/history/tick.png';
-        timelineDots[1].src = '/images/history/tick.png';
-        timelineDots[2].src = '/images/history/tick.png';
+        timelineDots[0].src = 'images/history/tick.png';
+        timelineDots[1].src = 'images/history/tick.png';
+        timelineDots[2].src = 'images/history/tick.png';
         
         // Update timeline lines to green
         timelineLine1.className = 'timeline-line timeline-line-success';
@@ -295,9 +298,9 @@ $js_transaction_data = json_encode([
         statusElement.textContent = 'Pending';
         
         // Update timeline images
-        timelineDots[0].src = '/images/history/tick.png';
-        timelineDots[1].src = '/images/history/delay.png';
-        timelineDots[2].src = '/images/history/untick.png';
+        timelineDots[0].src = 'images/history/tick.png';
+        timelineDots[1].src = 'images/history/delay.png';
+        timelineDots[2].src = 'images/history/untick.png';
         
         // Update timeline line colors
         timelineLine1.className = 'timeline-line timeline-line-success';
