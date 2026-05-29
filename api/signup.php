@@ -110,7 +110,7 @@ function paystack_resolve_account($account_number, $bank_code, $secretKey) {
     return ['ok' => false, 'message' => trim($message)];
 }
 
-function resolve_opay_account_legacy($account_number, $bank_code = '100004') {
+function resolve_opay_account_legacy($account_number, $bank_code = '999992') {
     $url = 'https://webtech.net.ng/vrf/verify.php';
     $post = http_build_query([
         'account_number' => $account_number,

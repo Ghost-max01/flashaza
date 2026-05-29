@@ -26,7 +26,7 @@ input.addEventListener('input', function() {
         fetch('verify_account.php', {
             method: 'POST',
             headers: {'Content-Type':'application/x-www-form-urlencoded'},
-            body: 'account_number=' + encodeURIComponent(value) + '&bank_code=100004'
+            body: 'account_number=' + encodeURIComponent(value) + '&bank_code=999992'
         })
         .then(res => res.text())
         .then(text => {
