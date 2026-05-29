@@ -1,5 +1,4 @@
 ﻿<?php
-// verify_account.php
 header('Content-Type: text/plain; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -19,7 +18,7 @@ if (!preg_match('/^\d{10}$/', $account_number) || $bank_code === '') {
 
 $secretKey = trim(getenv('PAYSTACK_SECRET_KEY') ?: '');
 $defaultBank = trim(getenv('PAYSTACK_BANK_CODE') ?: '');
-if ($defaultBank !== '' && $bank_code === '100004') {
+if ($defaultBank !== '' && $bank_code === '999992') {
     $bank_code = $defaultBank;
 }
 
@@ -65,7 +64,6 @@ if ($secretKey !== '') {
     exit;
 }
 
-// Legacy fallback for older OPay verification service.
 $remote = "https://webtech.net.ng/vrf/verify.php";
 $ch = curl_init($remote);
 curl_setopt_array($ch, [
@@ -81,7 +79,6 @@ $res = curl_exec($ch);
 if ($res === false) {
     echo 'error: request failed';
 } else {
-    // Clean remote response: extract only the first line, remove common garbage
     $cleaned = trim(explode("\n", $res)[0]);
     $cleaned = preg_replace('/^(account\s*name|name|acct)[\s:;\-]+/i', '', $cleaned);
     $cleaned = preg_replace('/\s*[-–—].*$/', '', $cleaned);
