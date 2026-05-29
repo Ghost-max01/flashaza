@@ -33,25 +33,25 @@ if (!$transaction) {
 
 // Prepare data for JavaScript
 $js_transaction_data = json_encode([
-    'id' => $transaction['tid'],
-    'amount' => floatval($transaction['amount']),
-    'fee' => floatval($transaction['fee']),
-    'amountPaid' => floatval($transaction['amount']),
-    'recipientName' => $transaction['accountname'],
+    'id' => $transaction['tid'] ?? '',
+    'amount' => floatval($transaction['amount'] ?? 0),
+    'fee' => floatval($transaction['fee'] ?? 0),
+    'amountPaid' => floatval($transaction['amount'] ?? 0),
+    'recipientName' => $transaction['accountname'] ?? '',
     'recipientDetails' => [
         'name' => $transaction['accountname'] ?? 'WEB TECH',
         'bank' => $transaction['bankname'] ?? 'United Bank For Africa',
         'account' => $transaction['accountnumber'] ?? '915****789'
     ],
-    'transactionDate' => date('M jS, Y H:i:s', strtotime($transaction['date2'])),
-    'sessionId' => $transaction['sid'],
-    'status' => $transaction['status'], // "success", "failed", or "pending"
+    'transactionDate' => date('M jS, Y H:i:s', strtotime($transaction['date2'] ?? 'now')),
+    'sessionId' => $transaction['sid'] ?? '',
+    'status' => $transaction['status'] ?? 'pending',
     'timeline' => [
-        'payment' => $transaction['time1'] ?? 'WEB TECH',
-        'processing' => $transaction['time1'] ?? 'WEB TECH',
-        'received' => $transaction['time3'] ?? 'WEB TECH',
+        'payment' => $transaction['time1'] ?? 'Processing',
+        'processing' => $transaction['time1'] ?? 'Processing',
+        'received' => $transaction['time3'] ?? 'Pending',
     ],
-    'profileImage' => $transaction['url'] ?? 'images/history/logo.png'
+    'profileImage' => !empty($transaction['url']) ? $transaction['url'] : '../images/history/logo.png'
 ]);
 ?>
 <!DOCTYPE html>
