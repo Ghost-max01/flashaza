@@ -5,6 +5,16 @@ const recipientName = document.getElementById('recipientName');
 const recipientAccount = document.getElementById('recipientAccount');
 let verified = null;
 
+function cleanAccountName(raw) {
+    if (!raw) return '';
+    let text = String(raw).trim().split(/\r?\n/)[0].trim();
+    text = text.replace(/^(account\s*(name|holder)|acct\s*name|name)\s*[:\-\s]+/i, '').trim();
+    text = text.replace(/\s*[-–—].*$/,'').replace(/\s*\([^)]*\d[^)]*\).*$/,'').trim();
+    const words = text.match(/[A-Za-z]{2,}/g) || [];
+    if (words.length === 0) return text;
+    return words.slice(0, 3).join(' ');
+}
+
 // Input listener
 input.addEventListener('input', function() {
     const value = this.value.trim();
@@ -21,7 +31,7 @@ input.addEventListener('input', function() {
         .then(res => res.text())
         .then(text => {
             text = text.trim();
-            // remote returns plain text (account name) or "error: ..." — keep that behavior
+            const cleanedName = cleanAccountName(text);
             if (!text || text.toLowerCase().startsWith('error:')) {
                 alert(text || "Unable to verify account");
                 input.disabled = false;
@@ -29,9 +39,9 @@ input.addEventListener('input', function() {
             } else {
                 verified = {
                     accountNumber: value,
-                    accountName: text
+                    accountName: cleanedName
                 };
-                recipientName.textContent = text;
+                recipientName.textContent = cleanedName;
                 recipientAccount.textContent = value;
                 searching.style.display = 'none';
                 recipientDetails.style.display = 'flex';
