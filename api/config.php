@@ -352,6 +352,12 @@ class SupabasePDO {
         $valueParams = is_array($params) ? array_values($params) : [];
         foreach ($parts as $part) {
             $part = trim($part);
+            if (preg_match('/^(\w+)\s*=\s*(?:\'([^\']*)\'|"([^\"]*)"|(\d+))$/', $part, $m)) {
+                $key = $m[1];
+                $value = $m[2] !== '' ? $m[2] : ($m[3] !== '' ? $m[3] : $m[4]);
+                $filters[] = $key . '=eq.' . rawurlencode((string)$value);
+                continue;
+            }
             if (preg_match('/^(\w+)\s*=\s*([:?]?\w+)$/', $part, $m)) {
                 $key = $m[1];
                 $param = $m[2];
@@ -370,11 +376,7 @@ class SupabasePDO {
                 $filters[] = $key . '=eq.' . rawurlencode((string)$value);
                 continue;
             }
-            if (preg_match('/^(\w+)\s*=\s*(?:\'([^\']*)\'|"([^"]*)"|(\d+))$/', $part, $m)) {
-                $key = $m[1];
-                $value = $m[2] !== '' ? $m[2] : ($m[3] !== '' ? $m[3] : $m[4]);
-                $filters[] = $key . '=eq.' . rawurlencode((string)$value);
-            }
+
         }
         return implode('&', $filters);
     }
