@@ -105,6 +105,16 @@ class SupabasePDOStatement {
         return true;
     }
 
+    public function bindParam($parameter, &$variable, $data_type = PDO::PARAM_STR, $length = null, $driver_options = null) {
+        if (is_int($parameter)) {
+            $paramKey = strval($parameter - 1);
+        } else {
+            $paramKey = ltrim($parameter, ':?');
+        }
+        $this->params[$paramKey] = $variable;
+        return true;
+    }
+
     public function fetch_row() {
         $row = $this->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
