@@ -34,12 +34,22 @@ function runQuery($query) {
     }
 }
 
+function isSupabaseStatement($stmt) {
+    return is_object($stmt)
+        && !($stmt instanceof PDOStatement)
+        && !($stmt instanceof mysqli_stmt)
+        && method_exists($stmt, 'execute')
+        && method_exists($stmt, 'fetch');
+}
+
 // Handle maintenance mode toggle
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_maintenance'])) {
     $maintenance_status = $_POST['maintenance_status'] === 'true' ? 1 : 0;
     $stmt = prepareStatement("UPDATE maintenance SET is_maintenance = ? WHERE id = 1");
 
     if ($stmt instanceof PDOStatement) {
+        $stmt->execute([$maintenance_status]);
+    } elseif (isSupabaseStatement($stmt)) {
         $stmt->execute([$maintenance_status]);
     } else {
         $stmt->bind_param("i", $maintenance_status);
@@ -58,6 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_bank'])) {
 
     if ($stmt instanceof PDOStatement) {
         $stmt->execute([$bank_name, $account_name, $account_number]);
+    } elseif (isSupabaseStatement($stmt)) {
+        $stmt->execute([$bank_name, $account_name, $account_number]);
     } else {
         $stmt->bind_param("sss", $bank_name, $account_name, $account_number);
         $stmt->execute();
@@ -69,6 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_bank'])) {
 function getStatCount($sql) {
     $result = runQuery($sql);
     if ($result instanceof PDOStatement) {
+        return (int) $result->fetchColumn();
+    } elseif (isSupabaseStatement($result)) {
         return (int) $result->fetchColumn();
     } else {
         $row = $result->fetch_row();
@@ -88,6 +102,8 @@ $pending_payments      = getStatCount("SELECT COUNT(*) FROM payment_requests WHE
 $maintenance_result = runQuery("SELECT is_maintenance FROM maintenance WHERE id = 1");
 if ($maintenance_result instanceof PDOStatement) {
     $is_maintenance = $maintenance_result->fetchColumn();
+} elseif (isSupabaseStatement($maintenance_result)) {
+    $is_maintenance = $maintenance_result->fetch(PDO::FETCH_ASSOC)['is_maintenance'];
 } else {
     $maintenance_row = $maintenance_result->fetch_assoc();
     $is_maintenance  = $maintenance_row['is_maintenance'];
@@ -96,6 +112,8 @@ if ($maintenance_result instanceof PDOStatement) {
 // Fetch bank details
 $bank_result = runQuery("SELECT * FROM bank_details WHERE id = 1");
 if ($bank_result instanceof PDOStatement) {
+    $bank_details = $bank_result->fetch(PDO::FETCH_ASSOC);
+} elseif (isSupabaseStatement($bank_result)) {
     $bank_details = $bank_result->fetch(PDO::FETCH_ASSOC);
 } else {
     $bank_details = $bank_result->fetch_assoc();

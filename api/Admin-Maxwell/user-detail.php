@@ -19,6 +19,14 @@ function prepareStatement($query) {
     }
 }
 
+function isSupabaseStatement($stmt) {
+    return is_object($stmt)
+        && !($stmt instanceof PDOStatement)
+        && !($stmt instanceof mysqli_stmt)
+        && method_exists($stmt, 'execute')
+        && method_exists($stmt, 'fetch');
+}
+
 // Get user ID from URL
 $uid = isset($_GET['uid']) ? $_GET['uid'] : null;
 
@@ -39,6 +47,9 @@ if ($stmt instanceof PDOStatement) {
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
+} elseif (isSupabaseStatement($stmt)) {
+    $stmt->execute([$uid]);
+    $user = $stmt->fetch_assoc();
 }
 
 if (!$user) {
@@ -62,6 +73,9 @@ if ($history_stmt instanceof PDOStatement) {
     $history_stmt->execute();
     $result = $history_stmt->get_result();
     $history_count = $result->fetch_assoc()['count'];
+} elseif (isSupabaseStatement($history_stmt)) {
+    $history_stmt->execute([$uid]);
+    $history_count = $history_stmt->fetch(PDO::FETCH_ASSOC)['count'];
 }
 
 // Get beneficiary count
@@ -77,6 +91,9 @@ if ($beneficiary_stmt instanceof PDOStatement) {
     $beneficiary_stmt->execute();
     $result = $beneficiary_stmt->get_result();
     $beneficiary_count = $result->fetch_assoc()['count'];
+} elseif (isSupabaseStatement($beneficiary_stmt)) {
+    $beneficiary_stmt->execute([$uid]);
+    $beneficiary_count = $beneficiary_stmt->fetch(PDO::FETCH_ASSOC)['count'];
 }
 
 // Handle form submissions
@@ -126,6 +143,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $check_stmt->execute();
             $result = $check_stmt->get_result()->fetch_assoc();
             $count = $result['count'];
+        } elseif (isSupabaseStatement($check_stmt)) {
+            $check_stmt->execute([$new_number, $uid]);
+            $result = $check_stmt->fetch(PDO::FETCH_ASSOC);
+            $count = $result['count'];
         }
         
         if ($count > 0) {
@@ -154,6 +175,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $message = "Error updating phone number!";
                     $message_type = "error";
                 }
+            } elseif (isSupabaseStatement($update_stmt)) {
+                if ($update_stmt->execute([$new_number, $uid])) {
+                    $user['number'] = $new_number;
+                    $message = "Phone number updated successfully!";
+                    $message_type = "success";
+                } else {
+                    $message = "Error updating phone number!";
+                    $message_type = "error";
+                }
             }
         }
     }
@@ -172,6 +202,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $check_stmt->bind_param("ss", $new_email, $uid);
             $check_stmt->execute();
             $result = $check_stmt->get_result()->fetch_assoc();
+            $count = $result['count'];
+        } elseif (isSupabaseStatement($check_stmt)) {
+            $check_stmt->execute([$new_email, $uid]);
+            $result = $check_stmt->fetch(PDO::FETCH_ASSOC);
             $count = $result['count'];
         }
         
@@ -201,6 +235,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $message = "Error updating email!";
                     $message_type = "error";
                 }
+            } elseif (isSupabaseStatement($update_stmt)) {
+                if ($update_stmt->execute([$new_email, $uid])) {
+                    $user['email'] = $new_email;
+                    $message = "Email updated successfully!";
+                    $message_type = "success";
+                } else {
+                    $message = "Error updating email!";
+                    $message_type = "error";
+                }
             }
         }
     }
@@ -222,6 +265,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($update_stmt instanceof mysqli_stmt) {
             $update_stmt->bind_param("is", $block_status, $uid);
             if ($update_stmt->execute()) {
+                $user['block'] = $block_status;
+                $message = "Block status updated successfully!";
+                $message_type = "success";
+            } else {
+                $message = "Error updating block status!";
+                $message_type = "error";
+            }
+        } elseif (isSupabaseStatement($update_stmt)) {
+            if ($update_stmt->execute([$block_status, $uid])) {
                 $user['block'] = $block_status;
                 $message = "Block status updated successfully!";
                 $message_type = "success";
@@ -283,6 +335,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $message = "Error updating subscription plan!";
                     $message_type = "error";
                 }
+            } elseif (isSupabaseStatement($update_stmt)) {
+                if ($update_stmt->execute($params)) {
+                    $user['plan'] = $new_plan;
+                    $user['subscription_date'] = $new_subscription_date;
+                    $message = "Subscription plan updated successfully!";
+                    $message_type = "success";
+                } else {
+                    $message = "Error updating subscription plan!";
+                    $message_type = "error";
+                }
             }
         } else {
             $message = "Please select a subscription plan!";
@@ -314,6 +376,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = "Error updating subscription date!";
                 $message_type = "error";
             }
+        } elseif (isSupabaseStatement($update_stmt)) {
+            if ($update_stmt->execute([$new_subscription_date, $uid])) {
+                $user['subscription_date'] = $new_subscription_date;
+                $message = "Subscription date updated successfully!";
+                $message_type = "success";
+            } else {
+                $message = "Error updating subscription date!";
+                $message_type = "error";
+            }
         }
     }
     
@@ -334,6 +405,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($update_stmt instanceof mysqli_stmt) {
             $update_stmt->bind_param("is", $email_alert_status, $uid);
             if ($update_stmt->execute()) {
+                $user['email_alert'] = $email_alert_status;
+                $message = "Email alert preference updated!";
+                $message_type = "success";
+            } else {
+                $message = "Error updating email alert preference!";
+                $message_type = "error";
+            }
+        } elseif (isSupabaseStatement($update_stmt)) {
+            if ($update_stmt->execute([$email_alert_status, $uid])) {
                 $user['email_alert'] = $email_alert_status;
                 $message = "Email alert preference updated!";
                 $message_type = "success";

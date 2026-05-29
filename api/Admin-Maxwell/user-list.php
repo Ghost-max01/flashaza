@@ -34,6 +34,14 @@ function runQuery($query) {
     }
 }
 
+function isSupabaseStatement($stmt) {
+    return is_object($stmt)
+        && !($stmt instanceof PDOStatement)
+        && !($stmt instanceof mysqli_stmt)
+        && method_exists($stmt, 'execute')
+        && method_exists($stmt, 'fetch');
+}
+
 // Determine filter from URL
 $filter = isset($_GET['type']) ? $_GET['type'] : 'all';
 $page_title = "All Users";
@@ -71,6 +79,9 @@ $user_count = 0;
 
 if ($result) {
     if ($result instanceof PDOStatement) {
+        $user_list = $result->fetchAll(PDO::FETCH_ASSOC);
+        $user_count = count($user_list);
+    } elseif (isSupabaseStatement($result)) {
         $user_list = $result->fetchAll(PDO::FETCH_ASSOC);
         $user_count = count($user_list);
     } else {

@@ -33,11 +33,21 @@ $delete_stmt = prepareStatement($delete_sql);
 $success = false;
 $count = 0;
 
+function isSupabaseStatement($stmt) {
+    return is_object($stmt)
+        && !($stmt instanceof PDOStatement)
+        && !($stmt instanceof mysqli_stmt)
+        && method_exists($stmt, 'execute')
+        && method_exists($stmt, 'fetch');
+}
+
 if ($delete_stmt instanceof PDOStatement) {
     $success = $delete_stmt->execute([$uid]);
 } elseif ($delete_stmt instanceof mysqli_stmt) {
     $delete_stmt->bind_param("s", $uid);
     $success = $delete_stmt->execute();
+} elseif (isSupabaseStatement($delete_stmt)) {
+    $success = $delete_stmt->execute([$uid]);
 }
 
 if ($success) {
@@ -53,6 +63,9 @@ if ($success) {
         $count_stmt->execute();
         $result = $count_stmt->get_result();
         $count = $result->fetch_assoc()['count'];
+    } elseif (isSupabaseStatement($count_stmt)) {
+        $count_stmt->execute([$uid]);
+        $count = $count_stmt->fetch(PDO::FETCH_ASSOC)['count'];
     }
     
     echo json_encode(['success' => true, 'count' => $count, 'message' => 'Beneficiary list cleared successfully!']);

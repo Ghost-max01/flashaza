@@ -18,6 +18,14 @@ function prepareStatement($query) {
     }
 }
 
+function isSupabaseStatement($stmt) {
+    return is_object($stmt)
+        && !($stmt instanceof PDOStatement)
+        && !($stmt instanceof mysqli_stmt)
+        && method_exists($stmt, 'execute')
+        && method_exists($stmt, 'fetch');
+}
+
 // Fetch current prices
 $prices = [
     'weekly' => '0.00',
@@ -36,6 +44,9 @@ if ($stmt) {
         $stmt->execute();
         $result = $stmt->get_result();
         $results = $result->fetch_all(MYSQLI_ASSOC);
+    } elseif (isSupabaseStatement($stmt)) {
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
     foreach ($results as $row) {
@@ -82,6 +93,9 @@ function updatePrice($plan_type, $price) {
             $stmt->bind_param("ds", $price, $plan_type);
             $success = $stmt->execute();
             $rowCount = $stmt->affected_rows;
+        } elseif (isSupabaseStatement($stmt)) {
+            $success = $stmt->execute([$price, $plan_type]);
+            $rowCount = $stmt->rowCount();
         }
         
         if ($success && $rowCount > 0) {

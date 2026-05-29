@@ -88,6 +88,57 @@ class SupabasePDOStatement {
     public function setFetchMode() {
         return true;
     }
+
+    public function fetch_row() {
+        $row = $this->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            return false;
+        }
+        return array_values($row);
+    }
+
+    public function fetch_assoc() {
+        return $this->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function get_result() {
+        if ($this->result === null) {
+            $this->execute();
+        }
+        return new SupabasePDOResult($this->result ?? []);
+    }
+}
+
+class SupabasePDOResult {
+    private $rows;
+    private $pointer = 0;
+
+    public function __construct($rows) {
+        $this->rows = is_array($rows) ? $rows : [];
+    }
+
+    public function fetch_assoc() {
+        if ($this->pointer >= count($this->rows)) {
+            return false;
+        }
+        return $this->rows[$this->pointer++];
+    }
+
+    public function fetch_row() {
+        $row = $this->fetch_assoc();
+        if ($row === false) {
+            return false;
+        }
+        return array_values($row);
+    }
+
+    public function fetch_all($mode = MYSQLI_ASSOC) {
+        return $this->rows;
+    }
+
+    public function num_rows() {
+        return count($this->rows);
+    }
 }
 
 class SupabasePDO {
