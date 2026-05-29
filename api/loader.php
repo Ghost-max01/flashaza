@@ -47,6 +47,7 @@ function ordinal($number) {
 
 // ---------- Process transaction ----------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
     $uid = $_SESSION['user_id'];
     $accountname = $_POST['accountname'] ?? '';
     $accountnumber = $_POST['accountnumber'] ?? '';
@@ -97,20 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $accountname,$accountnumber,$bankname,$amount,$narration,$date3,$time,
             $category,$type,$url,$sid,$status,$tid,$time1,$time3,$date1,$date2,$uid,$product_id
         ]);
-        
-        // ---------- Beneficiary ----------
-        $stmt = $pdo->prepare("SELECT favorite FROM beneficiary WHERE accountnumber=? AND accountname=? AND bankname=? AND uid=? LIMIT 1");
-        $stmt->execute([$accountnumber,$accountname,$bankname,$uid]);
-        $existing = $stmt->fetch(PDO::FETCH_ASSOC);
-        $favorite = $existing ? $existing['favorite'] : "false";
-        
-        if ($existing) {
-            $pdo->prepare("DELETE FROM beneficiary WHERE accountnumber=? AND accountname=? AND bankname=? AND uid=?")
-                ->execute([$accountnumber,$accountname,$bankname,$uid]);
-        }
-        
-        $stmt = $pdo->prepare("INSERT INTO beneficiary (accountname, accountnumber, bankname, url, uid, favorite) VALUES (?,?,?,?,?,?)");
-        $stmt->execute([$accountname,$accountnumber,$bankname,$url,$uid,$favorite]);
         
         // ---------- Update balance ----------
         $new_balance = $user['balance'] - $amount;

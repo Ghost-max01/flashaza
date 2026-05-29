@@ -63,7 +63,7 @@ recipientDetails.addEventListener('click', function() {
     if (!verified) return;
     const payload = {
         accountnumber: verified.accountNumber,
-        bankname: "opay",
+        bankname: "OPay",
         accountname: verified.accountName,
         url: "https://webtech.net.ng/up/uploads/Screenshot_20250321_000721.png"
     };
@@ -92,7 +92,7 @@ document.querySelectorAll('#recentsList .recipient-details, #favouritesList .rec
         if (!accName || !accNumber) return;
         const payload = {
             accountnumber: accNumber,
-            bankname: "opay",
+            bankname: "OPay",
             accountname: accName,
             url: "https://webtech.net.ng/up/uploads/Screenshot_20250321_000721.png"
         };
