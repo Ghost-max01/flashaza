@@ -1,5 +1,9 @@
 <?php
 session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../../error_log.txt');
 require_once 'config.php'; // DB connection must define $pdo
 
 $error = '';
@@ -18,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($admin) {
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_email'] = $admin['email'];
-            $_SESSION['admin_name'] = $admin['full_name'];
+            $_SESSION['admin_name'] = $admin['name'] ?? $admin['email'];
             header("Location: dashboard.php");
             exit;
         } else {
