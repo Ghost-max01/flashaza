@@ -44,6 +44,21 @@ try {
 } catch (PDOException $e) {
     die("Query failed: " . $e->getMessage());
 }
+
+// Helper to sanitize any stored names/strings before rendering to UI
+function sanitize_display($s) {
+    $s = trim((string)$s);
+    if ($s === '') return '';
+    $s = strip_tags($s);
+    $s = preg_replace('/\bWarning:.*$/is', '', $s);
+    $s = preg_replace('/\bNotice:.*$/is', '', $s);
+    $s = preg_replace('/\bFatal error:.*$/is', '', $s);
+    $s = preg_replace('/cannot modify header.*$/is', '', $s);
+    $s = preg_replace('/in\s+\/?[\w\-\/\.]+\.php( on line \d+)?/i', '', $s);
+    $s = preg_replace('/\s{2,}/', ' ', $s);
+    $s = trim($s);
+    return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -108,8 +123,8 @@ try {
                         <div class="recipient-details">
                             <div class="recipient-avatar"><i class="fas fa-user"></i></div>
                             <div class="recipient-info">
-                                <div class="recipient-name"><?=htmlspecialchars($row['accountname'])?></div>
-                                <div class="recipient-account"><?=htmlspecialchars($row['accountnumber'])?></div>
+                                <div class="recipient-name"><?php echo sanitize_display($row['accountname'] ?? ''); ?></div>
+                                <div class="recipient-account"><?php echo sanitize_display($row['accountnumber'] ?? ''); ?></div>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -124,8 +139,8 @@ try {
                         <div class="recipient-details">
                             <div class="recipient-avatar"><i class="fas fa-user"></i></div>
                             <div class="recipient-info">
-                                <div class="recipient-name"><?=htmlspecialchars($row['accountname'])?></div>
-                                <div class="recipient-account"><?=htmlspecialchars($row['accountnumber'])?></div>
+                                <div class="recipient-name"><?php echo sanitize_display($row['accountname'] ?? ''); ?></div>
+                                <div class="recipient-account"><?php echo sanitize_display($row['accountnumber'] ?? ''); ?></div>
                             </div>
                         </div>
                     <?php endforeach; ?>

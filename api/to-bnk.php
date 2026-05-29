@@ -50,6 +50,22 @@ $favorites = array_values(array_filter($beneficiaries, function($r){
     return $v === '1' || $v === 'true' || $v === 'yes';
 }));
 
+// Helper to sanitize any stored names/strings before rendering to UI
+function sanitize_display($s) {
+    $s = trim((string)$s);
+    if ($s === '') return '';
+    // strip HTML and common PHP error fragments
+    $s = strip_tags($s);
+    $s = preg_replace('/\bWarning:.*$/is', '', $s);
+    $s = preg_replace('/\bNotice:.*$/is', '', $s);
+    $s = preg_replace('/\bFatal error:.*$/is', '', $s);
+    $s = preg_replace('/cannot modify header.*$/is', '', $s);
+    $s = preg_replace('/in\s+\/?[\w\-\/\.]+\.php( on line \d+)?/i', '', $s);
+    $s = preg_replace('/\s{2,}/', ' ', $s);
+    $s = trim($s);
+    return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
+}
+
 // Collect PHP errors to surface them into the browser console (not HTML)
 $php_errors = [];
 set_error_handler(function($severity, $message, $file, $line) use (&$php_errors) {
@@ -179,13 +195,13 @@ $bankLogo = getBankLogoUrl($bankName, $bankCode, $bankUrl);
                          data-accountnumber="<?php echo htmlspecialchars($b['accountnumber']); ?>"
                          data-bankname="<?php echo htmlspecialchars($b['bankname']); ?>"
                          data-accountname="<?php echo htmlspecialchars($b['accountname']); ?>"
-                         data-url="<?php echo htmlspecialchars(getBankLogoUrl($b['bankname'] ?? '')); ?>">
+                         data-url="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? ''))); ?>">
                         <div class="b-left">
-                            <div class="b-name"><?php echo htmlspecialchars($b['accountname']); ?></div>
-                            <div class="b-sub"><?php echo htmlspecialchars($b['accountnumber'].'   '.$b['bankname']); ?></div>
+                            <div class="b-name"><?php echo sanitize_display($b['accountname'] ?? ''); ?></div>
+                            <div class="b-sub"><?php echo sanitize_display(($b['accountnumber'] ?? '') . ' ' . ($b['bankname'] ?? '')); ?></div>
                         </div>
                         <div class="b-avatar">
-                            <img src="<?php echo htmlspecialchars(getBankLogoUrl($b['bankname'] ?? '')); ?>" alt="Profile Image">
+                            <img src="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? ''))); ?>" alt="Profile Image">
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -206,13 +222,13 @@ $bankLogo = getBankLogoUrl($bankName, $bankCode, $bankUrl);
                          data-accountnumber="<?php echo htmlspecialchars($b['accountnumber']); ?>"
                          data-bankname="<?php echo htmlspecialchars($b['bankname']); ?>"
                          data-accountname="<?php echo htmlspecialchars($b['accountname']); ?>"
-                         data-url="<?php echo htmlspecialchars(getBankLogoUrl($b['bankname'] ?? '')); ?>">
+                         data-url="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? ''))); ?>">
                         <div class="b-left">
-                            <div class="b-name"><?php echo htmlspecialchars($b['accountname']); ?></div>
-                            <div class="b-sub"><?php echo htmlspecialchars($b['accountnumber'].'   '.$b['bankname']); ?></div>
+                            <div class="b-name"><?php echo sanitize_display($b['accountname'] ?? ''); ?></div>
+                            <div class="b-sub"><?php echo sanitize_display(($b['accountnumber'] ?? '') . ' ' . ($b['bankname'] ?? '')); ?></div>
                         </div>
                         <div class="b-avatar">
-                            <img src="<?php echo htmlspecialchars(getBankLogoUrl($b['bankname'] ?? '')); ?>" alt="Profile Image">
+                            <img src="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? ''))); ?>" alt="Profile Image">
                         </div>
                     </div>
                 <?php endforeach; ?>
