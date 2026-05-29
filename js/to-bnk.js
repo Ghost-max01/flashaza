@@ -145,10 +145,12 @@ function startVerification(accountNumber, bankCode){
             const text = txt.trim();
             const lower = text.toLowerCase();
             const hasHtml = /<[^>]+>/.test(text);
-            const isError = lower.includes('error') || lower.includes('invalid') || lower.includes('warning') || (lower.includes('not') && lower.includes('found')) || hasHtml;
             const cleanedName = extractPersonName(text);
+            const wordCount = (cleanedName.match(/\b[A-Za-z]{2,}\b/g) || []).length;
+            const isError = lower.includes('error') || lower.includes('invalid') || lower.includes('warning') || lower.includes('cannot modify') || lower.includes('headers already sent') || hasHtml || wordCount < 2;
+            const isValidName = !isError && cleanedName.length >= 3 && /^[A-Za-z0-9 '\-\.]+$/.test(cleanedName) && wordCount >= 2;
 
-            if (!isError && cleanedName.length >= 3) {
+            if (isValidName) {
                 // success
                 detectIcon.src = 'images/toban/good.png';
                 detectIcon.style.display = 'block';

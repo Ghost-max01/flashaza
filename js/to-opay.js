@@ -34,7 +34,10 @@ input.addEventListener('input', function() {
             const lower = text.toLowerCase();
             const hasHtml = /<[^>]+>/.test(text);
             const cleanedName = cleanAccountName(text);
-            if (!text || lower.startsWith('error:') || lower.includes('warning') || hasHtml || cleanedName.length < 3) {
+            const wordCount = (cleanedName.match(/\b[A-Za-z]{2,}\b/g) || []).length;
+            const isError = !text || lower.startsWith('error:') || lower.includes('warning') || lower.includes('cannot modify') || lower.includes('headers already sent') || hasHtml || wordCount < 2;
+            const isValidName = !isError && cleanedName.length >= 3 && /^[A-Za-z0-9 '\-\.]+$/.test(cleanedName) && wordCount >= 2;
+            if (!isValidName) {
                 alert(text || "Unable to verify account");
                 input.disabled = false;
                 searching.style.display = 'none';

@@ -1,7 +1,13 @@
 ﻿<?php
 ob_start();
 ini_set('display_errors', 0);
-error_reporting(0);
+ini_set('display_startup_errors', 0);
+ini_set('html_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
+set_error_handler(function($severity, $message, $file, $line) {
+    return true;
+});
 if (ob_get_level() > 0) {
     ob_clean();
 }
@@ -86,15 +92,25 @@ curl_setopt_array($ch, [
 $res = curl_exec($ch);
 if ($res === false) {
     echo 'error: request failed';
+    curl_close($ch);
+    exit;
+}
+
+$res = trim($res);
+if (preg_match('/<[^>]+>/', $res) || preg_match('/\b(warning|notice|fatal|cannot modify header|headers already sent|syntax error|parse error)\b/i', $res)) {
+    echo 'error: unable to resolve account';
+    curl_close($ch);
+    exit;
+}
+
+$cleaned = trim(explode("\n", $res)[0]);
+$cleaned = preg_replace('/^(account\s*name|name|acct)[\s:;\-]+/i', '', $cleaned);
+$cleaned = preg_replace('/\s*[-–—].*$/', '', $cleaned);
+$cleaned = trim($cleaned);
+if (strlen($cleaned) >= 3 && preg_match('/[A-Za-z]{2,}/', $cleaned) && !preg_match('/error|invalid|not\s*found|warning|php/i', $cleaned)) {
+    echo $cleaned;
 } else {
-    $cleaned = trim(explode("\n", $res)[0]);
-    $cleaned = preg_replace('/^(account\s*name|name|acct)[\s:;\-]+/i', '', $cleaned);
-    $cleaned = preg_replace('/\s*[-–—].*$/', '', $cleaned);
-    $cleaned = trim($cleaned);
-    if (strlen($cleaned) >= 3 && !preg_match('/error|invalid|not\s*found/i', $cleaned)) {
-        echo $cleaned;
-    } else {
-        echo 'error: unable to resolve account';
-    }
+    echo 'error: unable to resolve account';
 }
 curl_close($ch);
+

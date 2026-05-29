@@ -43,6 +43,23 @@ $stmt = $pdo->prepare("
 $stmt->execute([':uid' => $uid]);
 $beneficiaries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Filter out invalid beneficiary rows that may contain debug or warning text
+$beneficiaries = array_values(array_filter($beneficiaries, function($row) {
+    $name = trim((string)($row['accountname'] ?? ''));
+    $bank = trim((string)($row['bankname'] ?? ''));
+    if ($name === '' || $bank === '') {
+        return false;
+    }
+    $combined = $name . ' ' . $bank;
+    if (preg_match('/<[^>]+>/', $combined)) {
+        return false;
+    }
+    if (preg_match('/\b(warning|error|notice|fatal|cannot modify|headers already sent|php|syntax error|parse error)\b/i', $combined)) {
+        return false;
+    }
+    return preg_match_all('/\b[A-Za-z]{2,}\b/', $name) >= 2;
+}));
+
 // Split favourites
 $favorites = array_values(array_filter($beneficiaries, function($r){
     $v = strtolower(trim((string)($r['favorite'] ?? '')));

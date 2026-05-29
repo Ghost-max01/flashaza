@@ -29,7 +29,21 @@ try {
              LIMIT 3";
     $stmt = $pdo->prepare($sql1);
     $stmt->execute([':uid' => $uid]);
-    $recents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $recents = array_values(array_filter($stmt->fetchAll(PDO::FETCH_ASSOC), function($row) {
+        $name = trim((string)($row['accountname'] ?? ''));
+        $bank = trim((string)($row['bankname'] ?? ''));
+        $combined = $name . ' ' . $bank;
+        if ($name === '' || $bank === '') {
+            return false;
+        }
+        if (preg_match('/<[^>]+>/', $combined)) {
+            return false;
+        }
+        if (preg_match('/\b(warning|error|notice|fatal|cannot modify|headers already sent|php|syntax error|parse error)\b/i', $combined)) {
+            return false;
+        }
+        return preg_match_all('/\b[A-Za-z]{2,}\b/', $name) >= 2;
+    }));
 
     // Fetch favourites
     $sql2 = "SELECT id, accountnumber, accountname, bankname, favorite
@@ -39,7 +53,21 @@ try {
              LIMIT 3";
     $stmt2 = $pdo->prepare($sql2);
     $stmt2->execute([':uid' => $uid]);
-    $favourites = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+    $favourites = array_values(array_filter($stmt2->fetchAll(PDO::FETCH_ASSOC), function($row) {
+        $name = trim((string)($row['accountname'] ?? ''));
+        $bank = trim((string)($row['bankname'] ?? ''));
+        $combined = $name . ' ' . $bank;
+        if ($name === '' || $bank === '') {
+            return false;
+        }
+        if (preg_match('/<[^>]+>/', $combined)) {
+            return false;
+        }
+        if (preg_match('/\b(warning|error|notice|fatal|cannot modify|headers already sent|php|syntax error|parse error)\b/i', $combined)) {
+            return false;
+        }
+        return preg_match_all('/\b[A-Za-z]{2,}\b/', $name) >= 2;
+    }));
 
 } catch (PDOException $e) {
     die("Query failed: " . $e->getMessage());
