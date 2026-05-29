@@ -221,16 +221,12 @@ if (!isset($_SESSION['user_id'])) {
         return li;
     }
 
-    // ─── Fetch & render bank list (enrich from NigerianBanks logos, keep UI intact) ───
+    // ─── Fetch & render bank list (logos now come from paystack-banks.php server-side) ───
     async function loadBanks() {
         const listEl = document.getElementById('bankList');
 
-        function normalizeName(name) {
-            return String(name || '').toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').trim();
-        }
-
         try {
-            // Primary: Paystack for full bank list
+            // Primary: Paystack bank list (may already have some logos from server-side enrichment)
             const payRes = await fetch('paystack-banks.php');
             if (!payRes.ok) {
                 const text = await payRes.text();
@@ -241,34 +237,65 @@ if (!isset($_SESSION['user_id'])) {
             const payBanks = Array.isArray(payPayload.data) ? payPayload.data : [];
             console.log('bn-list: Paystack banks loaded', payBanks.length);
 
-            // Try to get logos from NigerianBanks API (best-effort)
-            let ngLogoMap = {};
-            try {
-                const ngRes = await fetch('https://nigerianbanks.xyz/');
-                if (ngRes.ok) {
-                    const ngBanks = await ngRes.json();
-                    ngBanks.forEach(nb => {
-                        const k = normalizeName(nb.name || nb.bank_name || '');
-                        if (!k) return;
-                        const logo = nb.logo || nb.url || nb.image || nb.logo_url || nb.icon || '';
-                        if (logo && String(logo).startsWith('http')) {
-                            ngLogoMap[k] = logo;
-                        }
-                    });
-                    console.log('bn-list: NigerianBanks logos enriched', Object.keys(ngLogoMap).length);
-                }
-            } catch (e) {
-                console.warn('bn-list: NigerianBanks fetch failed, using initials fallback:', e.message);
+            // ── Client-side logo enrichment (fills gaps the server missed) ──
+            let codeLogoMap = {};  // bank code → logo URL (most reliable)
+            let nameLogoMap = {};  // normalized name → logo URL (fallback)
+
+            function normalizeName(name) {
+                return String(name || '').toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').trim();
             }
 
-            // Merge: Paystack bank list + NigerianBanks logos when available
+            // Fetch both logo sources in parallel (best-effort, never blocks)
+            await Promise.allSettled([
+                // Source 1: supermx1 GitHub dataset — matched by bank CODE (high coverage)
+                fetch('https://supermx1.github.io/nigerian-banks-api/data.json')
+                    .then(r => r.ok ? r.json() : Promise.reject('not ok'))
+                    .then(banks => {
+                        const baseUrl = 'https://supermx1.github.io/nigerian-banks-api/';
+                        banks.forEach(b => {
+                            const code = String(b.code || '').trim();
+                            const slug = String(b.slug || '').trim();
+                            let logo = String(b.logo || '').trim();
+                            if (logo && !logo.startsWith('http')) logo = baseUrl + logo;
+                            if (code && logo) codeLogoMap[code] = logo;
+                            // Also map by slug for extra matching
+                            if (slug && logo) codeLogoMap['slug:' + slug] = logo;
+                        });
+                        console.log('bn-list: supermx1 logos by code', Object.keys(codeLogoMap).length);
+                    }),
+                // Source 2: NigerianBanks.xyz — matched by normalized NAME (extra fallback)
+                fetch('https://nigerianbanks.xyz/')
+                    .then(r => r.ok ? r.json() : Promise.reject('not ok'))
+                    .then(banks => {
+                        banks.forEach(nb => {
+                            const k = normalizeName(nb.name || nb.bank_name || '');
+                            if (!k) return;
+                            const logo = nb.logo || nb.url || nb.image || nb.logo_url || nb.icon || '';
+                            if (logo && String(logo).startsWith('http')) {
+                                nameLogoMap[k] = logo;
+                            }
+                        });
+                        console.log('bn-list: NigerianBanks logos by name', Object.keys(nameLogoMap).length);
+                    })
+            ]);
+
+            // Build the list — use server logo first, then code-based, then slug-based, then name-based
             const merged = payBanks.map(pb => {
                 const name = pb.name || pb.bank_name || '';
                 const code = (pb.code || pb.bank_code || pb.id || '') + '';
-                const key = normalizeName(name);
-                const logo = ngLogoMap[key] || '';
-                return { name: name, code: code, logo: logo };
+                const slug = pb.slug || '';
+                const serverLogo = pb.logo || '';
+                // Priority: server-provided → code match → slug match → name match
+                const logo = serverLogo
+                    || codeLogoMap[code]
+                    || codeLogoMap['slug:' + slug]
+                    || nameLogoMap[normalizeName(name)]
+                    || '';
+                return { name, code, logo };
             });
+
+            const withLogos = merged.filter(b => b.logo).length;
+            console.log('bn-list: Banks with logos', withLogos, '/', merged.length);
 
             merged.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 

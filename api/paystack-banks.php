@@ -92,6 +92,81 @@ foreach ($data['data'] as $bank) {
     ];
 }
 
+// ── Enrich with logos (best-effort, never blocks the response) ──
+
+// Source 1: supermx1 GitHub dataset – matched by bank CODE (high coverage)
+$logoByCode = [];
+$logoBySlug = [];
+$logoCh = curl_init('https://supermx1.github.io/nigerian-banks-api/data.json');
+curl_setopt_array($logoCh, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 8,
+    CURLOPT_CONNECTTIMEOUT => 5,
+]);
+$logoResp = curl_exec($logoCh);
+$logoHttpCode = curl_getinfo($logoCh, CURLINFO_HTTP_CODE);
+curl_close($logoCh);
+
+if ($logoResp && $logoHttpCode >= 200 && $logoHttpCode < 300) {
+    $logoData = json_decode($logoResp, true);
+    if (is_array($logoData)) {
+        $logoBase = 'https://supermx1.github.io/nigerian-banks-api/';
+        foreach ($logoData as $lb) {
+            $lCode = trim((string)($lb['code'] ?? ''));
+            $lSlug = trim((string)($lb['slug'] ?? ''));
+            $lLogo = trim((string)($lb['logo'] ?? ''));
+            if ($lLogo && !str_starts_with($lLogo, 'http')) {
+                $lLogo = $logoBase . $lLogo;
+            }
+            if ($lCode && $lLogo) $logoByCode[$lCode] = $lLogo;
+            if ($lSlug && $lLogo) $logoBySlug[$lSlug] = $lLogo;
+        }
+    }
+}
+
+// Source 2: nigerianbanks.xyz – matched by normalized NAME (fallback)
+$logoByName = [];
+$ngCh = curl_init('https://nigerianbanks.xyz/');
+curl_setopt_array($ngCh, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 8,
+    CURLOPT_CONNECTTIMEOUT => 5,
+]);
+$ngResp = curl_exec($ngCh);
+$ngHttpCode = curl_getinfo($ngCh, CURLINFO_HTTP_CODE);
+curl_close($ngCh);
+
+if ($ngResp && $ngHttpCode >= 200 && $ngHttpCode < 300) {
+    $ngData = json_decode($ngResp, true);
+    if (is_array($ngData)) {
+        foreach ($ngData as $nb) {
+            $nName = strtolower(trim((string)($nb['name'] ?? $nb['bank_name'] ?? '')));
+            $nLogo = $nb['logo'] ?? $nb['url'] ?? $nb['image'] ?? '';
+            if ($nName && $nLogo && str_starts_with((string)$nLogo, 'http')) {
+                $logoByName[$nName] = (string)$nLogo;
+            }
+        }
+    }
+}
+
+// Merge logos into banks: code → slug → name (priority order)
+foreach ($banks as &$b) {
+    $code = (string)($b['code'] ?? '');
+    $slug = (string)($b['slug'] ?? '');
+    $name = strtolower(trim((string)($b['name'] ?? '')));
+
+    $logo = '';
+    if ($code && isset($logoByCode[$code])) {
+        $logo = $logoByCode[$code];
+    } elseif ($slug && isset($logoBySlug[$slug])) {
+        $logo = $logoBySlug[$slug];
+    } elseif ($name && isset($logoByName[$name])) {
+        $logo = $logoByName[$name];
+    }
+    $b['logo'] = $logo;
+}
+unset($b);
+
 usort($banks, function($a, $b) {
     return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
 });

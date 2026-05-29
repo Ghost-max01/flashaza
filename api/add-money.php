@@ -153,34 +153,60 @@ let bankData = [];
 
 async function fetchBanks() {
   try {
-    // ── Primary: Paystack bank list (same source as bn-list.php) ──
+    // ── Primary: Paystack bank list (may already have some logos from server) ──
     const payRes = await fetch('paystack-banks.php');
     if (!payRes.ok) throw new Error('Paystack HTTP ' + payRes.status);
     const payPayload = await payRes.json();
     const payBanks = Array.isArray(payPayload.data) ? payPayload.data : [];
 
-    // ── Best-effort: enrich with logos from NigerianBanks.xyz ──
-    let logoMap = {};
-    try {
-      const ngRes = await fetch('https://nigerianbanks.xyz/');
-      if (ngRes.ok) {
-        const ngBanks = await ngRes.json();
-        ngBanks.forEach(nb => {
-          const key = String(nb.name || '').toLowerCase().trim();
-          const logo = nb.logo || nb.url || nb.image || '';
-          if (key && logo && String(logo).startsWith('http')) {
-            logoMap[key] = logo;
-          }
-        });
-      }
-    } catch (_) { /* logos are optional; proceed without them */ }
+    // ── Client-side logo enrichment (fills gaps the server missed) ──
+    let codeLogoMap = {};
+    let nameLogoMap = {};
+    function normalizeName(n) {
+      return String(n || '').toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').trim();
+    }
+
+    await Promise.allSettled([
+      // Source 1: supermx1 — matched by bank CODE (high coverage)
+      fetch('https://supermx1.github.io/nigerian-banks-api/data.json')
+        .then(r => r.ok ? r.json() : Promise.reject('not ok'))
+        .then(banks => {
+          const baseUrl = 'https://supermx1.github.io/nigerian-banks-api/';
+          banks.forEach(b => {
+            const code = String(b.code || '').trim();
+            const slug = String(b.slug || '').trim();
+            let logo = String(b.logo || '').trim();
+            if (logo && !logo.startsWith('http')) logo = baseUrl + logo;
+            if (code && logo) codeLogoMap[code] = logo;
+            if (slug && logo) codeLogoMap['slug:' + slug] = logo;
+          });
+        }),
+      // Source 2: NigerianBanks.xyz — matched by NAME (fallback)
+      fetch('https://nigerianbanks.xyz/')
+        .then(r => r.ok ? r.json() : Promise.reject('not ok'))
+        .then(banks => {
+          banks.forEach(nb => {
+            const k = normalizeName(nb.name || nb.bank_name || '');
+            if (!k) return;
+            const logo = nb.logo || nb.url || nb.image || '';
+            if (logo && String(logo).startsWith('http')) nameLogoMap[k] = logo;
+          });
+        })
+    ]);
 
     // ── Map to { name, code, url } — the shape renderBankList expects ──
-    bankData = payBanks.map(pb => ({
-      name: pb.name || '',
-      code: String(pb.code || ''),
-      url:  logoMap[String(pb.name || '').toLowerCase().trim()] || ''
-    }));
+    bankData = payBanks.map(pb => {
+      const name = pb.name || '';
+      const code = String(pb.code || '');
+      const slug = pb.slug || '';
+      const serverLogo = pb.logo || '';
+      const url = serverLogo
+        || codeLogoMap[code]
+        || codeLogoMap['slug:' + slug]
+        || nameLogoMap[normalizeName(name)]
+        || '';
+      return { name, code, url };
+    });
 
     bankData.sort((a, b) => a.name.localeCompare(b.name));
     renderBankList(bankData);
