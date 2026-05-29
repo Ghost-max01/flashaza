@@ -61,7 +61,21 @@ function resolve_opay_account($account_number, $bank_code = '999992') {
     }
 
     if ($paystackKey !== '') {
-        return paystack_resolve_account($account_number, $bank_code, $paystackKey);
+        $result = paystack_resolve_account($account_number, $bank_code, $paystackKey);
+        if ($result['ok'] === true) {
+            return $result;
+        }
+
+        // If Paystack fails, fall back to legacy OPay verification.
+        $legacy = resolve_opay_account_legacy($account_number, $bank_code);
+        if ($legacy['ok'] === true) {
+            return $legacy;
+        }
+
+        return [
+            'ok' => false,
+            'message' => $result['message'] . ' | Legacy fallback: ' . ($legacy['message'] ?? 'unknown')
+        ];
     }
 
     return resolve_opay_account_legacy($account_number, $bank_code);
