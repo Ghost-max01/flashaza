@@ -452,18 +452,17 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
       at 1-11 Commercial avenue, Yaba, Lagos, Nigeria.. Kuda Microfinance Bank is licensed by the Central<br>
       Bank of Nigeria. Deposits are insured by the Nigerian Deposit Insurance Corporation (NDIC).</p>
     </div>
+    <!-- bottom-most download button (appears after footer; user must scroll to find it) -->
+    <div class="bottom-download">
+      <button id="downloadReceiptBtn" title="Download receipt" aria-label="Download receipt">
+        <!-- simple download icon -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M5 20h14a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-2v1h2v2H5v-2h2v-1H5a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1z"/>
+          <path d="M11 16h2V8h3l-4-5-4 5h3v8z"/>
+        </svg>
+      </button>
+    </div>
 
-  </div>
-
-  <!-- bottom-most download button (appears after footer; user must scroll to find it) -->
-  <div class="bottom-download">
-    <button id="downloadReceiptBtn" title="Download receipt" aria-label="Download receipt">
-      <!-- simple download icon -->
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M5 20h14a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-2v1h2v2H5v-2h2v-1H5a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1z"/>
-        <path d="M11 16h2V8h3l-4-5-4 5h3v8z"/>
-      </svg>
-    </button>
   </div>
 
   <script>
@@ -471,11 +470,14 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
       const btn = document.getElementById('downloadReceiptBtn');
       if (!btn) return;
       btn.addEventListener('click', function(){
-        // prepare a copy of the document without the download button itself
-        const docClone = document.documentElement.cloneNode(true);
-        const removeEl = docClone.querySelector('.bottom-download');
-        if (removeEl) removeEl.parentNode.removeChild(removeEl);
-        const html = '<!doctype html>\n' + docClone.outerHTML;
+        // prepare a copy of the receipt wrapper HTML only (avoid global page chrome)
+        const wrapper = document.querySelector('.receipt-wrapper');
+        if (!wrapper) return;
+        const clone = wrapper.cloneNode(true);
+        // remove the download button if it exists inside the clone
+        const rem = clone.querySelector('.bottom-download');
+        if (rem) rem.parentNode.removeChild(rem);
+        const html = '<!doctype html>\n<html>' + document.head.outerHTML + '<body>' + clone.outerHTML + '</body></html>';
         const blob = new Blob([html], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
