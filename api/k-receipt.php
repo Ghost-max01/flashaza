@@ -257,6 +257,33 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
       font-weight: 400;
     }
 
+    /* Bottom download button (small purple logo) */
+    .bottom-download {
+      display: flex;
+      justify-content: center;
+      padding: 18px 28px 36px 28px;
+      background: transparent;
+    }
+
+    .bottom-download button {
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      border: none;
+      background: #4b0082;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(75,0,130,0.12);
+    }
+
+    .bottom-download button svg {
+      width: 20px;
+      height: 20px;
+      fill: #ffffff;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 520px) {
       body {
@@ -427,5 +454,40 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
     </div>
 
   </div>
+
+  <!-- bottom-most download button (appears after footer; user must scroll to find it) -->
+  <div class="bottom-download">
+    <button id="downloadReceiptBtn" title="Download receipt" aria-label="Download receipt">
+      <!-- simple download icon -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M5 20h14a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-2v1h2v2H5v-2h2v-1H5a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1z"/>
+        <path d="M11 16h2V8h3l-4-5-4 5h3v8z"/>
+      </svg>
+    </button>
+  </div>
+
+  <script>
+    (function(){
+      const btn = document.getElementById('downloadReceiptBtn');
+      if (!btn) return;
+      btn.addEventListener('click', function(){
+        // prepare a copy of the document without the download button itself
+        const docClone = document.documentElement.cloneNode(true);
+        const removeEl = docClone.querySelector('.bottom-download');
+        if (removeEl) removeEl.parentNode.removeChild(removeEl);
+        const html = '<!doctype html>\n' + docClone.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'kuda-receipt-<?= preg_replace("/[^A-Za-z0-9_-]/", "", ($txRef ?: $product_id)) ?>.html';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+    })();
+  </script>
+
 </body>
 </html>
