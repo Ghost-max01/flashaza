@@ -79,15 +79,278 @@ $badgeText  = $isDebit ? 'Debit' : 'Credit';
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Moniepoint Receipt</title>
-  <link rel="stylesheet" href="../css/m-receipt.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Outer phone-like wrapper */
+    .receipt-wrapper {
+      width: 390px;
+      background: #2156F4;
+      border-radius: 32px;
+      padding: 40px 24px 50px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Diagonal gold ribbon — top-left */
+    .receipt-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      left: -40px;
+      width: 200px;
+      height: 340px;
+      background: #C89A2A;
+      transform: rotate(35deg);
+      z-index: 0;
+      opacity: 0.95;
+    }
+
+    /* Diagonal gold ribbon — bottom-right */
+    .receipt-wrapper::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      right: -60px;
+      width: 200px;
+      height: 340px;
+      background: #C89A2A;
+      transform: rotate(35deg);
+      z-index: 0;
+      opacity: 0.95;
+    }
+
+    /* Header: logo row */
+    .header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: #fff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon span {
+      font-size: 22px;
+      font-weight: 900;
+      color: #2156F4;
+      letter-spacing: -1px;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-text .brand {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+
+    .logo-text .sub {
+      font-size: 9px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* White card */
+    .receipt-card {
+      position: relative;
+      z-index: 1;
+      background: #fff;
+      border-radius: 20px;
+      padding: 28px 24px 32px;
+    }
+
+    /* CREDIT badge */
+    .badge-credit {
+      display: inline-block;
+      background: #DDE6FF;
+      color: #2156F4;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    /* DEBIT badge */
+    .badge-debit {
+      display: inline-block;
+      background: #FFE2E2;
+      color: #D62828;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    /* Amount row */
+    .amount-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .amount {
+      font-size: 42px;
+      font-weight: 900;
+      color: #0a0a0a;
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+
+    .m-icon {
+      width: 52px;
+      height: 52px;
+      background: #2156F4;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .m-icon span {
+      font-size: 22px;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    /* Details block */
+    .details {
+      background: #F0F3FB;
+      border-radius: 14px;
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .detail-row {
+      padding: 14px 0;
+      border-bottom: 1px solid #E2E8F5;
+    }
+
+    .detail-row:first-child {
+      padding-top: 0;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .detail-label {
+      font-size: 12.5px;
+      font-weight: 400;
+      color: #9aa3ba;
+      margin-bottom: 6px;
+      letter-spacing: 0.1px;
+    }
+
+    .detail-value {
+      font-size: 15px;
+      font-weight: 500;
+      color: #0d0d0d;
+      line-height: 1.4;
+      letter-spacing: 0.1px;
+    }
+
+    /* Purchase badge inside details */
+    .badge-purchase {
+      display: inline-block;
+      background: #DDE6FF;
+      color: #2156F4;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 7px;
+    }
+
+    .detail-value.ref {
+      font-size: 13.5px;
+      word-break: break-all;
+    }
+
+    /* Receipt actions */
+    .receipt-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+      justify-content: center;
+    }
+
+    .action-btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .action-btn.primary {
+      background: #2156F4;
+      color: #fff;
+    }
+
+    .action-btn.primary:hover {
+      background: #1a45d4;
+    }
+
+    .action-btn.secondary {
+      background: #f0f0f0;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+
+    .action-btn.secondary:hover {
+      background: #e0e0e0;
+    }
+  </style>
 </head>
 <body>
-
-  <!-- Optional top usability back button header -->
-  <header class="page-header">
-    <a class="back-btn" onclick="history.back()">&#8592;</a>
-    <span class="title">Transaction Receipt</span>
-  </header>
 
   <div class="receipt-wrapper">
 
