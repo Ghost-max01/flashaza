@@ -477,9 +477,9 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
         </svg>
       </button>
     </div>
-    <div id="pdfViewer" class="pdf-viewer"></div>
 
   </div>
+  <div id="pdfViewer" class="pdf-viewer"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
   <script>
