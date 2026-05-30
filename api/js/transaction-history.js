@@ -203,7 +203,115 @@ function formatAmount(amount) {
       }
 
       if (targetUrl) {
-        window.location.href = targetUrl;
+        // If it's a money transaction (not opay category), prompt for O or M receipt
+        if (category === "money") {
+          // Create custom action sheet / bottom sheet prompt
+          const overlay = document.createElement("div");
+          overlay.style.position = "fixed";
+          overlay.style.top = "0";
+          overlay.style.left = "0";
+          overlay.style.width = "100%";
+          overlay.style.height = "100%";
+          overlay.style.background = "rgba(0,0,0,0.45)";
+          overlay.style.display = "flex";
+          overlay.style.alignItems = "flex-end";
+          overlay.style.justifyContent = "center";
+          overlay.style.zIndex = "2000";
+          overlay.style.fontFamily = "sans-serif";
+
+          const sheet = document.createElement("div");
+          sheet.style.width = "100%";
+          sheet.style.maxWidth = "430px";
+          sheet.style.background = "#fff";
+          sheet.style.borderRadius = "20px 20px 0 0";
+          sheet.style.padding = "24px 20px 30px";
+          sheet.style.boxSizing = "border-box";
+          sheet.style.animation = "slideUp 0.25s ease-out";
+
+          const style = document.createElement("style");
+          style.textContent = `
+            @keyframes slideUp {
+              from { transform: translateY(100%); }
+              to { transform: translateY(0); }
+            }
+            .opt-btn {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 100%;
+              padding: 15px;
+              margin-top: 12px;
+              border: none;
+              border-radius: 12px;
+              font-size: 15px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: background 0.15s;
+            }
+            .opt-btn.o {
+              background: #f0f2f5;
+              color: #333;
+            }
+            .opt-btn.m {
+              background: #0549a8;
+              color: #fff;
+            }
+          `;
+          document.head.appendChild(style);
+
+          const title = document.createElement("div");
+          title.textContent = "Select Receipt Type";
+          title.style.fontSize = "16px";
+          title.style.fontWeight = "700";
+          title.style.color = "#111";
+          title.style.textAlign = "center";
+          title.style.marginBottom = "8px";
+
+          const subtitle = document.createElement("div");
+          subtitle.textContent = "Choose how you want to view/share this transaction receipt";
+          subtitle.style.fontSize = "13px";
+          subtitle.style.color = "#666";
+          subtitle.style.textAlign = "center";
+          subtitle.style.marginBottom = "18px";
+
+          const btnO = document.createElement("button");
+          btnO.className = "opt-btn o";
+          btnO.textContent = "View OPay Style (O)";
+          btnO.onclick = () => {
+            document.body.removeChild(overlay);
+            window.location.href = targetUrl;
+          };
+
+          const btnM = document.createElement("button");
+          btnM.className = "opt-btn m";
+          btnM.textContent = "View Moniepoint Style (M)";
+          btnM.onclick = () => {
+            document.body.removeChild(overlay);
+            window.location.href = "m-receipt.php?product_id=" + encodeURIComponent(pid);
+          };
+
+          const cancel = document.createElement("div");
+          cancel.textContent = "Cancel";
+          cancel.style.textAlign = "center";
+          cancel.style.marginTop = "16px";
+          cancel.style.fontSize = "14px";
+          cancel.style.fontWeight = "600";
+          cancel.style.color = "#888";
+          cancel.style.cursor = "pointer";
+          cancel.onclick = () => {
+            document.body.removeChild(overlay);
+          };
+
+          sheet.appendChild(title);
+          sheet.appendChild(subtitle);
+          sheet.appendChild(btnM);
+          sheet.appendChild(btnO);
+          sheet.appendChild(cancel);
+          overlay.appendChild(sheet);
+          document.body.appendChild(overlay);
+        } else {
+          window.location.href = targetUrl;
+        }
       }
     });
 
