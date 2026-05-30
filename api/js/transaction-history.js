@@ -253,7 +253,11 @@ function formatAmount(amount) {
               color: #333;
             }
             .opt-btn.m {
-              background: #0549a8;
+              background: #2156F4;
+              color: #fff;
+            }
+            .opt-btn.k {
+              background: #6c3cba;
               color: #fff;
             }
           `;
@@ -290,6 +294,14 @@ function formatAmount(amount) {
             window.location.href = "m-receipt.php?product_id=" + encodeURIComponent(pid);
           };
 
+          const btnK = document.createElement("button");
+          btnK.className = "opt-btn k";
+          btnK.textContent = "View Kuda Style (K)";
+          btnK.onclick = () => {
+            document.body.removeChild(overlay);
+            window.location.href = "k-receipt.php?product_id=" + encodeURIComponent(pid);
+          };
+
           const cancel = document.createElement("div");
           cancel.textContent = "Cancel";
           cancel.style.textAlign = "center";
@@ -305,6 +317,7 @@ function formatAmount(amount) {
           sheet.appendChild(title);
           sheet.appendChild(subtitle);
           sheet.appendChild(btnM);
+          sheet.appendChild(btnK);
           sheet.appendChild(btnO);
           sheet.appendChild(cancel);
           overlay.appendChild(sheet);
