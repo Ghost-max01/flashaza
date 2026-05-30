@@ -113,6 +113,36 @@ function getBankLogoUrl($bankName = '', $bankCode = '', $bankUrl = '') {
                 return '../images/toban/' . basename($p);
             }
         }
+        
+        // Try shorter slug (first word only)
+        $shortSlug = strtolower(preg_replace('/[^a-z0-9]+/', '-', explode(' ', $bankName)[0]));
+        if ($shortSlug !== '') {
+            $shortPaths = [
+                __DIR__ . "/../images/toban/{$shortSlug}.png",
+                __DIR__ . "/../images/toban/{$shortSlug}.jpg",
+                __DIR__ . "/../images/toban/{$shortSlug}.svg",
+            ];
+            foreach ($shortPaths as $p) {
+                if (file_exists($p)) {
+                    return '../images/toban/' . basename($p);
+                }
+            }
+        }
+        
+        // Try bank code if available
+        if ($bankCode !== '') {
+            $codeLower = strtolower($bankCode);
+            $codePaths = [
+                __DIR__ . "/../images/toban/{$codeLower}.png",
+                __DIR__ . "/../images/toban/{$codeLower}.jpg",
+                __DIR__ . "/../images/toban/{$codeLower}.svg",
+            ];
+            foreach ($codePaths as $p) {
+                if (file_exists($p)) {
+                    return '../images/toban/' . basename($p);
+                }
+            }
+        }
     }
 
     if ($bankUrl !== '' && filter_var($bankUrl, FILTER_VALIDATE_URL)) {
