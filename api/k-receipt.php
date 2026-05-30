@@ -257,30 +257,6 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
       font-weight: 400;
     }
 
-    .download-footer {
-      display: flex;
-      justify-content: center;
-      padding: 16px 28px 32px 28px;
-      background: #f8f8f8;
-    }
-
-    .download-footer button {
-      background: #4b0082;
-      color: #fff;
-      border: none;
-      border-radius: 999px;
-      padding: 12px 20px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s ease;
-      box-shadow: 0 6px 18px rgba(75, 0, 130, 0.12);
-    }
-
-    .download-footer button:hover {
-      background: #3f006f;
-    }
-
     /* ── RESPONSIVE ── */
     @media (max-width: 520px) {
       body {
@@ -451,24 +427,5 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
     </div>
 
   </div>
-
-  <div class="download-footer">
-    <button id="downloadReceiptButton">Download Receipt</button>
-  </div>
-
-  <script>
-    document.getElementById('downloadReceiptButton').addEventListener('click', function() {
-      const receiptHtml = document.documentElement.outerHTML;
-      const blob = new Blob([receiptHtml], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'kuda-receipt.html';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    });
-  </script>
 </body>
 </html>
