@@ -153,7 +153,7 @@ $badgeText  = $isDebit ? 'DEBIT' : 'CREDIT';
       <div class="detail-item">
         <div class="detail-label">Transaction Type</div>
         <div class="detail-value">
-          <span class="txn-type-pill"><?= $isDebit ? 'Transfer' : 'Received' ?></span>
+          <span class="txn-type-pill"><?= ($isDebit && ($transaction['category'] ?? '') === 'purchase') ? 'Purchase' : ($isDebit ? 'Transfer' : 'Deposit') ?></span>
         </div>
       </div>
 
