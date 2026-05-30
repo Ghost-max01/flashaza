@@ -49,6 +49,28 @@ if (!empty(trim($txn['narration']))) {
 $rawStatus = isset($txn['status']) ? trim(strtolower($txn['status'])) : '';
 $footerVisible = true;
 
+function normalizeBankName($name) {
+    return strtolower(trim(preg_replace('/[^a-z0-9 ]+/', ' ', (string)$name)));
+}
+
+function getLocalBankLogo($bankName) {
+    $name = normalizeBankName($bankName);
+    if (strpos($name, 'opay') !== false) return '../images/toban/opay.png';
+    if (strpos($name, 'access') !== false) return '../images/toban/access.png';
+    if (strpos($name, 'first') !== false) return '../images/toban/first.png';
+    if (strpos($name, 'guaranty') !== false || strpos($name, 'gtb') !== false) return '../images/toban/gt.png';
+    if (strpos($name, 'united bank for africa') !== false || strpos($name, 'uba') !== false) return '../images/toban/uba.png';
+    if (strpos($name, 'zenith') !== false) return '../images/toban/zenith.png';
+    $slug = preg_replace('/[^a-z0-9]+/', '-', trim($name));
+    if ($slug !== '') {
+        $localPath = __DIR__ . "/../images/toban/{$slug}.png";
+        if (file_exists($localPath)) {
+            return "../images/toban/{$slug}.png";
+        }
+    }
+    return null;
+}
+
 if ($rawStatus === 'failed' || $rawStatus === 'fail') {
     $statusIconHtml = '<i class="fas fa-times-circle" style="color:#F44336"></i>';
     $statusTextHtml = '<span style="color:#F44336">Failed</span>';
@@ -66,8 +88,8 @@ if ($rawStatus === 'failed' || $rawStatus === 'fail') {
     $footerVisible = true;
 }
 
-// profile image fallback (use txn url if present)
-$profileImage = !empty($txn['url']) ? $txn['url'] : 'https://cdn-icons-png.flaticon.com/512/3498/3498370.png';
+// profile image fallback (use local bank logo when available, otherwise txn url)
+$profileImage = getLocalBankLogo($txn['bankname']) ?: (!empty($txn['url']) ? $txn['url'] : 'https://cdn-icons-png.flaticon.com/512/3498/3498370.png');
 ?>
 <!doctype html>
 <html lang="en">
@@ -94,7 +116,7 @@ $profileImage = !empty($txn['url']) ? $txn['url'] : 'https://cdn-icons-png.flati
         <!-- Transaction Header Card -->
         <div class="card transaction-header" style="margin-top: 18px;">
             <div class="avatar">
-                <img src="<?php echo htmlspecialchars($profileImage); ?>" alt="Bank Logo">
+                <img src="<?php echo htmlspecialchars($profileImage); ?>" alt="Bank Logo" onerror="this.onerror=null; this.src='../images/history/logo.png';">
             </div>
             <div class="transfer-from">Transfer from <?php echo htmlspecialchars($txn['accountname']); ?></div>
             <div class="amount">₦<?php echo number_format($txn['amount'], 2); ?></div>

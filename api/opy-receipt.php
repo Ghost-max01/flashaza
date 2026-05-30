@@ -34,6 +34,23 @@ try {
 } catch (PDOException $e) {
     die("Database query failed: " . $e->getMessage());
 }
+
+function normalizeBankName($name) {
+    return strtolower(trim(preg_replace('/[^a-z0-9 ]+/', ' ', (string)$name)));
+}
+
+function getLocalBankLogo($bankName, $url) {
+    $name = normalizeBankName($bankName);
+    if (strpos($name, 'opay') !== false) {
+        return '../images/toban/opay.png';
+    }
+    if (!empty($url)) {
+        return $url;
+    }
+    return 'images/dashboard/trade.png';
+}
+
+$profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['url'] ?? '');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,11 +81,11 @@ try {
             <div class="content-section" id="headSection" style="margin-top: 50px;">
                 <!-- Profile Image -->
                 <div class="profile-container">
-                    <img src="<?php echo isset($transaction['url']) ? htmlspecialchars($transaction['url']) : 'images/dashboard/trade.png'; ?>" 
+                    <img src="<?php echo htmlspecialchars($profileImage); ?>" 
                          alt="profile" 
                          class="profile-image" 
                          id="profileImage"
-                         onerror="this.onerror=null; this.classList.add('fallback'); this.src=''; this.innerHTML='<?php echo isset($transaction['accountname']) ? substr($transaction['accountname'], 0, 1) : 'N'; ?>';">
+                         onerror="this.onerror=null; this.src='images/dashboard/trade.png';">
                 </div>
                 
                 <div class="transaction-from" id="transferFrom">Transfer from Nova Banking</div>

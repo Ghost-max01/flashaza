@@ -43,7 +43,12 @@ function _UI(){
     const accountName   = payload?.accountname   || 'Web Tech';  
     const accountNumber = payload?.accountnumber || '9123458653';  
     const bankName      = payload?.bankname      || 'OPay';  
-    const bankLogoUrl   = payload?.url           || '../images/toban/naira.png';
+    const bankLogoUrl   = (function(){
+        if (payload?.url) return payload.url;
+        const name = payload?.bankname || '';
+        const slug = String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+        return slug ? '../images/toban/' + slug + '.png' : '../images/toban/naira.png';
+    })();
 
     const bankLogo = document.getElementById('banklogo');
     const bankLogoLoader = document.getElementById('bankLogoLoader');  
@@ -110,7 +115,12 @@ function showBottomSheet(){
     const accountName   = payload?.accountname   || 'Web Tech';  
     const accountNumber = payload?.accountnumber || '9123458653';  
     const bankName      = payload?.bankname      || 'OPay';  
-const bankLogoUrl   = payload?.url           || '../images/toban/naira.png';
+    const bankLogoUrl   = (function(){
+        if (payload?.url) return payload.url;
+        const name = payload?.bankname || '';
+        const slug = String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+        return slug ? '../images/toban/' + slug + '.png' : '../images/toban/naira.png';
+    })();
     const amount = amountInput.value;  
 
     document.getElementById('bs-amount').textContent = amount;  

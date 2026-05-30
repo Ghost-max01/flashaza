@@ -56,7 +56,7 @@ function _UI(){
     bankLogoLoader.style.display='block';  
     bankLogo.style.opacity='0';  
     bankLogo.onload = ()=>{ bankLogoLoader.style.display='none'; bankLogo.style.opacity='1'; };  
-    bankLogo.onerror= ()=>{ bankLogoLoader.style.display='none'; bankLogo.style.opacity='1'; };  
+    bankLogo.onerror= ()=>{ bankLogoLoader.style.display='none'; bankLogo.src = '../images/toban/naira.png'; bankLogo.style.opacity='1'; };  
     bankLogo.src = bankLogoUrl;  
 
     document.getElementById('accountname').textContent = accountName;  
@@ -296,7 +296,7 @@ function processTransactionAfterVerified(){
     }, 400);  
 }  
   function _setLoading(imageElement, type, text) {  
-    const gifUrl = "https://webtech.net.ng/gif/loading.gif";  
+    const gifUrl = "../images/toban/loading.gif";  
     // Add timestamp query so browser sees it as new  
     imageElement.src = gifUrl + "?t=" + new Date().getTime();  
 }  

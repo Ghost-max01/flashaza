@@ -31,6 +31,31 @@ if (!$transaction) {
     die("Transaction not found or you don't have permission to view it.");
 }
 
+function normalizeBankName($name) {
+    return strtolower(trim(preg_replace('/[^a-z0-9 ]+/', ' ', (string)$name)));
+}
+
+function getLocalBankLogo($bankName) {
+    $name = normalizeBankName($bankName);
+    if (strpos($name, 'opay') !== false) return '../images/toban/opay.png';
+    if (strpos($name, 'access') !== false) return '../images/toban/access.png';
+    if (strpos($name, 'first') !== false) return '../images/toban/first.png';
+    if (strpos($name, 'guaranty') !== false || strpos($name, 'gtb') !== false) return '../images/toban/gt.png';
+    if (strpos($name, 'united bank for africa') !== false || strpos($name, 'uba') !== false) return '../images/toban/uba.png';
+    if (strpos($name, 'zenith') !== false) return '../images/toban/zenith.png';
+    $slug = preg_replace('/[^a-z0-9]+/', '-', trim($name));
+    if ($slug !== '') {
+        $localPath = __DIR__ . "/../images/toban/{$slug}.png";
+        if (file_exists($localPath)) {
+            return "../images/toban/{$slug}.png";
+        }
+    }
+    return null;
+}
+
+$fallbackLogo = getLocalBankLogo($transaction['bankname']);
+$transaction['url'] = $fallbackLogo ?: (!empty($transaction['url']) ? $transaction['url'] : '../images/history/logo.png');
+
 // Prepare data for JavaScript
 $js_transaction_data = json_encode([
     'id' => $transaction['tid'] ?? '',
@@ -77,7 +102,7 @@ $js_transaction_data = json_encode([
     <!-- Main Content -->
     <div class="scroll-view">
       <div class="card" style="margin-top: 20px;">
-        <div class="profile-image"><img id="profileImage" src="" alt=""></div>
+        <div class="profile-image"><img id="profileImage" src="" alt="" onerror="this.onerror=null; this.src='../images/history/logo.png';"></div>
         <div class="amount-section">
           <div class="transfer-text" id="transferText">Transfer to </div>
           <div class="amount" id="amount">₦0.00</div>
