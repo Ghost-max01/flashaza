@@ -163,15 +163,18 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
         <div class="footer-container" id="footerContainer">
             <div class="footer-buttons" id="dualButtonFooter">
                 <div class="footer-btn report-btn">Report an issue</div>
+                                <div class="footer-btn download-btn" onclick="downloadOPayReceipt()">Download</div>
                 <div class="footer-btn share-btn" onclick="window.location.href='share-receipt.php?product_id=<?php echo urlencode($product_id); ?>'">Share Receipt</div>
             </div>
             
             <div class="footer-buttons hidden" id="singleButtonFooter">
+                                <div class="footer-btn download-btn" onclick="downloadOPayReceipt()">Download</div>
                 <div class="footer-btn single-btn" onclick="window.location.href='share-receipt.php?product_id=<?php echo urlencode($product_id); ?>'">Share Receipt</div>
             </div>
         </div>
     </div>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
     <script>
         // Simulate intent data (normally would come from URL parameters)
         const intentData = {
@@ -357,6 +360,24 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
 
         function viewRecords() {
             alert('View records button clicked!');
+
+                function downloadOPayReceipt() {
+                    const container = document.querySelector('.container');
+                    if (!container) return;
+                    const clone = container.cloneNode(true);
+                    const loadingOverlay = clone.querySelector('.loading-overlay');
+                    if (loadingOverlay) loadingOverlay.remove();
+                    const downloadBtn = clone.querySelector('.download-btn');
+                    if (downloadBtn) downloadBtn.remove();
+                    const options = {
+                        margin: 10,
+                        filename: 'opay-receipt-<?php echo preg_replace("/[^A-Za-z0-9_-]/", "", ($transaction['product_id'] ?? '')); ?>.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2 },
+                        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+                    };
+                    html2pdf().set(options).from(clone).save();
+                }
         }
     </script>
 </body>

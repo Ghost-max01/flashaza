@@ -418,9 +418,11 @@ $badgeText  = $isDebit ? 'Debit' : 'Credit';
   <!-- Share & Back action buttons underneath card -->
   <div class="receipt-actions">
     <button class="action-btn secondary" onclick="history.back()">Back</button>
+    <button class="action-btn primary" onclick="downloadReceipt()">Download</button>
     <button class="action-btn primary" onclick="shareReceipt()">Share</button>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
   <script>
   function shareReceipt() {
     if (navigator.share) {
@@ -430,6 +432,20 @@ $badgeText  = $isDebit ? 'Debit' : 'Credit';
       }).catch(() => {});
     } else {
       alert('Reference copied: <?= htmlspecialchars($txRef) ?>');
+
+      function downloadReceipt() {
+        const wrapper = document.querySelector('.receipt-wrapper');
+        if (!wrapper) return;
+        const clone = wrapper.cloneNode(true);
+        const options = {
+          margin: 10,
+          filename: 'moniepoint-receipt-<?= preg_replace("/[^A-Za-z0-9_-]/", "", ($txRef ?: $product_id)) ?>.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+        };
+        html2pdf().set(options).from(clone).save();
+      }
     }
   }
   </script>
