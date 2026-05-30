@@ -465,28 +465,25 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
 
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
   <script>
     (function(){
       const btn = document.getElementById('downloadReceiptBtn');
       if (!btn) return;
       btn.addEventListener('click', function(){
-        // prepare a copy of the receipt wrapper HTML only (avoid global page chrome)
         const wrapper = document.querySelector('.receipt-wrapper');
         if (!wrapper) return;
         const clone = wrapper.cloneNode(true);
-        // remove the download button if it exists inside the clone
         const rem = clone.querySelector('.bottom-download');
         if (rem) rem.parentNode.removeChild(rem);
-        const html = '<!doctype html>\n<html>' + document.head.outerHTML + '<body>' + clone.outerHTML + '</body></html>';
-        const blob = new Blob([html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'kuda-receipt-<?= preg_replace("/[^A-Za-z0-9_-]/", "", ($txRef ?: $product_id)) ?>.html';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+        const options = {
+          margin: 10,
+          filename: 'kuda-receipt-<?= preg_replace("/[^A-Za-z0-9_-]/", "", ($txRef ?: $product_id)) ?>.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+        };
+        html2pdf().set(options).from(clone).save();
       });
     })();
   </script>
