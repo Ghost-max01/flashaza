@@ -68,85 +68,76 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kuda Transaction Receipt</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-    * {
+    *, *::before, *::after {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
     }
 
     body {
-      background: #f0f0f0;
+      background-color: #f0f0f0;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       display: flex;
       justify-content: center;
       align-items: flex-start;
       min-height: 100vh;
-      padding: 40px 16px;
-      font-family: 'Inter', sans-serif;
+      padding: 24px 16px;
     }
 
-    .receipt {
-      background: #ffffff;
+    .receipt-wrapper {
       width: 100%;
-      max-width: 620px;
-      padding: 48px 48px 36px 48px;
+      max-width: 480px;
+      background: #ffffff;
+      border-radius: 0px;
+      overflow: hidden;
     }
 
-    /* ── Header ── */
-    .header {
+    /* ── HEADER ── */
+    .receipt-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 48px;
+      align-items: center;
+      padding: 28px 28px 20px 28px;
     }
 
-    .logo {
+    .kuda-logo {
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    /* Kuda "K" icon — two thick purple diagonal bars */
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .logo-icon svg {
+    .kuda-logo .logo-icon {
       width: 36px;
       height: 36px;
     }
 
-    .logo-text {
-      font-size: 28px;
+    .kuda-logo .logo-text {
+      font-size: 26px;
       font-weight: 700;
       color: #1a1a1a;
       letter-spacing: -0.5px;
+      line-height: 1;
     }
 
-    .header-title {
-      font-size: 22px;
+    .receipt-title {
+      font-size: 20px;
       font-weight: 400;
       color: #1a1a1a;
-      letter-spacing: -0.3px;
+      letter-spacing: 0;
     }
 
-    /* ── Amount block ── */
-    .amount-section {
+    /* ── AMOUNT BLOCK ── */
+    .amount-block {
       text-align: center;
-      margin-bottom: 40px;
+      padding: 24px 28px 32px 28px;
     }
 
     .amount-label {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
       color: #1a1a1a;
       margin-bottom: 10px;
@@ -154,259 +145,287 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
     }
 
     .amount-value {
-      font-size: 44px;
+      font-size: 42px;
       font-weight: 700;
       color: #1a1a1a;
       letter-spacing: -1px;
+      line-height: 1.1;
     }
 
-    /* ── Row table ── */
+    /* ── DETAILS TABLE ── */
     .details-table {
       width: 100%;
       border-collapse: collapse;
+      padding: 0 28px;
+      display: block;
     }
 
-    .details-table tr {
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 16px 28px;
+      border-top: 1px solid #e8e8e8;
+      gap: 16px;
+    }
+
+    .detail-row:last-child {
       border-bottom: 1px solid #e8e8e8;
     }
 
-    .details-table tr:first-child {
-      border-top: 1px solid #e8e8e8;
-    }
-
-    .details-table td {
-      padding: 16px 0;
-      vertical-align: top;
-    }
-
-    .td-label {
-      font-size: 13px;
+    .detail-label {
+      font-size: 14px;
+      color: #999999;
       font-weight: 400;
-      color: #9a9a9a;
-      width: 45%;
-      padding-right: 16px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-width: 130px;
+      padding-top: 2px;
     }
 
-    .td-value {
-      font-size: 13px;
-      font-weight: 600;
+    .detail-value {
+      font-size: 14px;
       color: #1a1a1a;
+      font-weight: 500;
       text-align: right;
+      line-height: 1.5;
     }
 
-    .td-value .sub {
+    .detail-value .sub-value {
       display: block;
-      font-size: 11.5px;
+      font-size: 13px;
+      color: #666666;
       font-weight: 400;
-      color: #6b6b6b;
       margin-top: 2px;
     }
 
-    .td-value.ref {
-      font-size: 10.5px;
-      font-weight: 500;
-      word-break: break-all;
-      color: #1a1a1a;
+    .detail-value.bold {
+      font-weight: 700;
     }
 
-    /* ── Promo banner ── */
-    .promo-banner {
-      background: #ede8fb;
+    .detail-value.reference {
+      font-size: 12px;
+      word-break: break-all;
+      font-weight: 500;
+    }
+
+    /* ── BANNER ── */
+    .kuda-banner {
+      margin: 28px 28px 0 28px;
+      background: #f0eeff;
       border-radius: 14px;
+      padding: 18px 20px;
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 18px 20px;
-      margin-top: 36px;
-      margin-bottom: 36px;
+      gap: 16px;
     }
 
-    .promo-icon {
-      width: 44px;
-      height: 44px;
-      background: #6c3cba;
-      border-radius: 10px;
+    .banner-icon {
+      width: 52px;
+      height: 52px;
+      background: #4b0082;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
 
-    .promo-icon svg {
-      width: 26px;
-      height: 26px;
+    .banner-icon svg {
+      width: 28px;
+      height: 28px;
     }
 
-    .promo-text {
-      font-size: 13px;
+    .banner-text {
+      font-size: 14.5px;
       font-weight: 700;
       color: #1a1a1a;
       line-height: 1.45;
     }
 
-    /* ── Footer ── */
-    .footer {
+    /* ── FOOTER ── */
+    .receipt-footer {
       text-align: center;
-      font-size: 10px;
-      color: #9a9a9a;
-      line-height: 1.7;
+      padding: 24px 28px 32px 28px;
+      margin-top: 24px;
     }
 
-    /* Receipt actions */
-    .receipt-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 28px;
-      justify-content: center;
+    .receipt-footer p {
+      font-size: 11px;
+      color: #999999;
+      line-height: 1.65;
+      font-weight: 400;
     }
 
-    .action-btn {
-      padding: 12px 28px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
+    /* ── RESPONSIVE ── */
+    @media (max-width: 520px) {
+      body {
+        padding: 0;
+        background: #fff;
+      }
+
+      .receipt-wrapper {
+        max-width: 100%;
+        border-radius: 0;
+      }
+
+      .receipt-header {
+        padding: 22px 20px 16px 20px;
+      }
+
+      .amount-block {
+        padding: 20px 20px 28px 20px;
+      }
+
+      .amount-value {
+        font-size: 36px;
+      }
+
+      .detail-row {
+        padding: 14px 20px;
+      }
+
+      .detail-label {
+        min-width: 110px;
+        font-size: 13px;
+      }
+
+      .detail-value {
+        font-size: 13px;
+      }
+
+      .kuda-banner {
+        margin: 20px 20px 0 20px;
+      }
+
+      .receipt-footer {
+        padding: 20px 20px 28px 20px;
+      }
+
+      .receipt-title {
+        font-size: 17px;
+      }
     }
 
-    .action-btn.primary {
-      background: #6c3cba;
-      color: #fff;
-    }
+    @media (max-width: 360px) {
+      .amount-value {
+        font-size: 30px;
+      }
 
-    .action-btn.primary:hover {
-      background: #5a2d95;
-    }
+      .kuda-logo .logo-text {
+        font-size: 22px;
+      }
 
-    .action-btn.secondary {
-      background: #f0f0f0;
-      color: #333;
-      border: 1px solid #ddd;
-    }
+      .detail-label {
+        min-width: 95px;
+        font-size: 12px;
+      }
 
-    .action-btn.secondary:hover {
-      background: #e0e0e0;
+      .detail-value {
+        font-size: 12px;
+      }
+
+      .detail-value.reference {
+        font-size: 10.5px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="receipt">
+  <div class="receipt-wrapper">
 
-    <!-- Header -->
-    <div class="header">
-      <div class="logo">
-        <!-- Kuda logo: stylised K mark + wordmark -->
-        <div class="logo-icon">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Left vertical bar of K -->
-            <rect x="4" y="4" width="6" height="28" rx="2" fill="#6c3cba"/>
-            <!-- Top-right diagonal arm -->
-            <rect x="9" y="4" width="18" height="7" rx="2" transform="rotate(0 9 4)" fill="#6c3cba"/>
-            <line x1="10" y1="10" x2="28" y2="4" stroke="#6c3cba" stroke-width="7" stroke-linecap="round"/>
-            <!-- Bottom-right diagonal arm -->
-            <line x1="10" y1="22" x2="28" y2="32" stroke="#6c3cba" stroke-width="7" stroke-linecap="round"/>
-            <!-- Middle join -->
-            <rect x="4" y="15" width="14" height="6" rx="1" fill="#6c3cba"/>
-          </svg>
-        </div>
+    <!-- HEADER -->
+    <div class="receipt-header">
+      <div class="kuda-logo">
+        <!-- Kuda K icon -->
+        <svg class="logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="36" height="36" rx="4" fill="white"/>
+          <path d="M10 8H15V17L22 8H28L20 18.5L28.5 28H22.5L15 19V28H10V8Z" fill="#4b0082"/>
+        </svg>
         <span class="logo-text">kuda.</span>
       </div>
-      <span class="header-title">Transaction Details</span>
+      <span class="receipt-title">Transaction Details</span>
     </div>
 
-    <!-- Amount -->
-    <div class="amount-section">
+    <!-- AMOUNT -->
+    <div class="amount-block">
       <div class="amount-label">Transaction Amount</div>
       <div class="amount-value">₦<?= number_format($amount, 2) ?></div>
     </div>
 
-    <!-- Details rows -->
-    <table class="details-table">
-      <tr>
-        <td class="td-label">Beneficiary Details</td>
-        <td class="td-value">
-          <?= htmlspecialchars($accountName) ?>
-          <span class="sub"><?= htmlspecialchars($beneficiaryBank) ?> | <?= htmlspecialchars($accountNum) ?></span>
-        </td>
-      </tr>
-      <tr>
-        <td class="td-label">Sender Details</td>
-        <td class="td-value">
-          <?= htmlspecialchars($senderName) ?>
-          <span class="sub"><?= htmlspecialchars($senderBank) ?> | <?= htmlspecialchars($senderAcc) ?></span>
-        </td>
-      </tr>
-      <tr>
-        <td class="td-label">Paid On</td>
-        <td class="td-value">
-          <?= htmlspecialchars($dateFormatted) ?>
-          <span class="sub"><?= htmlspecialchars($timeFormatted) ?></span>
-        </td>
-      </tr>
-      <tr>
-        <td class="td-label">Transfer Fee</td>
-        <td class="td-value">₦<?= number_format(floatval($transferFee), 2) ?></td>
-      </tr>
-      <tr>
-        <td class="td-label">VAT</td>
-        <td class="td-value">₦<?= number_format(floatval($vat), 2) ?></td>
-      </tr>
-      <tr>
-        <td class="td-label">Description</td>
-        <td class="td-value"><?= htmlspecialchars($description ?: 'N/A') ?></td>
-      </tr>
-      <tr>
-        <td class="td-label">Transaction Reference</td>
-        <td class="td-value ref"><?= htmlspecialchars($txRef) ?></td>
-      </tr>
-      <tr>
-        <td class="td-label">Payment Type</td>
-        <td class="td-value"><?= htmlspecialchars($paymentType) ?></td>
-      </tr>
-    </table>
+    <!-- DETAIL ROWS -->
+    <div class="details-table">
+      <div class="detail-row">
+        <span class="detail-label">Beneficiary Details</span>
+        <span class="detail-value bold">
+          <?= htmlspecialchars($accountName ?: 'N/A') ?>
+          <span class="sub-value"><?= htmlspecialchars($beneficiaryBank) ?> | <?= htmlspecialchars($accountNum) ?></span>
+        </span>
+      </div>
 
-    <!-- Promo banner -->
-    <div class="promo-banner">
-      <div class="promo-icon">
-        <!-- Mini Kuda K in white -->
-        <svg viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="3" width="5" height="20" rx="1.5" fill="white"/>
-          <line x1="7" y1="7" x2="22" y2="3" stroke="white" stroke-width="5" stroke-linecap="round"/>
-          <line x1="7" y1="16" x2="22" y2="23" stroke="white" stroke-width="5" stroke-linecap="round"/>
-          <rect x="3" y="11" width="10" height="4" rx="1" fill="white"/>
+      <div class="detail-row">
+        <span class="detail-label">Sender Details</span>
+        <span class="detail-value bold">
+          <?= htmlspecialchars($senderName) ?>
+          <span class="sub-value"><?= htmlspecialchars($senderBank) ?> | <?= htmlspecialchars($senderAcc) ?></span>
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Paid On</span>
+        <span class="detail-value bold">
+          <?= htmlspecialchars($dateFormatted) ?>
+          <span class="sub-value"><?= htmlspecialchars($timeFormatted) ?></span>
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Transfer Fee</span>
+        <span class="detail-value bold">₦<?= number_format(floatval($transferFee), 2) ?></span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">VAT</span>
+        <span class="detail-value bold">₦<?= number_format(floatval($vat), 2) ?></span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Description</span>
+        <span class="detail-value bold"><?= htmlspecialchars($description ?: 'N/A') ?></span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Transaction Reference</span>
+        <span class="detail-value reference"><?= htmlspecialchars($txRef) ?></span>
+      </div>
+
+      <div class="detail-row">
+        <span class="detail-label">Payment Type</span>
+        <span class="detail-value bold"><?= htmlspecialchars($paymentType) ?></span>
+      </div>
+    </div>
+
+    <!-- BANNER -->
+    <div class="kuda-banner">
+      <div class="banner-icon">
+        <!-- White K icon inside purple box -->
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 5H11.5V13.5L17.5 5H23L16 14.5L23.5 23H17.5L11.5 14.5V23H7V5Z" fill="white"/>
         </svg>
       </div>
-      <div class="promo-text">Not on Kuda? Tap here to<br>download the money app for<br>Africans</div>
+      <div class="banner-text">Not on Kuda? Tap here to<br>download the money app for<br>Africans</div>
     </div>
 
-    <!-- Footer -->
-    <div class="footer">
-      <p>© 2026 Kuda Technologies Ltd (Company No. 11472232). All rights reserved.</p>
-      <p>If you would like to find out more about which Kuda entity you receive services from, please reach<br>out to us via the in-app chat in the Kuda app.</p>
-      <p>Nigerian banking services offered by Kuda Microfinance Bank (RC796975) with registered address<br>at 1-11 Commercial avenue, Yaba, Lagos, Nigeria.. Kuda Microfinance Bank is licensed by the Central<br>Bank of Nigeria. Deposits are insured by the Nigerian Deposit Insurance Corporation (NDIC).</p>
+    <!-- FOOTER -->
+    <div class="receipt-footer">
+      <p>© 2026 Kuda Technologies Ltd (Company No. 11472232). All rights reserved.<br>
+      If you would like to find out more about which Kuda entity you receive services from, please reach<br>
+      out to us via the in-app chat in the Kuda app.<br>
+      Nigerian banking services offered by Kuda Microfinance Bank (RC796975) with registered address<br>
+      at 1-11 Commercial avenue, Yaba, Lagos, Nigeria.. Kuda Microfinance Bank is licensed by the Central<br>
+      Bank of Nigeria. Deposits are insured by the Nigerian Deposit Insurance Corporation (NDIC).</p>
     </div>
 
   </div>
-
-  <!-- Share & Back action buttons underneath card -->
-  <div class="receipt-actions">
-    <button class="action-btn secondary" onclick="history.back()">Back</button>
-    <button class="action-btn primary" onclick="shareReceipt()">Share</button>
-  </div>
-
-  <script>
-  function shareReceipt() {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Transaction Receipt',
-        text: 'Transaction of ₦<?= number_format($amount, 2) ?> — Ref: <?= htmlspecialchars($txRef) ?>'
-      }).catch(() => {});
-    } else {
-      alert('Reference copied: <?= htmlspecialchars($txRef) ?>');
-    }
-  }
-  </script>
-
 </body>
 </html>
