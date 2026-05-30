@@ -100,8 +100,31 @@ function getBankLogoUrl($bankName = '', $bankCode = '', $bankUrl = '') {
     $bankCode = trim((string)$bankCode);
     $bankUrl = trim((string)$bankUrl);
 
-    // Local fallback if available
+    // 1) Local overrides mapping for major banks
     $slug = strtolower(preg_replace('/[^a-z0-9]+/','-', $bankName));
+    $nameLower = strtolower($bankName);
+    $code = $bankCode;
+
+    if ($code === '999992' || $code === '100004' || strpos($slug, 'opay') !== false || strpos($slug, 'paycom') !== false || strpos($nameLower, 'opay') !== false) {
+        return '../images/toban/opay.png';
+    }
+    if ($code === '044' || strpos($slug, 'access') !== false || strpos($nameLower, 'access bank') !== false) {
+        return '../images/toban/access.png';
+    }
+    if ($code === '011' || strpos($slug, 'first-bank') !== false || strpos($nameLower, 'first bank') !== false) {
+        return '../images/toban/first.png';
+    }
+    if ($code === '058' || strpos($slug, 'gtb') !== false || strpos($slug, 'guaranty-trust') !== false || strpos($nameLower, 'guaranty trust') !== false) {
+        return '../images/toban/gt.png';
+    }
+    if ($code === '033' || $slug === 'uba' || strpos($slug, 'united-bank-for-africa') !== false || strpos($nameLower, 'united bank for africa') !== false || $nameLower === 'uba') {
+        return '../images/toban/uba.png';
+    }
+    if ($code === '057' || strpos($slug, 'zenith') !== false || strpos($nameLower, 'zenith bank') !== false) {
+        return '../images/toban/zenith.png';
+    }
+
+    // 2) Check existing local files on disk
     if ($slug !== '') {
         $localPaths = [
             __DIR__ . "/../images/toban/{$slug}.png",
@@ -145,8 +168,11 @@ function getBankLogoUrl($bankName = '', $bankCode = '', $bankUrl = '') {
         }
     }
 
-    if ($bankUrl !== '' && filter_var($bankUrl, FILTER_VALIDATE_URL)) {
-        return $bankUrl;
+    // 3) Return input url if it is relative or valid URL
+    if ($bankUrl !== '') {
+        if (str_starts_with($bankUrl, '..') || str_starts_with($bankUrl, 'images/') || filter_var($bankUrl, FILTER_VALIDATE_URL) !== false) {
+            return $bankUrl;
+        }
     }
 
     return '';
@@ -225,13 +251,13 @@ $bankLogo = getBankLogoUrl($bankName, $bankCode, $bankUrl);
                          data-accountnumber="<?php echo htmlspecialchars($b['accountnumber']); ?>"
                          data-bankname="<?php echo htmlspecialchars($b['bankname']); ?>"
                          data-accountname="<?php echo htmlspecialchars($b['accountname']); ?>"
-                         data-url="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? ''))); ?>">
+                         data-url="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? '', '', $b['url'] ?? ''))); ?>">
                         <div class="b-left">
                             <div class="b-name"><?php echo sanitize_display($b['accountname'] ?? ''); ?></div>
                             <div class="b-sub"><?php echo sanitize_display(($b['accountnumber'] ?? '') . ' ' . ($b['bankname'] ?? '')); ?></div>
                         </div>
                         <div class="b-avatar">
-                            <img src="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? ''))); ?>" alt="Profile Image">
+                            <img src="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? '', '', $b['url'] ?? ''))); ?>" alt="Profile Image">
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -252,13 +278,13 @@ $bankLogo = getBankLogoUrl($bankName, $bankCode, $bankUrl);
                          data-accountnumber="<?php echo htmlspecialchars($b['accountnumber']); ?>"
                          data-bankname="<?php echo htmlspecialchars($b['bankname']); ?>"
                          data-accountname="<?php echo htmlspecialchars($b['accountname']); ?>"
-                         data-url="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? ''))); ?>">
+                         data-url="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? '', '', $b['url'] ?? ''))); ?>">
                         <div class="b-left">
                             <div class="b-name"><?php echo sanitize_display($b['accountname'] ?? ''); ?></div>
                             <div class="b-sub"><?php echo sanitize_display(($b['accountnumber'] ?? '') . ' ' . ($b['bankname'] ?? '')); ?></div>
                         </div>
                         <div class="b-avatar">
-                            <img src="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? ''))); ?>" alt="Profile Image">
+                            <img src="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? '', '', $b['url'] ?? ''))); ?>" alt="Profile Image">
                         </div>
                     </div>
                 <?php endforeach; ?>
