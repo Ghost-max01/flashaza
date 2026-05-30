@@ -299,7 +299,7 @@ function formatAmount(amount) {
           btnK.textContent = "View Kuda Style (K)";
           btnK.onclick = () => {
             document.body.removeChild(overlay);
-            window.location.href = "k-receipt.php?product_id=" + encodeURIComponent(pid);
+            window.location.href = "k-receipt.php?product_id=" + encodeURIComponent(pid) + "&format=pdf";
           };
 
           const cancel = document.createElement("div");

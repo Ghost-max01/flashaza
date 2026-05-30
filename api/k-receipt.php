@@ -284,6 +284,21 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
       fill: #ffffff;
     }
 
+    .pdf-viewer {
+      display: none;
+      width: 100%;
+      min-height: 80vh;
+      padding: 0 28px 36px 28px;
+      background: #f0f0f0;
+    }
+
+    .pdf-viewer iframe {
+      width: 100%;
+      min-height: 80vh;
+      border: none;
+      background: #fff;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 520px) {
       body {
@@ -462,32 +477,86 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
         </svg>
       </button>
     </div>
+    <div id="pdfViewer" class="pdf-viewer"></div>
 
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
   <script>
     (function(){
-      const btn = document.getElementById('downloadReceiptBtn');
-      if (!btn) return;
-      btn.addEventListener('click', function(){
-        // prepare a copy of the receipt wrapper HTML only (avoid global page chrome)
-        const wrapper = document.querySelector('.receipt-wrapper');
-        if (!wrapper) return;
-        const clone = wrapper.cloneNode(true);
-        // remove the download button if it exists inside the clone
-        const rem = clone.querySelector('.bottom-download');
-        if (rem) rem.parentNode.removeChild(rem);
-        const html = '<!doctype html>\n<html>' + document.head.outerHTML + '<body>' + clone.outerHTML + '</body></html>';
-        const blob = new Blob([html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'kuda-receipt-<?= preg_replace("/[^A-Za-z0-9_-]/", "", ($txRef ?: $product_id)) ?>.html';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      });
+      const receiptWrapper = document.querySelector('.receipt-wrapper');
+      const pdfViewer = document.getElementById('pdfViewer');
+      const downloadBtn = document.getElementById('downloadReceiptBtn');
+      const params = new URLSearchParams(window.location.search);
+      const showPdf = params.get('format') === 'pdf';
+      const fileName = 'kuda-receipt-<?= preg_replace("/[^A-Za-z0-9_-]/", "", ($txRef ?: $product_id)) ?>.pdf';
+      const pdfOptions = {
+        margin: [8, 8, 8, 8],
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      function generatePdfBlob(callback) {
+        if (!receiptWrapper) return;
+        const clone = receiptWrapper.cloneNode(true);
+        const button = clone.querySelector('.bottom-download');
+        if (button) button.remove();
+        const temp = document.createElement('div');
+        temp.style.position = 'fixed';
+        temp.style.left = '-9999px';
+        temp.style.top = '-9999px';
+        temp.style.width = '480px';
+        temp.appendChild(clone);
+        document.body.appendChild(temp);
+
+        html2pdf().set(pdfOptions).from(clone).outputPdf('blob').then(function(blob) {
+          temp.remove();
+          callback(blob);
+        }).catch(function(err) {
+          temp.remove();
+          console.error(err);
+        });
+      }
+
+      function downloadPdf() {
+        generatePdfBlob(function(blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        });
+      }
+
+      function showPdfViewer() {
+        if (!receiptWrapper || !pdfViewer) return;
+        generatePdfBlob(function(blob) {
+          const url = URL.createObjectURL(blob);
+          const iframe = document.createElement('iframe');
+          iframe.src = url;
+          iframe.title = 'Kuda Receipt PDF';
+          pdfViewer.innerHTML = '';
+          pdfViewer.appendChild(iframe);
+          pdfViewer.style.display = 'block';
+          receiptWrapper.style.display = 'none';
+        });
+      }
+
+      if (downloadBtn) {
+        downloadBtn.addEventListener('click', function(event) {
+          event.preventDefault();
+          downloadPdf();
+        });
+      }
+
+      if (showPdf) {
+        showPdfViewer();
+      }
     })();
   </script>
 
