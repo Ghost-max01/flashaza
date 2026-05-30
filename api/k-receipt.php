@@ -287,16 +287,45 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
     .pdf-viewer {
       display: none;
       width: 100%;
-      min-height: 80vh;
-      padding: 0 28px 36px 28px;
+      height: 100vh;
+      padding: 0;
       background: #f0f0f0;
+      position: relative;
     }
 
     .pdf-viewer iframe {
       width: 100%;
-      min-height: 80vh;
+      height: 100%;
       border: none;
       background: #fff;
+    }
+
+    .pdf-viewer .download-overlay {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 100;
+      background: #4b0082;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(75,0,130,0.15);
+      transition: background 0.2s ease;
+    }
+
+    .pdf-viewer .download-overlay:hover {
+      background: #3f006f;
+    }
+
+    .pdf-viewer .download-overlay svg {
+      width: 22px;
+      height: 22px;
+      fill: #ffffff;
     }
 
     /* ── RESPONSIVE ── */
@@ -540,8 +569,17 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
           const iframe = document.createElement('iframe');
           iframe.src = url;
           iframe.title = 'Kuda Receipt PDF';
+          
+          // Create fixed download button overlay
+          const dlBtn = document.createElement('button');
+          dlBtn.className = 'download-overlay';
+          dlBtn.title = 'Download receipt';
+          dlBtn.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 20h14a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-2v1h2v2H5v-2h2v-1H5a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1z"/><path d="M11 16h2V8h3l-4-5-4 5h3v8z"/></svg>';
+          dlBtn.addEventListener('click', downloadPdf);
+          
           pdfViewer.innerHTML = '';
           pdfViewer.appendChild(iframe);
+          pdfViewer.appendChild(dlBtn);
           pdfViewer.style.display = 'block';
           receiptWrapper.style.display = 'none';
         });
