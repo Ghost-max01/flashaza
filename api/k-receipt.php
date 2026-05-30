@@ -257,6 +257,39 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
       font-weight: 400;
     }
 
+    /* ── DOWNLOAD BUTTON ── */
+    .download-container {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
+    .download-btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #4b0082;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .download-btn:hover {
+      background: #3d0063;
+      transform: translateY(-1px);
+    }
+
+    .download-btn:active {
+      transform: translateY(0);
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 520px) {
       body {
@@ -427,5 +460,31 @@ $paymentType = $txType === 'sent' ? 'Outward Transfer' : ($txType === 'received'
     </div>
 
   </div>
+
+  <!-- Download Button -->
+  <div class="download-container">
+    <button class="download-btn" onclick="downloadReceipt()">
+      ⬇ Download Receipt
+    </button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    function downloadReceipt() {
+      const receiptWrapper = document.querySelector('.receipt-wrapper');
+      const fileName = 'Kuda_Receipt_<?= htmlspecialchars($txRef) ?>.pdf';
+      
+      const options = {
+        margin: 10,
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+      };
+
+      html2pdf().set(options).from(receiptWrapper).save();
+    }
+  </script>
+
 </body>
 </html>
