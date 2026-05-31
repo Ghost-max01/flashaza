@@ -175,6 +175,7 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
 
     </div>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
     <script>
         // Simulate intent data (normally would come from URL parameters)
@@ -364,21 +365,25 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
         }
 
         function downloadOPayReceipt() {
-            const container = document.querySelector('.container');
-            if (!container) return;
-            const clone = container.cloneNode(true);
-            const loadingOverlay = clone.querySelector('.loading-overlay');
-            if (loadingOverlay) loadingOverlay.remove();
-            const downloadBtn = clone.querySelector('.download-btn');
-            if (downloadBtn) downloadBtn.remove();
-            const options = {
-                margin: 10,
-                filename: 'opay-receipt-<?php echo preg_replace("/[^A-Za-z0-9_-]/", "", ($transaction['product_id'] ?? '')); ?>.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-            };
-            html2pdf().set(options).from(clone).save();
+            const receipt = document.querySelector('.container');
+            if (!receipt) return;
+            html2canvas(receipt, {
+                backgroundColor: null,
+                scale: 2,
+                useCORS: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const html = `<!doctype html><html><head><meta charset="utf-8"><title>OPay Receipt Screenshot</title></head><body style="margin:0;padding:0;background:#0A0A0A;display:flex;justify-content:center;align-items:center;min-height:100vh;"><img src="${imgData}" style="max-width:100%;height:auto;display:block;margin:0 auto;" alt="OPay Receipt Screenshot"></body></html>`;
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'opay-receipt-<?php echo preg_replace("/[^A-Za-z0-9_-]/", "", ($transaction['product_id'] ?? '')); ?>.html';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            });
         }
     </script>
 </body>
