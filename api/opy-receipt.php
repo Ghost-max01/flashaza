@@ -163,15 +163,23 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
         <div class="footer-container" id="footerContainer">
             <div class="footer-buttons" id="dualButtonFooter">
                 <div class="footer-btn report-btn">Report an issue</div>
-                                <div class="footer-btn download-btn" onclick="downloadOPayReceipt()">Download</div>
+                <div class="footer-btn download-btn" onclick="downloadOPayReceipt()">Download</div>
                 <div class="footer-btn share-btn" onclick="window.location.href='share-receipt.php?product_id=<?php echo urlencode($product_id); ?>'">Share Receipt</div>
             </div>
             
             <div class="footer-buttons hidden" id="singleButtonFooter">
-                                <div class="footer-btn download-btn" onclick="downloadOPayReceipt()">Download</div>
+                <div class="footer-btn download-btn" onclick="downloadOPayReceipt()">Download</div>
                 <div class="footer-btn single-btn" onclick="window.location.href='share-receipt.php?product_id=<?php echo urlencode($product_id); ?>'">Share Receipt</div>
             </div>
         </div>
+
+        <!-- Bottom Download (separate, placed below Share Receipt) -->
+        <div class="bottom-download-wrapper">
+            <div style="max-width:420px;margin:8px auto 28px;padding:0 16px;">
+                <button class="footer-btn download-btn" onclick="downloadOPayReceipt()">Download Receipt</button>
+            </div>
+        </div>
+
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
