@@ -156,14 +156,13 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
                         <span>View Records</span>
                     </div>
 
-                    <div class="action-item" onclick="downloadOPayReceipt()" title="Download receipt">
-                        <div class="action-icon" style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;margin-right:8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="action-item download-action" onclick="downloadOPayReceipt()" title="Download receipt" aria-label="Download receipt">
+                        <div class="action-icon" style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M5 20h14a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-2v1h2v2H5v-2h2v-1H5a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1z" fill="#FFFFFF"/>
                                 <path d="M11 16h2V8h3l-4-5-4 5h3v8z" fill="#FFFFFF"/>
                             </svg>
                         </div>
-                        <span>Download</span>
                     </div>
                 </div>
             </div>
@@ -173,20 +172,11 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
         <div class="footer-container" id="footerContainer">
             <div class="footer-buttons" id="dualButtonFooter">
                 <div class="footer-btn report-btn">Report an issue</div>
-                <div class="footer-btn download-btn" onclick="downloadOPayReceipt()">Download</div>
                 <div class="footer-btn share-btn" onclick="window.location.href='share-receipt.php?product_id=<?php echo urlencode($product_id); ?>'">Share Receipt</div>
             </div>
             
             <div class="footer-buttons hidden" id="singleButtonFooter">
-                <div class="footer-btn download-btn" onclick="downloadOPayReceipt()">Download</div>
                 <div class="footer-btn single-btn" onclick="window.location.href='share-receipt.php?product_id=<?php echo urlencode($product_id); ?>'">Share Receipt</div>
-            </div>
-        </div>
-
-        <!-- Bottom Download (separate, placed below Share Receipt) -->
-        <div class="bottom-download-wrapper">
-            <div style="max-width:420px;margin:8px auto 28px;padding:0 16px;">
-                <button class="footer-btn download-btn" onclick="downloadOPayReceipt()">Download Receipt</button>
             </div>
         </div>
 
@@ -378,24 +368,24 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
 
         function viewRecords() {
             alert('View records button clicked!');
+        }
 
-                function downloadOPayReceipt() {
-                    const container = document.querySelector('.container');
-                    if (!container) return;
-                    const clone = container.cloneNode(true);
-                    const loadingOverlay = clone.querySelector('.loading-overlay');
-                    if (loadingOverlay) loadingOverlay.remove();
-                    const downloadBtn = clone.querySelector('.download-btn');
-                    if (downloadBtn) downloadBtn.remove();
-                    const options = {
-                        margin: 10,
-                        filename: 'opay-receipt-<?php echo preg_replace("/[^A-Za-z0-9_-]/", "", ($transaction['product_id'] ?? '')); ?>.pdf',
-                        image: { type: 'jpeg', quality: 0.98 },
-                        html2canvas: { scale: 2 },
-                        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-                    };
-                    html2pdf().set(options).from(clone).save();
-                }
+        function downloadOPayReceipt() {
+            const container = document.querySelector('.container');
+            if (!container) return;
+            const clone = container.cloneNode(true);
+            const loadingOverlay = clone.querySelector('.loading-overlay');
+            if (loadingOverlay) loadingOverlay.remove();
+            const downloadBtn = clone.querySelector('.download-btn');
+            if (downloadBtn) downloadBtn.remove();
+            const options = {
+                margin: 10,
+                filename: 'opay-receipt-<?php echo preg_replace("/[^A-Za-z0-9_-]/", "", ($transaction['product_id'] ?? '')); ?>.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(options).from(clone).save();
         }
     </script>
 </body>
