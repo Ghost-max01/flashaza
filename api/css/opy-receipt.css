@@ -256,7 +256,8 @@
         /* More Actions */
         .more-actions {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
+            gap: 12px;
             margin-top: 0px;
         }
         .action-item {

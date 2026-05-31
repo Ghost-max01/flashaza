@@ -150,10 +150,20 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
                         <img src="../images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
                         <span>Transfer Back</span>
                     </div>
-                    
+
                     <div class="action-item" onclick="viewRecords()">
                         <img src="../images/history/record.png" style="width: 20px; height: 20px;" alt="record">
                         <span>View Records</span>
+                    </div>
+
+                    <div class="action-item" onclick="downloadOPayReceipt()" title="Download receipt">
+                        <div class="action-icon" style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;margin-right:8px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 20h14a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-2v1h2v2H5v-2h2v-1H5a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1z" fill="#FFFFFF"/>
+                                <path d="M11 16h2V8h3l-4-5-4 5h3v8z" fill="#FFFFFF"/>
+                            </svg>
+                        </div>
+                        <span>Download</span>
                     </div>
                 </div>
             </div>
