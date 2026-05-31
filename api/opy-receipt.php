@@ -145,24 +145,16 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
                 
                 <span class="divider-text">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span>
                 
-                <div class="more-actions">
-                    <div class="action-item" onclick="transferBack()">
+                <div class="more-actions" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <div class="action-item" onclick="transferBack()" style="display: flex; align-items: center; gap: 6px;">
                         <img src="../images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
-                        <span>Transfer Back</span>
+                        <span>Transfer Again</span>
                     </div>
 
-                    <div class="action-item" onclick="viewRecords()">
-                        <img src="../images/history/record.png" style="width: 20px; height: 20px;" alt="record">
-                        <span>View Records</span>
-                    </div>
-
-                    <div class="action-item download-action" onclick="downloadOPayReceipt()" title="Download receipt" aria-label="Download receipt">
-                        <div class="action-icon" style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 20h14a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-2v1h2v2H5v-2h2v-1H5a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1z" fill="#FFFFFF"/>
-                                <path d="M11 16h2V8h3l-4-5-4 5h3v8z" fill="#FFFFFF"/>
-                            </svg>
-                        </div>
+                    <div class="action-item" onclick="downloadOPayReceipt()" title="Download receipt" aria-label="Download receipt" style="display: flex; align-items: center; justify-content: center; cursor: pointer; background: #e8f8f2; width: 34px; height: 34px; border-radius: 50%;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 16L7 11H10V4H14V11H17L12 16ZM5 18H19V20H5V18Z" fill="#00B876"/>
+                        </svg>
                     </div>
                 </div>
             </div>
