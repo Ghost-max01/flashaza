@@ -188,14 +188,17 @@ $profileImage = getLocalBankLogo($txn['bankname']) ?: (!empty($txn['url']) ? $tx
             </div>
 
           <center>  <span class="divider-text">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span> </center>
-            <div class="more-actions">
-                <div class="action-item" onclick="transferBack()">
+            <div class="more-actions" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <div class="action-item" onclick="transferBack()" style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
                     <img src="../images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
-                    <span>Transfer Back</span>
+                    <span style="font-weight: 500;">Transfer Back</span>
                 </div>
 
-                <div class="action-item" onclick="viewRecords()">
-                    <span></span>
+                <div class="action-item" onclick="downloadFromBankReceipt()" style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #00B876;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 16L7 11H10V4H14V11H17L12 16ZM5 18H19V20H5V18Z" fill="#00B876"/>
+                    </svg>
+                    <span style="font-weight: 500;">Download</span>
                 </div>
             </div>
         </div>
@@ -208,12 +211,29 @@ $profileImage = getLocalBankLogo($txn['bankname']) ?: (!empty($txn['url']) ? $tx
     </div>
     <?php endif; ?>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
     <script>
         function transferBack() {
             alert('Transfer back clicked');
         }
-        function viewRecords() {
-            alert('View records clicked');
+        function downloadFromBankReceipt() {
+            const bodyCopy = document.body.cloneNode(true);
+            // strip script tags and navigation items in PDF clone
+            const headerLink = bodyCopy.querySelector('.header .back-btn');
+            if (headerLink) headerLink.remove();
+            const footer = bodyCopy.querySelector('.footer');
+            if (footer) footer.remove();
+            const leg = bodyCopy.querySelector('.content-section');
+            if (leg) leg.remove();
+
+            const options = {
+                margin: 10,
+                filename: 'receipt-<?php echo preg_replace("/[^A-Za-z0-9_-]/", "", $product_id); ?>.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(options).from(bodyCopy).save();
         }
         
         // Add dark mode class to body if device prefers dark mode
