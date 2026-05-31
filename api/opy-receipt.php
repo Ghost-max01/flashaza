@@ -364,24 +364,42 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
         }
 
         function downloadOPayReceipt() {
-            const receipt = document.querySelector('.container');
-            if (!receipt) return;
-            html2canvas(receipt, {
-                backgroundColor: null,
+            const container = document.querySelector('.container');
+            if (!container) return;
+
+            // Show simple alert to let the user know download started
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.classList.remove('hidden');
+                loadingOverlay.style.display = 'flex';
+            }
+
+            // Capture container element directly to canvas
+            html2canvas(container, {
+                useCORS: true,
+                allowTaint: true,
                 scale: 2,
-                useCORS: true
+                backgroundColor: window.getComputedStyle(document.body).backgroundColor
             }).then(canvas => {
+                if (loadingOverlay) {
+                    loadingOverlay.classList.add('hidden');
+                    loadingOverlay.style.display = 'none';
+                }
+
+                // Trigger direct native file download as a PNG image
                 const imgData = canvas.toDataURL('image/png');
-                const html = `<!doctype html><html><head><meta charset="utf-8"><title>OPay Receipt Screenshot</title></head><body style="margin:0;padding:0;background:#0A0A0A;display:flex;justify-content:center;align-items:center;min-height:100vh;"><img src="${imgData}" style="max-width:100%;height:auto;display:block;margin:0 auto;" alt="OPay Receipt Screenshot"></body></html>`;
-                const blob = new Blob([html], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'opay-receipt-<?php echo preg_replace("/[^A-Za-z0-9_-]/", "", ($transaction['product_id'] ?? '')); ?>.html';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                const link = document.createElement('a');
+                link.download = 'opay-receipt-<?php echo preg_replace("/[^A-Za-z0-9_-]/", "", ($transaction['product_id'] ?? '')); ?>.png';
+                link.href = imgData;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }).catch(err => {
+                if (loadingOverlay) {
+                    loadingOverlay.classList.add('hidden');
+                    loadingOverlay.style.display = 'none';
+                }
+                alert('Download failed. Please try again.');
             });
         }
     </script>
