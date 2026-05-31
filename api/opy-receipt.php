@@ -146,15 +146,16 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
                 <span class="divider-text">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span>
                 
                 <div class="more-actions" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                    <div class="action-item" onclick="transferBack()" style="display: flex; align-items: center; gap: 6px;">
+                    <div class="action-item" onclick="transferBack()" style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
                         <img src="../images/history/transfer.png" style="width: 20px; height: 20px;" alt="transfer">
-                        <span>Transfer Again</span>
+                        <span style="font-weight: 500;">Transfer Again</span>
                     </div>
 
-                    <div class="action-item" onclick="downloadOPayReceipt()" title="Download receipt" aria-label="Download receipt" style="display: flex; align-items: center; justify-content: center; cursor: pointer; background: #e8f8f2; width: 34px; height: 34px; border-radius: 50%;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="action-item" onclick="downloadOPayReceipt()" style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #00B876;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 16L7 11H10V4H14V11H17L12 16ZM5 18H19V20H5V18Z" fill="#00B876"/>
                         </svg>
+                        <span style="font-weight: 500;">Download</span>
                     </div>
                 </div>
             </div>
