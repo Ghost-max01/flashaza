@@ -176,7 +176,6 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
     <script>
         // Simulate intent data (normally would come from URL parameters)
         const intentData = {
