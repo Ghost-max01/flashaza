@@ -335,7 +335,18 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
         }
 
         // Initialize the page when loaded
-        window.onload = initPage;
+        window.onload = function() {
+            initPage();
+            // Auto-trigger download if ?download=1 is in the URL
+            // (used when navigating from share-receipt.php download button)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('download') === '1') {
+                // Wait for initPage's 1s animation to finish, then download
+                setTimeout(() => {
+                    downloadOPayReceipt();
+                }, 1200);
+            }
+        };
 
         // Button click handlers
         function goBack() {
