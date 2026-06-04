@@ -367,12 +367,15 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
             const container = document.querySelector('.container');
             if (!container) return;
 
-            // Show simple alert to let the user know download started
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            if (loadingOverlay) {
-                loadingOverlay.classList.remove('hidden');
-                loadingOverlay.style.display = 'flex';
-            }
+            // Elements that must NOT appear in the downloaded image
+            const loadingOverlay   = document.getElementById('loadingOverlay');
+            const downloadBtn      = document.querySelector('.action-item[onclick="downloadOPayReceipt()"]');
+            const footerContainer  = document.getElementById('footerContainer');
+
+            // Hide them before capture (no spinner, no buttons)
+            if (loadingOverlay)  { loadingOverlay.style.display  = 'none'; }
+            if (downloadBtn)     { downloadBtn.style.display      = 'none'; }
+            if (footerContainer) { footerContainer.style.display  = 'none'; }
 
             // Capture container element directly to canvas
             html2canvas(container, {
@@ -381,10 +384,9 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
                 scale: 2,
                 backgroundColor: window.getComputedStyle(document.body).backgroundColor
             }).then(canvas => {
-                if (loadingOverlay) {
-                    loadingOverlay.classList.add('hidden');
-                    loadingOverlay.style.display = 'none';
-                }
+                // Restore everything before triggering download
+                if (downloadBtn)     { downloadBtn.style.display      = ''; }
+                if (footerContainer) { footerContainer.style.display  = ''; }
 
                 // Trigger direct native file download as a PNG image
                 const imgData = canvas.toDataURL('image/png');
@@ -395,10 +397,9 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
                 link.click();
                 link.remove();
             }).catch(err => {
-                if (loadingOverlay) {
-                    loadingOverlay.classList.add('hidden');
-                    loadingOverlay.style.display = 'none';
-                }
+                // Restore on error too
+                if (downloadBtn)     { downloadBtn.style.display      = ''; }
+                if (footerContainer) { footerContainer.style.display  = ''; }
                 alert('Download failed. Please try again.');
             });
         }
