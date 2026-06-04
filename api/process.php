@@ -101,9 +101,23 @@ if (!isset($pdo) || !method_exists($pdo, 'prepare')) {
     exit;
 }
 
+// Determine if scheduling is requested
+$scheduleOn = !empty($input['scheduleOn']);
+// scheduleTime may be a minutes integer or a datetime string (ISO format)
+$scheduleTimeRaw = $input['scheduleTime'] ?? '';
+if (is_string($scheduleTimeRaw) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $scheduleTimeRaw)) {
+    // datetime-local returns format "YYYY-MM-DDTHH:MM"
+    $scheduleTimestamp = strtotime($scheduleTimeRaw);
+    $scheduleMinutes = $scheduleTimestamp ? floor(($scheduleTimestamp - time()) / 60) : 0;
+} else {
+    // treat as minutes integer
+    $scheduleMinutes = intval($scheduleTimeRaw);
+    $scheduleTimestamp = time() + ($scheduleMinutes * 60);
+}
+
 // schedule branch
 if ($scheduleOn) {
-    // save session pending deposit
+    // Save pending deposit with explicit execute_at timestamp
     $_SESSION['pending_deposit'] = [
         "accountname"   => $accountname,
         "accountnumber" => $accountnumber,
@@ -111,7 +125,8 @@ if ($scheduleOn) {
         "amount"        => $amount,
         "narration"     => $narration,
         "url"           => $url,
-        "execute_at"    => time() + ($scheduleTime * 60)
+        "execute_at"    => $scheduleTimestamp,
+        "schedule_input" => $scheduleTimeRaw
     ];
     $debug[] = "scheduled deposit saved to session with execute_at=" . $_SESSION['pending_deposit']['execute_at'];
     echo json_encode([
