@@ -21,24 +21,6 @@ try {
 
         $transaction = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // After fetching transaction, if not found and there's a pending scheduled deposit in session, create a mock transaction for display
-        if (!$transaction && isset($_SESSION['pending_deposit'])) {
-            $pending = $_SESSION['pending_deposit'];
-            // Use scheduled datetime if available, otherwise current time
-            $scheduleInput = $pending['schedule_input'] ?? '';
-            $dateObj = $scheduleInput ? new DateTime($scheduleInput) : new DateTime();
-            $dateFormatted = $dateObj->format('M jS, Y H:i:s');
-            $transaction = [
-                'bankname' => $pending['bankname'] ?? '',
-                'url' => $pending['url'] ?? '',
-                'accountname' => $pending['accountname'] ?? '',
-                'accountnumber' => $pending['accountnumber'] ?? '',
-                'amount' => $pending['amount'] ?? 0,
-                'date2' => $dateFormatted,
-                'status' => 'success',
-            ];
-        }
-
         if (!$transaction) {
             // No transaction found
             header("Location: history.php");

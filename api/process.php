@@ -102,41 +102,25 @@ if (!isset($pdo) || !method_exists($pdo, 'prepare')) {
 }
 
 // Determine if scheduling is requested
-$scheduleOn = !empty($input['scheduleOn']);
-// scheduleTime may be a minutes integer or a datetime string (ISO format)
-$scheduleTimeRaw = $input['scheduleTime'] ?? '';
-if (is_string($scheduleTimeRaw) && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $scheduleTimeRaw)) {
-    // datetime-local returns format "YYYY-MM-DDTHH:MM"
-    $scheduleTimestamp = strtotime($scheduleTimeRaw);
-    $scheduleMinutes = $scheduleTimestamp ? floor(($scheduleTimestamp - time()) / 60) : 0;
+$scheduleOn    = !empty($input['scheduleOn']);
+// scheduleTime is a datetime-local string "YYYY-MM-DDTHH:MM" sent by the front-end
+$scheduleTimeRaw = trim($input['scheduleTime'] ?? '');
+
+// Build the DateTime object for the scheduled time (falls back to now if empty/invalid)
+if ($scheduleOn && $scheduleTimeRaw !== '' && preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/', $scheduleTimeRaw)) {
+    // Use the exact date+time the user picked
+    $scheduledDateObj = new DateTime($scheduleTimeRaw, new DateTimeZone("Africa/Lagos"));
 } else {
-    // treat as minutes integer
-    $scheduleMinutes = intval($scheduleTimeRaw);
-    $scheduleTimestamp = time() + ($scheduleMinutes * 60);
+    $scheduledDateObj = null; // will use "now" in the deposit branch
 }
 
-// schedule branch
+// ── Scheduled branch: insert immediately but stamp with the chosen date ──
+// The "scheduling" here means the receipt will display the user's chosen date/time.
+// We run the full deposit right now so the receipt page can read the real DB row.
 if ($scheduleOn) {
-    // Save pending deposit with explicit execute_at timestamp
-    $_SESSION['pending_deposit'] = [
-        "accountname"   => $accountname,
-        "accountnumber" => $accountnumber,
-        "bankname"      => $bankname,
-        "amount"        => $amount,
-        "narration"     => $narration,
-        "url"           => $url,
-        "execute_at"    => $scheduleTimestamp,
-        "schedule_input" => $scheduleTimeRaw
-    ];
-    $debug[] = "scheduled deposit saved to session with execute_at=" . $_SESSION['pending_deposit']['execute_at'];
-    echo json_encode([
-        "status" => true,
-        "message" => "Scheduled saved to session",
-        "playSound" => false,
-        "debug" => $debug,
-        "session_pending" => $_SESSION['pending_deposit']
-    ], JSON_PRETTY_PRINT);
-    exit;
+    // Fall through to the immediate deposit branch below — but we will
+    // override the $dateObj used for date fields with $scheduledDateObj.
+    // (No separate branch needed; we just let it continue.)
 }
 
 // immediate deposit branch
@@ -144,7 +128,10 @@ try {
     $debug[] = "begin transaction";
     $pdo->beginTransaction();
 
-    $dateObj = new DateTime("now", new DateTimeZone("Africa/Lagos"));
+    // Use the scheduled date/time if provided, otherwise use now
+    $dateObj = isset($scheduledDateObj) && $scheduledDateObj !== null
+        ? $scheduledDateObj
+        : new DateTime("now", new DateTimeZone("Africa/Lagos"));
     $date3 = $dateObj->format("M d, Y H:i");
     $time  = $dateObj->format("H:i");
     $date1 = formatWithSuffix($dateObj, "M jS, H:i:s");
@@ -255,9 +242,13 @@ try {
 
     // success
     $response = [
-        "status" => true,
-        "message" => "Deposit successful",
-        "redirect" => "dashboard.php",
+        "status"    => true,
+        "message"   => "Deposit successful",
+        // Scheduled: go to receipt so user sees the scheduled date/time
+        // Immediate: go to dashboard as before
+        "redirect"  => $scheduleOn
+            ? "opy-receipt.php?product_id=" . urlencode($product_id)
+            : "dashboard.php",
         "playSound" => true
     ];
     if ($DEBUG_VERBOSE) $response['debug'] = $debug;
