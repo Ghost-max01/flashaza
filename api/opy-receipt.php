@@ -375,31 +375,47 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
         }
 
         function downloadOPayReceipt() {
-            const container = document.querySelector('.container');
-            if (!container) return;
+            // Capture ONLY the scroll container (profile + amount + transaction details)
+            // Everything else is hidden so the result looks like a clean phone screenshot
+            const scrollContainer  = document.getElementById('scrollContainer');
+            if (!scrollContainer) return;
 
-            // Elements that must NOT appear in the downloaded image
-            const loadingOverlay   = document.getElementById('loadingOverlay');
-            const downloadBtn      = document.querySelector('.action-item[onclick="downloadOPayReceipt()"]');
-            const footerContainer  = document.getElementById('footerContainer');
+            // Elements to hide before capture
+            const header          = document.querySelector('.header');
+            const legSection      = document.getElementById('legSection');
+            const footerContainer = document.getElementById('footerContainer');
+            const loadingOverlay  = document.getElementById('loadingOverlay');
 
-            // Hide them before capture (no spinner, no buttons)
-            if (loadingOverlay)  { loadingOverlay.style.display  = 'none'; }
-            if (downloadBtn)     { downloadBtn.style.display      = 'none'; }
-            if (footerContainer) { footerContainer.style.display  = 'none'; }
+            // Store original values
+            const prevScrollOverflow = scrollContainer.style.overflow;
+            const prevScrollHeight   = scrollContainer.style.maxHeight;
 
-            // Capture container element directly to canvas
-            html2canvas(container, {
+            // Hide nav chrome
+            if (header)          header.style.display          = 'none';
+            if (legSection)      legSection.style.display      = 'none';
+            if (footerContainer) footerContainer.style.display = 'none';
+            if (loadingOverlay)  loadingOverlay.style.display  = 'none';
+
+            // Let scroll-container expand fully for the capture
+            scrollContainer.style.overflow  = 'visible';
+            scrollContainer.style.maxHeight = 'none';
+
+            // Capture just the scroll-container (headSection + bodySection)
+            html2canvas(scrollContainer, {
                 useCORS: true,
                 allowTaint: true,
                 scale: 2,
-                backgroundColor: window.getComputedStyle(document.body).backgroundColor
+                backgroundColor: window.getComputedStyle(document.body).backgroundColor,
+                scrollY: -window.scrollY   // prevent offset issues
             }).then(canvas => {
-                // Restore everything before triggering download
-                if (downloadBtn)     { downloadBtn.style.display      = ''; }
-                if (footerContainer) { footerContainer.style.display  = ''; }
+                // Restore everything
+                if (header)          header.style.display          = '';
+                if (legSection)      legSection.style.display      = '';
+                if (footerContainer) footerContainer.style.display = '';
+                scrollContainer.style.overflow  = prevScrollOverflow;
+                scrollContainer.style.maxHeight = prevScrollHeight;
 
-                // Trigger direct native file download as a PNG image
+                // Download
                 const imgData = canvas.toDataURL('image/png');
                 const link = document.createElement('a');
                 link.download = 'opay-receipt-<?php echo preg_replace("/[^A-Za-z0-9_-]/", "", ($transaction['product_id'] ?? '')); ?>.png';
@@ -408,9 +424,12 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
                 link.click();
                 link.remove();
             }).catch(err => {
-                // Restore on error too
-                if (downloadBtn)     { downloadBtn.style.display      = ''; }
-                if (footerContainer) { footerContainer.style.display  = ''; }
+                // Restore on error
+                if (header)          header.style.display          = '';
+                if (legSection)      legSection.style.display      = '';
+                if (footerContainer) footerContainer.style.display = '';
+                scrollContainer.style.overflow  = prevScrollOverflow;
+                scrollContainer.style.maxHeight = prevScrollHeight;
                 alert('Download failed. Please try again.');
             });
         }
