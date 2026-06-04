@@ -35,7 +35,7 @@ try {
                 'accountnumber' => $pending['accountnumber'] ?? '',
                 'amount' => $pending['amount'] ?? 0,
                 'date2' => $dateFormatted,
-                // add other fields as needed for display
+                'status' => 'success',
             ];
         }
 
