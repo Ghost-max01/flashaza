@@ -335,7 +335,18 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
         }
 
         // Initialize the page when loaded
-        window.onload = initPage;
+        window.onload = function() {
+            initPage();
+            // Auto-trigger download if ?download=1 is in the URL
+            // (used when navigating from share-receipt.php download button)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('download') === '1') {
+                // Wait for initPage's 1s animation to finish, then download
+                setTimeout(() => {
+                    downloadOPayReceipt();
+                }, 1200);
+            }
+        };
 
         // Button click handlers
         function goBack() {
@@ -364,29 +375,47 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
         }
 
         function downloadOPayReceipt() {
-            const container = document.querySelector('.container');
-            if (!container) return;
+            // Capture ONLY the scroll container (profile + amount + transaction details)
+            // Everything else is hidden so the result looks like a clean phone screenshot
+            const scrollContainer  = document.getElementById('scrollContainer');
+            if (!scrollContainer) return;
 
-            // Show simple alert to let the user know download started
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            if (loadingOverlay) {
-                loadingOverlay.classList.remove('hidden');
-                loadingOverlay.style.display = 'flex';
-            }
+            // Elements to hide before capture
+            const header          = document.querySelector('.header');
+            const legSection      = document.getElementById('legSection');
+            const footerContainer = document.getElementById('footerContainer');
+            const loadingOverlay  = document.getElementById('loadingOverlay');
 
-            // Capture container element directly to canvas
-            html2canvas(container, {
+            // Store original values
+            const prevScrollOverflow = scrollContainer.style.overflow;
+            const prevScrollHeight   = scrollContainer.style.maxHeight;
+
+            // Hide nav chrome
+            if (header)          header.style.display          = 'none';
+            if (legSection)      legSection.style.display      = 'none';
+            if (footerContainer) footerContainer.style.display = 'none';
+            if (loadingOverlay)  loadingOverlay.style.display  = 'none';
+
+            // Let scroll-container expand fully for the capture
+            scrollContainer.style.overflow  = 'visible';
+            scrollContainer.style.maxHeight = 'none';
+
+            // Capture just the scroll-container (headSection + bodySection)
+            html2canvas(scrollContainer, {
                 useCORS: true,
                 allowTaint: true,
                 scale: 2,
-                backgroundColor: window.getComputedStyle(document.body).backgroundColor
+                backgroundColor: window.getComputedStyle(document.body).backgroundColor,
+                scrollY: -window.scrollY   // prevent offset issues
             }).then(canvas => {
-                if (loadingOverlay) {
-                    loadingOverlay.classList.add('hidden');
-                    loadingOverlay.style.display = 'none';
-                }
+                // Restore everything
+                if (header)          header.style.display          = '';
+                if (legSection)      legSection.style.display      = '';
+                if (footerContainer) footerContainer.style.display = '';
+                scrollContainer.style.overflow  = prevScrollOverflow;
+                scrollContainer.style.maxHeight = prevScrollHeight;
 
-                // Trigger direct native file download as a PNG image
+                // Download
                 const imgData = canvas.toDataURL('image/png');
                 const link = document.createElement('a');
                 link.download = 'opay-receipt-<?php echo preg_replace("/[^A-Za-z0-9_-]/", "", ($transaction['product_id'] ?? '')); ?>.png';
@@ -395,10 +424,12 @@ $profileImage = getLocalBankLogo($transaction['bankname'] ?? '', $transaction['u
                 link.click();
                 link.remove();
             }).catch(err => {
-                if (loadingOverlay) {
-                    loadingOverlay.classList.add('hidden');
-                    loadingOverlay.style.display = 'none';
-                }
+                // Restore on error
+                if (header)          header.style.display          = '';
+                if (legSection)      legSection.style.display      = '';
+                if (footerContainer) footerContainer.style.display = '';
+                scrollContainer.style.overflow  = prevScrollOverflow;
+                scrollContainer.style.maxHeight = prevScrollHeight;
                 alert('Download failed. Please try again.');
             });
         }

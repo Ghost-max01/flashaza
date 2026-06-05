@@ -109,18 +109,10 @@ if (!empty($user['subscription_date'])) {
           </label>
           <span>Schedule Transaction</span>
         </div>
-        <div class="schedule-options" id="scheduleOptions">
-          <label for="timeSelect">Select Time (Minutes)</label>
-          <select id="timeSelect">
-            <option value="1">1 Minute</option>
-            <option value="2">2 Minutes</option>
-            <option value="3">3 Minutes</option>
-            <option value="5">5 Minutes</option>
-            <option value="10">10 Minutes</option>
-            <option value="30">30 Minutes</option>
-            <option value="60">60 Minutes</option>
-          </select>
-        </div>
+  <div class="schedule-options" id="scheduleOptions" style="display:none; margin-top:8px;">
+    <label for="datetimeInput">Select Date & Time</label>
+    <input type="datetime-local" id="datetimeInput" />
+  </div>
       </div>
     </div>
   </div>
@@ -357,7 +349,7 @@ document.getElementById("continueBtn").addEventListener("click", async function 
   const url = document.getElementById("bankInput").getAttribute("data-url") || "";
   const narration = document.getElementById("narration").value.trim();
   const scheduleOn = switch1.checked;
-  const scheduleTime = document.getElementById("timeSelect").value;
+  const scheduleTime = document.getElementById("datetimeInput").value;
 
   // reset errors
   document.getElementById("amountError").textContent = "";

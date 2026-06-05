@@ -323,13 +323,9 @@ function openShareModal(blob, filename) {
     if (lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
     lastBlobUrl = URL.createObjectURL(blob);
     
+    // Download uses opy-receipt.php layout (same as add-money flow)
     downloadBtn.onclick = () => {
-        const a = document.createElement('a');
-        a.href = lastBlobUrl;
-        a.download = filename || 'receipt.png';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        window.location.href = 'opy-receipt.php?product_id=<?php echo urlencode($product_id); ?>&download=1';
     };
     
     shareWhatsappBtn.onclick = () => {
@@ -374,20 +370,10 @@ async function tryNativeShareFile(file, title = 'Receipt') {
     return false;
 }
 
-// Share as image
-shareImageBtn.addEventListener('click', async () => {
-    try {
-        const blob = await captureReceiptBlob();
-        const file = new File([blob], 'receipt.png', { type: 'image/png' });
-        const ok = await tryNativeShareFile(file, 'Transaction receipt');
-        
-        if (!ok) {
-            openShareModal(blob, 'receipt.png');
-        }
-    } catch (err) {
-        console.error(err);
-        alert('Failed to capture image.');
-    }
+// Share as image — navigate to opy-receipt.php with ?download=1
+// This produces the exact same download format as the add-money flow
+shareImageBtn.addEventListener('click', () => {
+    window.location.href = 'opy-receipt.php?product_id=<?php echo urlencode($product_id); ?>&download=1';
 });
 
 // Share as PDF
