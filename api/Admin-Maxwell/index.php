@@ -23,6 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_email'] = $admin['email'];
             $_SESSION['admin_name'] = $admin['name'] ?? $admin['email'];
+            // Debug: log session contents after setting admin session
+            if (function_exists('error_log')) {
+                error_log('[admin-login] session after set: ' . json_encode($_SESSION));
+            }
             header("Location: /api/Admin-Maxwell/dashboard.php");
             exit;
         } else {

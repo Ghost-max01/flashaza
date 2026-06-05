@@ -1,5 +1,9 @@
 <?php
 session_start();
+// Debug: log session contents when dashboard is accessed
+if (function_exists('error_log')) {
+    error_log('[admin-dashboard] session at entry: ' . json_encode($_SESSION));
+}
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_email'])) {
