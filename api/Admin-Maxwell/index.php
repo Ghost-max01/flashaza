@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (function_exists('error_log')) {
                 error_log('[admin-login] session after set: ' . json_encode($_SESSION));
             }
-            header("Location: /api/Admin-Maxwell/dashboard.php");
+            header("Location: /Admin-Maxwell/dashboard.php");
             exit;
         } else {
             $error = 'Invalid email or password.';
@@ -470,7 +470,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
             
-            <form method="POST" action="index.php">
+            <form method="POST" action="/Admin-Maxwell/index.php">
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <div class="input-with-icon">
