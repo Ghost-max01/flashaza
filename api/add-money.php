@@ -146,10 +146,20 @@ let bankData = [];
 async function fetchBanks() {
   try {
     // ── Primary: Paystack bank list (may already have some logos from server) ──
+    // Prefer server-side endpoint which returns cached/normalized JSON
     const payRes = await fetch('paystack-banks.php');
-    if (!payRes.ok) throw new Error('Paystack HTTP ' + payRes.status);
-    const payPayload = await payRes.json();
-    const payBanks = Array.isArray(payPayload.data) ? payPayload.data : [];
+    let payPayload = null;
+    if (payRes.ok) {
+      try {
+        payPayload = await payRes.json();
+      } catch (e) {
+        console.warn('paystack-banks.php returned non-JSON:', await payRes.text());
+        payPayload = null;
+      }
+    } else {
+      console.warn('paystack-banks.php HTTP error', payRes.status);
+    }
+    const payBanks = Array.isArray(payPayload && payPayload.data ? payPayload.data : payPayload) ? (payPayload.data || payPayload) : [];
 
     // ── Client-side logo enrichment (multi-strategy matching) ──
     let logoByCode = {};   // bank code → logo URL
@@ -284,8 +294,13 @@ async function fetchBanks() {
     // ── Fallback: original bks.php so the page never breaks ──
     try {
       const fallbackRes = await fetch('bks.php', { method: 'POST' });
-      bankData = await fallbackRes.json();
-      renderBankList(bankData);
+      try {
+        bankData = await fallbackRes.json();
+      } catch (e) {
+        console.warn('bks.php returned non-JSON, using empty list');
+        bankData = [];
+      }
+      renderBankList(bankData || []);
     } catch (fallbackErr) {
       console.error("Fallback also failed:", fallbackErr);
     }

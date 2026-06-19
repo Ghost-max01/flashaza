@@ -1,5 +1,8 @@
 <?php
 if (session_status()===PHP_SESSION_NONE) session_start();
+// Ensure we always return valid JSON; suppress display of PHP warnings in output
+@ini_set('display_errors', '0');
+error_reporting(E_ALL);
 header('Content-Type: application/json; charset=UTF-8');
 
 $secret = trim(getenv('PAYSTACK_SECRET_KEY') ?: getenv('PAYSTACK_SECRET') ?: '');
@@ -77,6 +80,7 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 if ($curlErr) {
+    // Try returning cached data if available
     if (file_exists($cacheFile)) {
         $cached = file_get_contents($cacheFile);
         if ($cached !== false) {
