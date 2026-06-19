@@ -284,21 +284,63 @@ async function fetchBanks() {
 function renderBankList(banks) {
   const bankList = document.getElementById('bankList');
   bankList.innerHTML = "";
+  const timeoutMs = 3000;
+  let anyAdded = 0;
+
+  function normalizeUrl(url) {
+    if (!url) return '';
+    url = String(url).trim();
+    if (url.startsWith('http') || url.startsWith('/')) return url;
+    // convert relative like ../images/toban/foo.png -> /images/toban/foo.png
+    return url.replace(/^(?:\.\.\/)+/, '/');
+  }
+
   banks.forEach(bank => {
-    const item = document.createElement('div');
-    item.className = 'bank-item';
-    item.innerHTML = `
-      <img src="${bank.url || ''}" alt="logo" class="bank-logo">
-      <span class="bank-name">${bank.name}</span>
-    `;
-    item.addEventListener('click', () => {
-      document.getElementById('bankInput').value = bank.name;
-      document.getElementById('dialogOverlay').style.display = 'none';
-      document.getElementById('bankInput').setAttribute('data-code', bank.code);
-      document.getElementById('bankInput').setAttribute('data-url', bank.url);
-    });
-    bankList.appendChild(item);
+    const raw = bank.url || '';
+    const logoUrl = normalizeUrl(raw);
+    if (!logoUrl) return; // skip banks with no logo
+
+    // Preload image and only add bank if image loads successfully
+    const img = new Image();
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true; // treat as failed after timeout
+      img.onload = img.onerror = null;
+    }, timeoutMs);
+
+    img.onload = () => {
+      if (settled) return;
+      settled = true; clearTimeout(timer);
+      const item = document.createElement('div');
+      item.className = 'bank-item';
+      item.innerHTML = `\n        <img src="${logoUrl}" alt="logo" class="bank-logo">\n        <span class="bank-name">${bank.name}</span>\n      `;
+      item.addEventListener('click', () => {
+        document.getElementById('bankInput').value = bank.name;
+        document.getElementById('dialogOverlay').style.display = 'none';
+        document.getElementById('bankInput').setAttribute('data-code', bank.code);
+        document.getElementById('bankInput').setAttribute('data-url', logoUrl);
+      });
+      bankList.appendChild(item);
+      anyAdded++;
+    };
+
+    img.onerror = () => {
+      if (settled) return;
+      settled = true; clearTimeout(timer);
+      img.onload = img.onerror = null;
+    };
+
+    // Start loading
+    try { img.src = logoUrl; } catch (e) { clearTimeout(timer); }
   });
+
+  // If after timeout nothing added, show empty state
+  setTimeout(() => {
+    if (anyAdded === 0) {
+      bankList.innerHTML = '<div class="empty-state"><p>No banks available</p></div>';
+    }
+  }, timeoutMs + 50);
 }
 
 // ✅ Dialog open/close
