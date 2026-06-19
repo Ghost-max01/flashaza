@@ -133,28 +133,59 @@ foreach ($data['data'] as $bank) {
 $logoByCode = [];
 $logoBySlug = [];
 $logoByName = [];
-$logoByShort = [];
+     // Try multiple sources for the supermx1 dataset: GitHub Pages first, then jsDelivr CDN
+     $logoSources = [
+         'https://supermx1.github.io/nigerian-banks-api/data.json',
+         'https://cdn.jsdelivr.net/gh/supermx1/nigerian-banks-api@main/data.json'
+     ];
+     $logoData = null;
+     $logoBase = 'https://supermx1.github.io/nigerian-banks-api/';
+     foreach ($logoSources as $src) {
+         $ch = curl_init($src);
+         curl_setopt_array($ch, [
+             CURLOPT_RETURNTRANSFER => true,
+             CURLOPT_TIMEOUT => 8,
+             CURLOPT_CONNECTTIMEOUT => 5,
+         ]);
+         $resp = curl_exec($ch);
+         $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+         curl_close($ch);
+         if ($resp && $http >= 200 && $http < 300) {
+             $d = json_decode($resp, true);
+             if (is_array($d)) {
+                 $logoData = $d;
+                 // choose base for resolving relative logo paths
+                 if (strpos($src, 'cdn.jsdelivr.net') !== false) {
+                     $logoBase = 'https://cdn.jsdelivr.net/gh/supermx1/nigerian-banks-api@main/';
+                 } else {
+                     $logoBase = 'https://supermx1.github.io/nigerian-banks-api/';
+                 }
+                 break;
+             }
+         }
+     }
 
-$logoCh = curl_init('https://supermx1.github.io/nigerian-banks-api/data.json');
-curl_setopt_array($logoCh, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT => 8,
-    CURLOPT_CONNECTTIMEOUT => 5,
-]);
-$logoResp = curl_exec($logoCh);
-$logoHttpCode = curl_getinfo($logoCh, CURLINFO_HTTP_CODE);
-curl_close($logoCh);
+     if ($logoData && is_array($logoData)) {
+         foreach ($logoData as $lb) {
+             $lCode = trim((string)($lb['code'] ?? ''));
+             $lSlug = trim((string)($lb['slug'] ?? ''));
+             $lLogo = trim((string)($lb['logo'] ?? ''));
+             if ($lLogo) {
+                 if (strpos($lLogo, 'http') !== 0) {
+                     // normalize relative paths from the repo to an absolute CDN URL
+                     $lLogo = $logoBase . ltrim($lLogo, './');
+                 }
+             }
+             if ($lCode && $lLogo) $logoByCode[$lCode] = $lLogo;
+             if ($lSlug && $lLogo) $logoBySlug[$lSlug] = $lLogo;
 
-if ($logoResp && $logoHttpCode >= 200 && $logoHttpCode < 300) {
-    $logoData = json_decode($logoResp, true);
-    if (is_array($logoData)) {
-        $logoBase = 'https://supermx1.github.io/nigerian-banks-api/';
-        foreach ($logoData as $lb) {
-            $lCode = trim((string)($lb['code'] ?? ''));
-            $lSlug = trim((string)($lb['slug'] ?? ''));
-            $lLogo = trim((string)($lb['logo'] ?? ''));
-            if ($lLogo && strpos($lLogo, 'http') !== 0) {
-                $lLogo = $logoBase . ltrim($lLogo, './');
+             $lName = $lb['name'] ?? $lb['bank_name'] ?? '';
+             $nName = normalizeName($lName);
+             $sName = shortName($lName);
+             if ($nName && $lLogo && !isset($logoByName[$nName])) $logoByName[$nName] = $lLogo;
+             if ($sName && strlen($sName) > 2 && $lLogo && !isset($logoByShort[$sName])) $logoByShort[$sName] = $lLogo;
+         }
+     }
             }
             if ($lCode && $lLogo) $logoByCode[$lCode] = $lLogo;
             if ($lSlug && $lLogo) $logoBySlug[$lSlug] = $lLogo;
