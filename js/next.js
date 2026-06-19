@@ -47,7 +47,7 @@ function _UI(){
         if (payload?.url) return payload.url;
         const name = payload?.bankname || '';
         const slug = String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-        return slug ? '../images/toban/' + slug + '.png' : '../images/toban/naira.png';
+        return slug ? '/images/toban/' + slug + '.png' : '/images/toban/naira.png';
     })();
 
     const bankLogo = document.getElementById('banklogo');
@@ -55,7 +55,7 @@ function _UI(){
     bankLogoLoader.style.display='block';  
     bankLogo.style.opacity='0';  
     bankLogo.onload = ()=>{ bankLogoLoader.style.display='none'; bankLogo.style.opacity='1'; };  
-    bankLogo.onerror= ()=>{ bankLogoLoader.style.display='none'; bankLogo.src = '../images/toban/naira.png'; bankLogo.style.opacity='1'; };  
+    bankLogo.onerror= ()=>{ bankLogoLoader.style.display='none'; bankLogo.src = '/images/toban/naira.png'; bankLogo.style.opacity='1'; };  
     bankLogo.src = bankLogoUrl;  
 
     document.getElementById('accountname').textContent = accountName;  
@@ -119,7 +119,7 @@ function showBottomSheet(){
         if (payload?.url) return payload.url;
         const name = payload?.bankname || '';
         const slug = String(name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-        return slug ? '../images/toban/' + slug + '.png' : '../images/toban/naira.png';
+        return slug ? '/images/toban/' + slug + '.png' : '/images/toban/naira.png';
     })();
     const amount = amountInput.value;  
 

@@ -97,7 +97,7 @@ function startVerification(accountNumber, bankCode){
 
             if (!isError && txt.trim().length >= 3) {
                 // success
-                detectIcon.src = 'images/toban/good.png';
+                detectIcon.src = '/images/toban/good.png';
                 detectIcon.style.display = 'block';
                 detectText.textContent = txt.trim();
                 detectText.style.color = 'var(--accent-color)';
@@ -113,7 +113,7 @@ function startVerification(accountNumber, bankCode){
                 nextBtn.style.cursor = 'pointer';
             } else {
                 // failure
-                detectIcon.src = 'images/toban/bd.png';
+                detectIcon.src = '/images/toban/bd.png';
                 detectIcon.style.display = 'block';
                 detectText.textContent = 'Invalid account name, check again';
                 detectText.style.color = '#d32f2f';
@@ -126,7 +126,7 @@ function startVerification(accountNumber, bankCode){
         })
         .catch(() => {
             detectSpin.style.display = 'none';
-            detectIcon.src = 'images/toban/bd.png';
+            detectIcon.src = '/images/toban/bd.png';
             detectIcon.style.display = 'block';
             detectText.textContent = 'Network error, try again';
             detectText.style.color = '#d32f2f';

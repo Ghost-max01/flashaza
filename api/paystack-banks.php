@@ -24,22 +24,22 @@ function getLocalLogo($code, $slug, $name) {
     $name = strtolower(trim((string)$name));
 
     if ($code === '999992' || $code === '100004' || strpos($slug, 'opay') !== false || strpos($slug, 'paycom') !== false || strpos($name, 'opay') !== false) {
-        return '../images/toban/opay.png';
+        return '/images/toban/opay.png';
     }
     if ($code === '044' || strpos($slug, 'access') !== false || strpos($name, 'access bank') !== false) {
-        return '../images/toban/access.png';
+        return '/images/toban/access.png';
     }
     if ($code === '011' || strpos($slug, 'first-bank') !== false || strpos($name, 'first bank') !== false) {
-        return '../images/toban/first.png';
+        return '/images/toban/first.png';
     }
     if ($code === '058' || strpos($slug, 'gtb') !== false || strpos($slug, 'guaranty-trust') !== false || strpos($name, 'guaranty trust') !== false) {
-        return '../images/toban/gt.png';
+        return '/images/toban/gt.png';
     }
     if ($code === '033' || $slug === 'uba' || strpos($slug, 'united-bank-for-africa') !== false || strpos($name, 'united bank for africa') !== false || $name === 'uba') {
-        return '../images/toban/uba.png';
+        return '/images/toban/uba.png';
     }
     if ($code === '057' || strpos($slug, 'zenith') !== false || strpos($name, 'zenith bank') !== false) {
-        return '../images/toban/zenith.png';
+        return '/images/toban/zenith.png';
     }
     return '';
 }
@@ -153,8 +153,8 @@ if ($logoResp && $logoHttpCode >= 200 && $logoHttpCode < 300) {
             $lCode = trim((string)($lb['code'] ?? ''));
             $lSlug = trim((string)($lb['slug'] ?? ''));
             $lLogo = trim((string)($lb['logo'] ?? ''));
-            if ($lLogo && !str_starts_with($lLogo, 'http')) {
-                $lLogo = $logoBase . $lLogo;
+            if ($lLogo && strpos($lLogo, 'http') !== 0) {
+                $lLogo = $logoBase . ltrim($lLogo, './');
             }
             if ($lCode && $lLogo) $logoByCode[$lCode] = $lLogo;
             if ($lSlug && $lLogo) $logoBySlug[$lSlug] = $lLogo;
@@ -184,7 +184,7 @@ if ($ngResp && $ngHttpCode >= 200 && $ngHttpCode < 300) {
     if (is_array($ngData)) {
         foreach ($ngData as $nb) {
             $nLogo = trim((string)($nb['logo'] ?? $nb['url'] ?? $nb['image'] ?? $nb['logo_url'] ?? $nb['icon'] ?? ''));
-            if ($nLogo && str_starts_with($nLogo, 'http')) {
+                if ($nLogo && strpos($nLogo, 'http') === 0) {
                 $lCode = trim((string)($nb['code'] ?? ''));
                 $lSlug = trim((string)($nb['slug'] ?? ''));
                 $lName = $nb['name'] ?? $nb['bank_name'] ?? '';

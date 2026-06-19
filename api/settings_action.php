@@ -34,16 +34,9 @@ elseif ($action === "upgrade-account") {
 }
 
 elseif ($action === "logout") {
-    // clear server session and persistent remember cookie
-    if (function_exists('clear_remember_cookie')) {
-        clear_remember_cookie();
-    } else {
-        if (isset($_COOKIE['flashaza_remember'])) {
-            setcookie('flashaza_remember', '', time() - 3600, '/', '', isset($_SERVER['HTTPS']), true);
-        }
-    }
-    session_destroy();
-    $response = ["message" => "Logged out"];
+    // Logout disabled to keep user permanently logged in once they authenticate.
+    // We intentionally do NOT destroy the session or clear the persistent cookie.
+    $response = ["message" => "Logout is disabled; session will remain active"];
 }
 
 header("Content-Type: application/json");
