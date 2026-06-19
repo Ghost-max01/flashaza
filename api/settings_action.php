@@ -34,9 +34,8 @@ elseif ($action === "upgrade-account") {
 }
 
 elseif ($action === "logout") {
-    // Logout disabled to keep user permanently logged in once they authenticate.
-    // We intentionally do NOT destroy the session or clear the persistent cookie.
-    $response = ["message" => "Logout is disabled; session will remain active"];
+    session_destroy();
+    $response = ["message" => "Logged out"];
 }
 
 header("Content-Type: application/json");

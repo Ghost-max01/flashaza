@@ -94,86 +94,32 @@ function url_exists($url) {
     return ($code >= 200 && $code < 400);
 }
 
-// Helper: resolve bank logo URL. Use local images > NigerianBanks logos; otherwise fallback to default placeholder.
+// Helper: resolve bank logo URL. Use local images > NigerianBanks logos; otherwise empty (show initials).
 function getBankLogoUrl($bankName = '', $bankCode = '', $bankUrl = '') {
     $bankName = trim((string)$bankName);
     $bankCode = trim((string)$bankCode);
     $bankUrl = trim((string)$bankUrl);
 
-    $publicPrefix = '/images/toban/'; // absolute path from web root
-
-    // Normalize and prepare slug variants
+    // Local fallback if available
     $slug = strtolower(preg_replace('/[^a-z0-9]+/','-', $bankName));
-    $shortSlug = '';
-    if ($bankName !== '') {
-        $first = explode(' ', $bankName)[0];
-        $shortSlug = strtolower(preg_replace('/[^a-z0-9]+/','-', $first));
-    }
-    $nameLower = strtolower($bankName);
-    $code = $bankCode;
-
-    // 1) Common overrides for known banks
-    if ($code === '999992' || $code === '100004' || strpos($slug, 'opay') !== false || strpos($slug, 'paycom') !== false || strpos($nameLower, 'opay') !== false) {
-        return $publicPrefix . 'opay.png';
-    }
-    if ($code === '044' || strpos($slug, 'access') !== false || strpos($nameLower, 'access bank') !== false) {
-        return $publicPrefix . 'access.png';
-    }
-    if ($code === '011' || strpos($slug, 'first-bank') !== false || strpos($nameLower, 'first bank') !== false || $shortSlug === 'first') {
-        return $publicPrefix . 'first.png';
-    }
-    if ($code === '058' || strpos($slug, 'gtb') !== false || strpos($slug, 'guaranty-trust') !== false || strpos($nameLower, 'guaranty trust') !== false) {
-        return $publicPrefix . 'gt.png';
-    }
-    if ($code === '033' || $slug === 'uba' || strpos($slug, 'united-bank-for-africa') !== false || strpos($nameLower, 'united bank for africa') !== false || $nameLower === 'uba' || $shortSlug === 'uba') {
-        return $publicPrefix . 'uba.png';
-    }
-    if ($code === '057' || strpos($slug, 'zenith') !== false || strpos($nameLower, 'zenith bank') !== false || $shortSlug === 'zenith') {
-        return $publicPrefix . 'zenith.png';
-    }
-
-    // 2) Check local filesystem for matching files (png/jpg/svg)
-    $candidates = [];
     if ($slug !== '') {
-        $candidates[] = __DIR__ . "/../images/toban/{$slug}.png";
-        $candidates[] = __DIR__ . "/../images/toban/{$slug}.jpg";
-        $candidates[] = __DIR__ . "/../images/toban/{$slug}.svg";
-    }
-    if ($shortSlug !== '' && $shortSlug !== $slug) {
-        $candidates[] = __DIR__ . "/../images/toban/{$shortSlug}.png";
-        $candidates[] = __DIR__ . "/../images/toban/{$shortSlug}.jpg";
-        $candidates[] = __DIR__ . "/../images/toban/{$shortSlug}.svg";
-    }
-    if ($bankCode !== '') {
-        $codeLower = strtolower($bankCode);
-        $candidates[] = __DIR__ . "/../images/toban/{$codeLower}.png";
-        $candidates[] = __DIR__ . "/../images/toban/{$codeLower}.jpg";
-        $candidates[] = __DIR__ . "/../images/toban/{$codeLower}.svg";
-    }
-    foreach ($candidates as $p) {
-        if ($p !== '' && file_exists($p)) {
-            return $publicPrefix . basename($p);
-        }
-    }
-
-    // 3) If a bankUrl was provided, return it if it looks valid or is a relative path
-    if ($bankUrl !== '') {
-        $u = $bankUrl;
-        $isAbsoluteUrl = filter_var($u, FILTER_VALIDATE_URL) !== false;
-        $isRelative = (strpos($u, '..') === 0) || (strpos($u, 'images/') === 0) || (strpos($u, '/') === 0);
-        if ($isAbsoluteUrl) return $u;
-        if ($isRelative) {
-            // normalize relative -> absolute (make it root-relative if needed)
-            if (strpos($u, '..') === 0) {
-                $u = preg_replace('#^\.\./+#', '/', $u);
+        $localPaths = [
+            __DIR__ . "/../images/toban/{$slug}.png",
+            __DIR__ . "/../images/toban/{$slug}.jpg",
+            __DIR__ . "/../images/toban/{$slug}.svg",
+        ];
+        foreach ($localPaths as $p) {
+            if (file_exists($p)) {
+                return '../images/toban/' . basename($p);
             }
-            if (strpos($u, '/') !== 0) $u = '/' . ltrim($u, '/');
-            return $u;
         }
     }
 
-    // 4) Fallback: use a generic placeholder
-    return $publicPrefix . 'user_default_avatar_gray_4.png';
+    if ($bankUrl !== '' && filter_var($bankUrl, FILTER_VALIDATE_URL)) {
+        return $bankUrl;
+    }
+
+    return '';
 }
 
 // Pre-resolve selected bank logo URL for the header
@@ -211,7 +157,7 @@ $bankLogo = getBankLogoUrl($bankName, $bankCode, $bankUrl);
 
         <div class="bank-selector" id="bankSelector">
             <div class="bank-logo">
-                <img id="bankLogo" src="<?php echo htmlspecialchars($bankLogo ?: '/images/toban/user_default_avatar_gray_4.png'); ?>" alt="Bank logo">
+                <img id="bankLogo" src="<?php echo htmlspecialchars($bankLogo); ?>" alt="Bank logo">
             </div>
             <div class="bank-name" id="bankName"><?php echo $bankName ? htmlspecialchars($bankName) : 'Select Bank'; ?></div>
             <div class="chevron">›</div>
@@ -255,7 +201,7 @@ $bankLogo = getBankLogoUrl($bankName, $bankCode, $bankUrl);
                             <div class="b-sub"><?php echo sanitize_display(($b['accountnumber'] ?? '') . ' ' . ($b['bankname'] ?? '')); ?></div>
                         </div>
                         <div class="b-avatar">
-                            <img src="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? '', '', $b['url'] ?? '')) ?: '/images/toban/user_default_avatar_gray_4.png'); ?>" alt="Profile Image">
+                            <img src="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? '', '', $b['url'] ?? ''))); ?>" alt="Profile Image">
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -282,7 +228,7 @@ $bankLogo = getBankLogoUrl($bankName, $bankCode, $bankUrl);
                             <div class="b-sub"><?php echo sanitize_display(($b['accountnumber'] ?? '') . ' ' . ($b['bankname'] ?? '')); ?></div>
                         </div>
                         <div class="b-avatar">
-                            <img src="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? '', '', $b['url'] ?? '')) ?: '/images/toban/user_default_avatar_gray_4.png'); ?>" alt="Profile Image">
+                            <img src="<?php echo htmlspecialchars(strip_tags(getBankLogoUrl($b['bankname'] ?? '', '', $b['url'] ?? ''))); ?>" alt="Profile Image">
                         </div>
                     </div>
                 <?php endforeach; ?>

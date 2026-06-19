@@ -33,11 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
                 $stmt->execute(['value' => $username]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($user && password_verify($password, $user['password'])) {
-                  $_SESSION['user_id'] = $user['uid'];
-                  // set persistent login cookie (remember me)
-                  if (function_exists('set_remember_cookie')) {
-                    set_remember_cookie($user['uid']);
-                  }
+                    $_SESSION['user_id'] = $user['uid'];
                     header("Location: dashboard.php");
                     exit;
                 } else {

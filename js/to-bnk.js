@@ -96,7 +96,7 @@ accInput.addEventListener('input', () => {
 function bypassVerification(accountNumber) {
     detectBar.style.display = 'flex';
     detectSpin.style.display = 'none';
-    detectIcon.src = '/images/toban/good.png';
+    detectIcon.src = 'images/toban/good.png';
     detectIcon.style.display = 'block';
     detectText.textContent = 'Ready';
     detectText.style.color = 'var(--accent-color)';
@@ -152,7 +152,7 @@ function startVerification(accountNumber, bankCode){
 
             if (isValidName) {
                 // success
-                detectIcon.src = '/images/toban/good.png';
+                detectIcon.src = 'images/toban/good.png';
                 detectIcon.style.display = 'block';
                 detectText.textContent = cleanedName || txt.trim();
                 detectText.style.color = 'var(--accent-color)';
@@ -168,7 +168,7 @@ function startVerification(accountNumber, bankCode){
                 nextBtn.style.cursor = 'pointer';
             } else {
                 console.warn('to-bnk.js verify_account invalid:', txt);
-                detectIcon.src = '/images/toban/bd.png';
+                detectIcon.src = 'images/toban/bd.png';
                 detectIcon.style.display = 'block';
                 detectText.textContent = 'Invalid account name, check again';
                 detectText.style.color = '#d32f2f';
@@ -182,7 +182,7 @@ function startVerification(accountNumber, bankCode){
         .catch((err) => {
             console.error('to-bnk.js verify_account error:', err);
             detectSpin.style.display = 'none';
-            detectIcon.src = '/images/toban/bd.png';
+            detectIcon.src = 'images/toban/bd.png';
             detectIcon.style.display = 'block';
             detectText.textContent = 'Network error, try again';
             detectText.style.color = '#d32f2f';

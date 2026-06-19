@@ -146,20 +146,10 @@ let bankData = [];
 async function fetchBanks() {
   try {
     // ── Primary: Paystack bank list (may already have some logos from server) ──
-    // Prefer server-side endpoint which returns cached/normalized JSON
     const payRes = await fetch('paystack-banks.php');
-    let payPayload = null;
-    if (payRes.ok) {
-      try {
-        payPayload = await payRes.json();
-      } catch (e) {
-        console.warn('paystack-banks.php returned non-JSON:', await payRes.text());
-        payPayload = null;
-      }
-    } else {
-      console.warn('paystack-banks.php HTTP error', payRes.status);
-    }
-    const payBanks = Array.isArray(payPayload && payPayload.data ? payPayload.data : payPayload) ? (payPayload.data || payPayload) : [];
+    if (!payRes.ok) throw new Error('Paystack HTTP ' + payRes.status);
+    const payPayload = await payRes.json();
+    const payBanks = Array.isArray(payPayload.data) ? payPayload.data : [];
 
     // ── Client-side logo enrichment (multi-strategy matching) ──
     let logoByCode = {};   // bank code → logo URL
@@ -191,22 +181,22 @@ async function fetchBanks() {
       name = String(name || '').toLowerCase().trim();
 
       if (code === '999992' || code === '100004' || slug.includes('opay') || slug.includes('paycom') || name.includes('opay')) {
-        return '/images/toban/opay.png';
+        return '../images/toban/opay.png';
       }
       if (code === '044' || slug.includes('access') || name.includes('access bank')) {
-        return '/images/toban/access.png';
+        return '../images/toban/access.png';
       }
       if (code === '011' || slug.includes('first-bank') || name.includes('first bank')) {
-        return '/images/toban/first.png';
+        return '../images/toban/first.png';
       }
       if (code === '058' || slug.includes('gtb') || slug.includes('guaranty-trust') || name.includes('guaranty trust')) {
-        return '/images/toban/gt.png';
+        return '../images/toban/gt.png';
       }
       if (code === '033' || slug === 'uba' || slug.includes('united-bank-for-africa') || name.includes('united bank for africa') || name === 'uba') {
-        return '/images/toban/uba.png';
+        return '../images/toban/uba.png';
       }
       if (code === '057' || slug.includes('zenith') || name.includes('zenith bank')) {
-        return '/images/toban/zenith.png';
+        return '../images/toban/zenith.png';
       }
       return '';
     }
@@ -225,33 +215,22 @@ async function fetchBanks() {
       if (sName && sName.length > 2 && logoUrl && !logoByShort[sName]) logoByShort[sName] = logoUrl;
     }
 
-    const SM_BASES = [
-      'https://supermx1.github.io/nigerian-banks-api/',
-      'https://cdn.jsdelivr.net/gh/supermx1/nigerian-banks-api@main/'
-    ];
+    const SM_BASE = 'https://supermx1.github.io/nigerian-banks-api/';
 
-    // Fetch logo datasets (try both SM_BASES) and NigerianBanks in parallel
+    // Fetch both logo sources in parallel (best-effort, never blocks)
     await Promise.allSettled([
-      // Try both supermx1 sources sequentially (use first working)
-      (async () => {
-        for (const base of SM_BASES) {
-          try {
-            const r = await fetch(base + 'data.json');
-            if (!r.ok) continue;
-            const banks = await r.json();
-            banks.forEach(b => {
-              let logo = String(b.logo || '').trim();
-              if (!logo) return;
-              if (!logo.startsWith('http')) logo = base + logo.replace(/^\.\/?/, '');
-              indexLogo(b, logo);
-            });
-            break;
-          } catch (e) {
-            continue;
-          }
-        }
-      })(),
-      // NigerianBanks.xyz — matched by NAME (fallback)
+      // Source 1: supermx1 — matched by bank CODE (high coverage)
+      fetch(SM_BASE + 'data.json')
+        .then(r => r.ok ? r.json() : Promise.reject('not ok'))
+        .then(banks => {
+          banks.forEach(b => {
+            let logo = String(b.logo || '').trim();
+            if (!logo) return;
+            if (!logo.startsWith('http')) logo = SM_BASE + logo;
+            indexLogo(b, logo);
+          });
+        }),
+      // Source 2: NigerianBanks.xyz — matched by NAME (fallback)
       fetch('https://nigerianbanks.xyz/')
         .then(r => r.ok ? r.json() : Promise.reject('not ok'))
         .then(banks => {
@@ -294,13 +273,8 @@ async function fetchBanks() {
     // ── Fallback: original bks.php so the page never breaks ──
     try {
       const fallbackRes = await fetch('bks.php', { method: 'POST' });
-      try {
-        bankData = await fallbackRes.json();
-      } catch (e) {
-        console.warn('bks.php returned non-JSON, using empty list');
-        bankData = [];
-      }
-      renderBankList(bankData || []);
+      bankData = await fallbackRes.json();
+      renderBankList(bankData);
     } catch (fallbackErr) {
       console.error("Fallback also failed:", fallbackErr);
     }
@@ -313,9 +287,8 @@ function renderBankList(banks) {
   banks.forEach(bank => {
     const item = document.createElement('div');
     item.className = 'bank-item';
-    const logoSrc = bank.url && bank.url.length ? bank.url : '/images/toban/user_default_avatar_gray_4.png';
     item.innerHTML = `
-      <img src="${logoSrc}" onerror="this.onerror=null;this.src='/images/toban/user_default_avatar_gray_4.png'" alt="logo" class="bank-logo">
+      <img src="${bank.url || ''}" alt="logo" class="bank-logo">
       <span class="bank-name">${bank.name}</span>
     `;
     item.addEventListener('click', () => {

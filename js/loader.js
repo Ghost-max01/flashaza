@@ -3,7 +3,7 @@
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
             if (isIOS) {
                 const img = new Image();
-                img.src = "/images/toban/loading.png";
+                img.src = "images/toban/loading.png";
             }
             
             const tx = JSON.parse(localStorage.getItem("transfer.tx.pending") || "{}");

@@ -1,8 +1,5 @@
 <?php
 if (session_status()===PHP_SESSION_NONE) session_start();
-// Ensure we always return valid JSON; suppress display of PHP warnings in output
-@ini_set('display_errors', '0');
-error_reporting(E_ALL);
 header('Content-Type: application/json; charset=UTF-8');
 
 $secret = trim(getenv('PAYSTACK_SECRET_KEY') ?: getenv('PAYSTACK_SECRET') ?: '');
@@ -27,22 +24,22 @@ function getLocalLogo($code, $slug, $name) {
     $name = strtolower(trim((string)$name));
 
     if ($code === '999992' || $code === '100004' || strpos($slug, 'opay') !== false || strpos($slug, 'paycom') !== false || strpos($name, 'opay') !== false) {
-        return '/images/toban/opay.png';
+        return '../images/toban/opay.png';
     }
     if ($code === '044' || strpos($slug, 'access') !== false || strpos($name, 'access bank') !== false) {
-        return '/images/toban/access.png';
+        return '../images/toban/access.png';
     }
     if ($code === '011' || strpos($slug, 'first-bank') !== false || strpos($name, 'first bank') !== false) {
-        return '/images/toban/first.png';
+        return '../images/toban/first.png';
     }
     if ($code === '058' || strpos($slug, 'gtb') !== false || strpos($slug, 'guaranty-trust') !== false || strpos($name, 'guaranty trust') !== false) {
-        return '/images/toban/gt.png';
+        return '../images/toban/gt.png';
     }
     if ($code === '033' || $slug === 'uba' || strpos($slug, 'united-bank-for-africa') !== false || strpos($name, 'united bank for africa') !== false || $name === 'uba') {
-        return '/images/toban/uba.png';
+        return '../images/toban/uba.png';
     }
     if ($code === '057' || strpos($slug, 'zenith') !== false || strpos($name, 'zenith bank') !== false) {
-        return '/images/toban/zenith.png';
+        return '../images/toban/zenith.png';
     }
     return '';
 }
@@ -80,7 +77,6 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 if ($curlErr) {
-    // Try returning cached data if available
     if (file_exists($cacheFile)) {
         $cached = file_get_contents($cacheFile);
         if ($cached !== false) {
@@ -137,59 +133,28 @@ foreach ($data['data'] as $bank) {
 $logoByCode = [];
 $logoBySlug = [];
 $logoByName = [];
-     // Try multiple sources for the supermx1 dataset: GitHub Pages first, then jsDelivr CDN
-     $logoSources = [
-         'https://supermx1.github.io/nigerian-banks-api/data.json',
-         'https://cdn.jsdelivr.net/gh/supermx1/nigerian-banks-api@main/data.json'
-     ];
-     $logoData = null;
-     $logoBase = 'https://supermx1.github.io/nigerian-banks-api/';
-     foreach ($logoSources as $src) {
-         $ch = curl_init($src);
-         curl_setopt_array($ch, [
-             CURLOPT_RETURNTRANSFER => true,
-             CURLOPT_TIMEOUT => 8,
-             CURLOPT_CONNECTTIMEOUT => 5,
-         ]);
-         $resp = curl_exec($ch);
-         $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-         curl_close($ch);
-         if ($resp && $http >= 200 && $http < 300) {
-             $d = json_decode($resp, true);
-             if (is_array($d)) {
-                 $logoData = $d;
-                 // choose base for resolving relative logo paths
-                 if (strpos($src, 'cdn.jsdelivr.net') !== false) {
-                     $logoBase = 'https://cdn.jsdelivr.net/gh/supermx1/nigerian-banks-api@main/';
-                 } else {
-                     $logoBase = 'https://supermx1.github.io/nigerian-banks-api/';
-                 }
-                 break;
-             }
-         }
-     }
+$logoByShort = [];
 
-     if ($logoData && is_array($logoData)) {
-         foreach ($logoData as $lb) {
-             $lCode = trim((string)($lb['code'] ?? ''));
-             $lSlug = trim((string)($lb['slug'] ?? ''));
-             $lLogo = trim((string)($lb['logo'] ?? ''));
-             if ($lLogo) {
-                 if (strpos($lLogo, 'http') !== 0) {
-                     // normalize relative paths from the repo to an absolute CDN URL
-                     $lLogo = $logoBase . ltrim($lLogo, './');
-                 }
-             }
-             if ($lCode && $lLogo) $logoByCode[$lCode] = $lLogo;
-             if ($lSlug && $lLogo) $logoBySlug[$lSlug] = $lLogo;
+$logoCh = curl_init('https://supermx1.github.io/nigerian-banks-api/data.json');
+curl_setopt_array($logoCh, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 8,
+    CURLOPT_CONNECTTIMEOUT => 5,
+]);
+$logoResp = curl_exec($logoCh);
+$logoHttpCode = curl_getinfo($logoCh, CURLINFO_HTTP_CODE);
+curl_close($logoCh);
 
-             $lName = $lb['name'] ?? $lb['bank_name'] ?? '';
-             $nName = normalizeName($lName);
-             $sName = shortName($lName);
-             if ($nName && $lLogo && !isset($logoByName[$nName])) $logoByName[$nName] = $lLogo;
-             if ($sName && strlen($sName) > 2 && $lLogo && !isset($logoByShort[$sName])) $logoByShort[$sName] = $lLogo;
-         }
-     }
+if ($logoResp && $logoHttpCode >= 200 && $logoHttpCode < 300) {
+    $logoData = json_decode($logoResp, true);
+    if (is_array($logoData)) {
+        $logoBase = 'https://supermx1.github.io/nigerian-banks-api/';
+        foreach ($logoData as $lb) {
+            $lCode = trim((string)($lb['code'] ?? ''));
+            $lSlug = trim((string)($lb['slug'] ?? ''));
+            $lLogo = trim((string)($lb['logo'] ?? ''));
+            if ($lLogo && !str_starts_with($lLogo, 'http')) {
+                $lLogo = $logoBase . $lLogo;
             }
             if ($lCode && $lLogo) $logoByCode[$lCode] = $lLogo;
             if ($lSlug && $lLogo) $logoBySlug[$lSlug] = $lLogo;
@@ -219,7 +184,7 @@ if ($ngResp && $ngHttpCode >= 200 && $ngHttpCode < 300) {
     if (is_array($ngData)) {
         foreach ($ngData as $nb) {
             $nLogo = trim((string)($nb['logo'] ?? $nb['url'] ?? $nb['image'] ?? $nb['logo_url'] ?? $nb['icon'] ?? ''));
-                if ($nLogo && strpos($nLogo, 'http') === 0) {
+            if ($nLogo && str_starts_with($nLogo, 'http')) {
                 $lCode = trim((string)($nb['code'] ?? ''));
                 $lSlug = trim((string)($nb['slug'] ?? ''));
                 $lName = $nb['name'] ?? $nb['bank_name'] ?? '';
