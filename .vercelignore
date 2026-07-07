@@ -12,6 +12,12 @@ error_log.txt
 supabase_init.sql
 supabase_setup.sh
 
+# Prevent Vercel from auto-detecting individual PHP files as separate functions.
+# All requests route through api/router.php (defined in vercel.json), 
+# so excluding other PHP files keeps function count under the 12-limit Hobby tier.
+api/**/*.php
+!api/router.php
+
 # IDE / System directories
 .gemini/
 .DS_Store
