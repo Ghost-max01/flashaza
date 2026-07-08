@@ -18,12 +18,26 @@ if ($path === '' || $path === 'index.php') {
     $path = 'index.php';
 }
 
-// Compute absolute path inside /api directory
-$targetFile = __DIR__ . '/' . $path;
+// Compute absolute path inside /app directory
+$baseDir = realpath(__DIR__ . '/../app');
+if ($baseDir === false) {
+    http_response_code(500);
+    echo "Server misconfiguration";
+    exit;
+}
+
+$targetFile = $baseDir . '/' . $path;
 
 // If it's a directory, try loading index.php inside it
 if (is_dir($targetFile)) {
     $targetFile = rtrim($targetFile, '/') . '/index.php';
+}
+
+$realTarget = realpath($targetFile);
+if ($realTarget === false || strpos($realTarget, $baseDir) !== 0) {
+    http_response_code(404);
+    echo "Page Not Found";
+    exit;
 }
 
 // If file exists, execute it
