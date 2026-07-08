@@ -12,19 +12,13 @@ error_log.txt
 supabase_init.sql
 supabase_setup.sh
 
-# Prevent Vercel from auto-detecting individual PHP files as separate functions.
-# All requests route through api/router.php (defined in vercel.json).
-# Keep api/app/ PHP sources for the single router function, but exclude other auto-detected API PHP files.
-api/**/*.php
+# CRITICAL: Prevent Vercel from auto-detecting multiple PHP functions.
+# Exclude ALL PHP files globally, then whitelist only api/router.php and api/app/
+**/*.php
+
+# Whitelist the single router function and its app sources
 !api/router.php
-!api/app/
 !api/app/**
-index.php
-css/**/*.php
-js/**/*.php
-images/**/*.php
-json/**/*.php
-sound/**/*.php
 
 # IDE / System directories
 .gemini/
@@ -35,10 +29,3 @@ sound/**/*.php
 # Development & Build files
 node_modules/
 package-lock.json
-
-# Do NOT exclude these - they're needed for static file serving
-# css/
-# js/
-# images/
-# json/
-# sound/
