@@ -18,8 +18,8 @@ if ($path === '' || $path === 'index.php') {
     $path = 'index.php';
 }
 
-$baseDir = realpath(__DIR__ . '/app');
-if ($baseDir === false) {
+$baseDir = __DIR__ . '/app';
+if (!is_dir($baseDir)) {
     http_response_code(500);
     echo "Server misconfiguration";
     exit;
@@ -27,21 +27,18 @@ if ($baseDir === false) {
 
 $searchDirs = [
     $baseDir,
-    realpath(__DIR__),
-    realpath(__DIR__ . '/..'),
+    __DIR__,
+    dirname(__DIR__),
 ];
-$searchDirs = array_filter($searchDirs, fn($dir) => $dir !== false);
 
 $targetFile = null;
-$baseDir = null;
 foreach ($searchDirs as $dir) {
     $candidate = $dir . '/' . $path;
     if (is_dir($candidate)) {
         $candidate = rtrim($candidate, '/') . '/index.php';
     }
-    $realCandidate = realpath($candidate);
-    if ($realCandidate !== false && strpos($realCandidate, $dir) === 0) {
-        $targetFile = $realCandidate;
+    if (file_exists($candidate) && is_file($candidate)) {
+        $targetFile = $candidate;
         $baseDir = $dir;
         break;
     }
