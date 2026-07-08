@@ -18,8 +18,15 @@ if ($path === '' || $path === 'index.php') {
     $path = 'index.php';
 }
 
+$baseDir = realpath(__DIR__ . '/app');
+if ($baseDir === false) {
+    http_response_code(500);
+    echo "Server misconfiguration";
+    exit;
+}
+
 $searchDirs = [
-    realpath(__DIR__ . '/../app'),
+    $baseDir,
     realpath(__DIR__),
     realpath(__DIR__ . '/..'),
 ];
@@ -45,6 +52,9 @@ if ($targetFile === null) {
     echo "Page Not Found";
     exit;
 }
+
+// Change working directory to the base app directory so relative includes resolve correctly
+chdir($baseDir);
 
 // If file exists, execute it
 if (file_exists($targetFile) && is_file($targetFile)) {
