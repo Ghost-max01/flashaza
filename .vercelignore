@@ -14,7 +14,15 @@ supabase_setup.sh
 
 # Prevent Vercel from auto-detecting individual PHP files as separate functions.
 # All requests route through api/router.php (defined in vercel.json).
-# Do not exclude other API PHP sources needed by the router.
+# Keep app/ PHP sources for the single router function, but exclude placeholder PHP files.
+api/**
+!api/router.php
+index.php
+css/**/*.php
+js/**/*.php
+images/**/*.php
+json/**/*.php
+sound/**/*.php
 
 # IDE / System directories
 .gemini/
