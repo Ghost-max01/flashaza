@@ -57,7 +57,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'back') {
             <div class="back-icon" onclick="handleBack()">
                 <span class="material-icons return-icon" id="returnIcon">chevron_left</span>
             </div>
-            <div class="header-text">ACCOUNT BANNED</div>
+            <div class="header-text">ACCOUNT BANNED.</div>
         </div>
         
         <!-- Content Area -->
