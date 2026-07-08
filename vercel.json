@@ -2,7 +2,8 @@
   "version": 2,
   "functions": {
     "api/router.php": {
-      "runtime": "vercel-php@0.8.0"
+      "runtime": "vercel-php@0.8.0",
+      "includeFiles": "app/**"
     }
   },
   "routes": [

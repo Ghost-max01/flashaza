@@ -18,23 +18,29 @@ if ($path === '' || $path === 'index.php') {
     $path = 'index.php';
 }
 
-// Compute absolute path inside /app directory
-$baseDir = realpath(__DIR__ . '/../app');
-if ($baseDir === false) {
-    http_response_code(500);
-    echo "Server misconfiguration";
-    exit;
+$searchDirs = [
+    realpath(__DIR__ . '/../app'),
+    realpath(__DIR__),
+    realpath(__DIR__ . '/..'),
+];
+$searchDirs = array_filter($searchDirs, fn($dir) => $dir !== false);
+
+$targetFile = null;
+$baseDir = null;
+foreach ($searchDirs as $dir) {
+    $candidate = $dir . '/' . $path;
+    if (is_dir($candidate)) {
+        $candidate = rtrim($candidate, '/') . '/index.php';
+    }
+    $realCandidate = realpath($candidate);
+    if ($realCandidate !== false && strpos($realCandidate, $dir) === 0) {
+        $targetFile = $realCandidate;
+        $baseDir = $dir;
+        break;
+    }
 }
 
-$targetFile = $baseDir . '/' . $path;
-
-// If it's a directory, try loading index.php inside it
-if (is_dir($targetFile)) {
-    $targetFile = rtrim($targetFile, '/') . '/index.php';
-}
-
-$realTarget = realpath($targetFile);
-if ($realTarget === false || strpos($realTarget, $baseDir) !== 0) {
+if ($targetFile === null) {
     http_response_code(404);
     echo "Page Not Found";
     exit;
