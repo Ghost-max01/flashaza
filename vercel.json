@@ -1,5 +1,11 @@
 {
   "version": 2,
+  "builds": [
+    {
+      "src": "api/router.php",
+      "use": "vercel-php@0.8.0"
+    }
+  ],
   "functions": {
     "api/router.php": {
       "runtime": "vercel-php@0.8.0"
