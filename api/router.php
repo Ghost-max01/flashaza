@@ -19,9 +19,14 @@ if ($path === '' || $path === 'index.php') {
 }
 
 $baseDir = __DIR__ . '/app';
+
+// Debug logging for Vercel environment
 if (!is_dir($baseDir)) {
+    error_log("Router: api/app directory not found at: $baseDir");
+    error_log("Router: __DIR__ = " . __DIR__);
+    error_log("Router: Contents of " . __DIR__ . ": " . implode(', ', scandir(__DIR__) ?: []));
     http_response_code(500);
-    echo "Server misconfiguration";
+    echo "Server misconfiguration: api/app directory not found";
     exit;
 }
 

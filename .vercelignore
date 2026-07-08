@@ -12,9 +12,8 @@ error_log.txt
 supabase_init.sql
 supabase_setup.sh
 
-# CRITICAL: Prevent Vercel from auto-detecting multiple PHP functions.
-# Explicitly exclude all PHP files except router.php
-# Exclude All directories containing PHP files that are not our single router function
+# CRITICAL: Prevent Vercel from auto-detecting extra PHP functions.
+# Exclude API subdirectories that might contain auto-detectable PHP files
 api/Admin-Maxwell/
 api/PHPMailer/
 api/css/
@@ -23,9 +22,22 @@ api/js/
 api/json/
 api/sound/
 
-# Exclude ALL .php files globally
-**/*.php
+# Root-level front controller (not needed; router handles all routes)
+/index.php
 
-# Whitelist ONLY api/router.php and api/app/ tree
-!api/router.php
-!api/app/
+# Placeholder PHP files in root static directories
+css/**/*.php
+images/**/*.php
+js/**/*.php
+json/**/*.php
+sound/**/*.php
+
+# IDE / System directories
+.gemini/
+.DS_Store
+.git/
+.gitignore
+
+# Development & Build files
+node_modules/
+package-lock.json
